@@ -1,0 +1,14 @@
+name: ParallelsPVP
+main: net.zyuiop.parallelspvp.ParallelsPVP
+version: 0.1
+depend: [MasterBundle, SamaPermissionsBukkit]
+commands:
+   start:
+      description: Démarre la partie
+      usage: /<command> now
+      permission: ParallelsPVP.op
+      permission-message: Permission non accordée
+permissions:
+   ParallelsPVP.op:
+      description: Commandes OP PPVP
+      default: op

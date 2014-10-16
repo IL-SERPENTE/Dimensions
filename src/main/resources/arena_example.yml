@@ -1,0 +1,26 @@
+map-name: lel
+uuid: # Random gen #
+
+wait-spawn: x;y;z;yaw;pitch
+
+min-players:
+max-players:
+vip-players: # Slots VIP >>en plus<< des max-players (ex : max-players: 10, vip-players: 2 ==> Total : 12 joueurs au max)
+
+dimension-diff: # différence en X (x - diff = new x)
+
+spawns: #Tous dans la dimension ppale, autant que de joueurs
+  - x;y;z;yaw;pitch
+
+deathmatchspawns:
+  -
+  -
+
+allowed:
+  - WOOD
+
+overworld-name: Paradis
+hard-name: Enfer
+
+chests:
+  - x;y;z;quality (1-3, qualité des loots trouvables)
