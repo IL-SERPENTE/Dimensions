@@ -5,6 +5,7 @@ import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.parallelspvp.ParallelsPVP;
 import net.zyuiop.parallelspvp.arena.Arena;
 import net.zyuiop.parallelspvp.arena.DimensionsManager;
+import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -14,6 +15,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 
 /**
  * Created by zyuiop on 26/09/14.
@@ -28,7 +30,7 @@ public class DamageListener implements Listener {
 
     @EventHandler
     public void onDeath(final PlayerDeathEvent event) {
-        Arena arena = plugin.getArena();
+        final Arena arena = plugin.getArena();
         if (!arena.isPlaying(new GamePlayer((Player) event.getEntity()))) {
             return;
         }
@@ -41,20 +43,37 @@ public class DamageListener implements Listener {
                 Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
                     @Override
                     public void run() {
-                        int montant = CoinsManager.syncCreditJoueur(event.getEntity().getUniqueId(), 2, false, true);
-                        ((Player)obj.getDamager()).sendMessage(ChatColor.GOLD + "Vous gagnez " + montant + " coins " + ChatColor.AQUA + "(Un joueur tué !)");
+                       CoinsManager.creditJoueur(obj.getDamager().getUniqueId(), 2, true, true, "Un joueur tué !");
+                        StatsApi.increaseStat(obj.getDamager().getUniqueId(), "parallelspvp", "kills", 1);
+                        //((Player)obj.getDamager()).sendMessage(ChatColor.GOLD + "Vous gagnez " + montant + " coins " + ChatColor.AQUA + "(Un joueur tué !)");
                     }
                 });
             }
         }
 
-        arena.stumpPlayer(event.getEntity().getUniqueId(), false);
+
+        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
+            public void run() {
+           arena.stumpPlayer(event.getEntity().getUniqueId(), false);
+            }
+        }, 10L);
     }
 
     @EventHandler
     public void onDamage(EntityDamageEvent ev) {
         if (ev.getCause() == EntityDamageEvent.DamageCause.WITHER)
             ev.setCancelled(true);
+
+        if (!plugin.getArena().isPVPEnabled()) {
+            if (ev.getCause() == EntityDamageEvent.DamageCause.POISON || ev.getCause() == EntityDamageEvent.DamageCause.MAGIC)
+                ev.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onRespawn(PlayerRespawnEvent ev) {
+        ev.setRespawnLocation(plugin.getArena().getWaitLocation());
     }
 
     @EventHandler

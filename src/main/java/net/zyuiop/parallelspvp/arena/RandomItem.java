@@ -35,7 +35,7 @@ public class RandomItem {
     }
 
     public int getFrequency(int level) {
-        if (level > 3)
+        if (level > 4)
             return 0;
         return frequency[level-1];
     }

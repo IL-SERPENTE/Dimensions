@@ -4,17 +4,17 @@ import net.zyuiop.parallelspvp.ParallelsPVP;
 import net.zyuiop.parallelspvp.arena.Arena;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
+import org.bukkit.Sound;
 
 /**
  * Created by zyuiop on 26/09/14.
  */
-public class Deathmatch implements Runnable {
+public class PVPEnable implements Runnable {
 
     protected Arena parent;
-    protected int time = 61; // 1 minute
+    protected int time = 181; // 3 Minutes
 
-    public Deathmatch(Arena parentArena) {
+    public PVPEnable(Arena parentArena) {
         this.parent = parentArena;
     }
 
@@ -26,12 +26,16 @@ public class Deathmatch implements Runnable {
 
     public void timeBroadcast() {
         if (time <= 0) {
-            parent.startDeathMatch();
+            parent.enablePVP();
             return;
         }
 
         if (time <= 5 || time == 10 || time == 30 || time == 60) {
-            Bukkit.broadcastMessage(ParallelsPVP.pluginTAG + ChatColor.DARK_RED + " Deathmatch dans " + ChatColor.RED+time+" seconde" + ((time > 1) ? "s" : "") + " !");
+            Bukkit.broadcastMessage(ParallelsPVP.pluginTAG + ChatColor.GOLD + "Le PVP sera activé dans "+time+" secondes !");
+        }
+
+        if (time <= 5 || time == 10) {
+            parent.broadcastSound(Sound.ARROW_HIT);
         }
     }
 }

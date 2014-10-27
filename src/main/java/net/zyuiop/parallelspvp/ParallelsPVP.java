@@ -9,7 +9,7 @@ import net.zyuiop.parallelspvp.arena.ArenaManager;
 import net.zyuiop.parallelspvp.commands.CommandStart;
 import net.zyuiop.parallelspvp.listeners.ChestListener;
 import net.zyuiop.parallelspvp.listeners.DamageListener;
-import net.zyuiop.parallelspvp.listeners.NetworkListener;
+import net.zyuiop.parallelspvp.listeners.InteractListener;
 import net.zyuiop.parallelspvp.listeners.SpectatorListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -24,7 +24,6 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -67,7 +66,7 @@ public class ParallelsPVP extends GamePlugin {
         this.arenaManager = new ArenaManager(this, arenaData, arenaFile);
 
         // Initialisation des listeners
-        Bukkit.getPluginManager().registerEvents(new NetworkListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new InteractListener(this), this);
         Bukkit.getPluginManager().registerEvents(new DamageListener(this), this);
         new SpectatorListener(this);
         new ChestListener(this);

@@ -4,6 +4,7 @@ import net.zyuiop.parallelspvp.ParallelsPVP;
 import net.zyuiop.parallelspvp.arena.Arena;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 /**
@@ -69,6 +70,10 @@ public class BeginCountdown implements Runnable {
 
         if (time <= 5 || time == 10 || time % 30 == 0) {
             Bukkit.broadcastMessage(ParallelsPVP.pluginTAG+ ChatColor.YELLOW+" Début de la partie dans "+ChatColor.RED+time+" seconde"+((time > 1) ? "s" : "")+" !");
+        }
+
+        if (time <= 5 || time == 10) {
+            parent.broadcastSound(Sound.ARROW_HIT);
         }
     }
 }

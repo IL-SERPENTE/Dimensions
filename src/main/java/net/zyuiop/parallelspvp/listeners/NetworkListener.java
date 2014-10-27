@@ -1,62 +1,59 @@
 package net.zyuiop.parallelspvp.listeners;
 
-import net.samagames.network.client.GamePlayer;
+import net.samagames.network.client.events.FinishJoinPlayerEvent;
+import net.samagames.network.client.events.PreJoinPlayerEvent;
 import net.zyuiop.parallelspvp.ParallelsPVP;
 import net.zyuiop.parallelspvp.arena.Arena;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-
-import java.util.UUID;
 
 /**
- * Created by zyuiop on 26/09/14.
- * This isn't actually a Network Listener.
+ * Created by zyuiop on 27/10/14.
  */
-public class NetworkListener implements Listener {
+public class NetworkListener {
 
-    protected ParallelsPVP plugin;
+    protected Arena parent;
 
-    public NetworkListener(ParallelsPVP plugin) {
-        this.plugin = plugin;
+    public NetworkListener(Arena parent) {
+        this.parent = parent;
     }
 
-    @EventHandler
-    public void onInteract(PlayerInteractEvent ev) {
-        if (ev.getAction().equals(Action.RIGHT_CLICK_BLOCK) || ev.getAction().equals(Action.RIGHT_CLICK_AIR)) {
-            if (ev.getItem() == null)
-                return;
-
-            if (ev.getItem().equals(ParallelsPVP.getCompass())) {
-                Player p = ev.getPlayer();
-                Player nearest = null;
-                for (Entity e : p.getNearbyEntities(1000D, 1000D, 1000D)) {
-                    if (e instanceof Player) {
-                        if (!plugin.getArena().isPlaying(new GamePlayer((Player)e)))
-                            continue;
-
-                        if (nearest == null || e.getLocation().distance(p.getLocation()) < e.getLocation().distance(nearest.getLocation())) {
-                            nearest = (Player)e;
-                        }
-                    }
-                }
-                if (nearest == null)
-                    p.sendMessage(ChatColor.RED+"Il n'y a personne dans cette dimension...");
-                else {
-                    p.sendMessage(ChatColor.GREEN+"Votre boussole pointe désormais vers "+ChatColor.GOLD+nearest.getName());
-                    p.setCompassTarget(nearest.getLocation());
-                }
-            } else if (ev.getItem().equals(ParallelsPVP.getSwap())) {
-                ev.setCancelled(true);
-                plugin.getArena().getDimensionsManager().swap(ev.getPlayer());
-            }
+    @EventHandler (ignoreCancelled = true)
+    public void onPreJoin(PreJoinPlayerEvent event) {
+        if (parent.countPlayers() > parent.getTotalMaxSlots()) {
+            event.refuse(ChatColor.RED+"L'arène est pleine.");
         }
     }
+
+    @EventHandler (ignoreCancelled = true)
+    public void onPostJoin(FinishJoinPlayerEvent event) {
+        if (parent.countPlayers() > parent.getTotalMaxSlots()) {
+            event.refuse(ChatColor.RED+"L'arène est pleine.");
+            return;
+        }
+
+        Player player = Bukkit.getPlayer(event.getPlayer());
+        if (player == null)
+            event.refuse(ChatColor.RED+"Une erreur de connexion s'est produite.");
+
+        int nbPlayers = parent.countPlayers();
+
+        String reason = "";
+        if (nbPlayers > parent.getMaxPlayers())
+            reason = ChatColor.GREEN+"[Slots Donateurs] ";
+
+        // Setup du joueur
+        player.sendMessage(ChatColor.GOLD+"Bienvenue dans "+ChatColor.RED+"Parallels PVP"+ChatColor.GOLD+" !");
+        parent.resetPlayer(player);
+        Bukkit.broadcastMessage(ParallelsPVP.pluginTAG+ChatColor.YELLOW+" "+
+                player.getName()+
+                ChatColor.YELLOW+" a rejoint la partie ! "+reason+
+                ChatColor.DARK_GRAY+"[" + ChatColor.RED + nbPlayers + ChatColor.DARK_GRAY + "/" + ChatColor.RED + parent.getMaxPlayers() + ChatColor.DARK_GRAY+"]");
+
+
+        player.teleport(parent.getWaitLocation());
+    }
+
 }

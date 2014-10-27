@@ -15,7 +15,9 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
@@ -46,6 +48,16 @@ public class SpectatorListener implements Listener {
         if (!e.isCancelled()) {
             boolean canBreak = arena.canBreak(e.getBlock().getType());
             if (!canBreak) e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onCraft(CraftItemEvent event) {
+        for (ItemStack item : event.getInventory().getContents()) {
+            if (item != null && item.getItemMeta().getDisplayName().equals(ParallelsPVP.getSwap().getItemMeta().getDisplayName())) {
+                event.setCancelled(true);
+                return;
+            }
         }
     }
 

@@ -8,8 +8,10 @@ import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.parallelspvp.ParallelsPVP;
 import net.zyuiop.parallelspvp.tasks.BeginCountdown;
 import net.zyuiop.parallelspvp.tasks.Deathmatch;
+import net.zyuiop.parallelspvp.tasks.PVPEnable;
 import net.zyuiop.parallelspvp.tasks.RandomEffects;
 import net.zyuiop.parallelspvp.utils.Colors;
+import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
@@ -42,9 +44,14 @@ public class Arena extends GameArena {
     protected DimensionsManager dimensionsManager;
     protected boolean isDeathmatch = false;
     protected BukkitTask dmCount = null;
+    protected BukkitTask pvpCount = null;
     protected ArrayList<Material> allowed = new ArrayList<>();
     protected Scoreboard scoreboard = null;
     protected BukkitTask randomEffects = null;
+
+    public int getTotalMaxSlots() {
+        return spawns.size();
+    }
 
 
     public boolean canBreak(Material madeOf) {
@@ -209,17 +216,15 @@ public class Arena extends GameArena {
 
         this.setStatus(Status.InGame);
 
-        Bukkit.broadcastMessage(ParallelsPVP.pluginTAG+ChatColor.GOLD+" La partie commence. Bonne chance !");
-        Bukkit.broadcastMessage(ParallelsPVP.pluginTAG+ChatColor.GOLD+" Le PVP sera activé dans 3 minutes.");
-        Bukkit.getScheduler().runTaskLater(parallelsPVP, new Runnable() {
-            @Override
-            public void run() {
-                enablePVP();
-            }
-        }, 60*3*20L);
+        Bukkit.broadcastMessage(ParallelsPVP.pluginTAG + ChatColor.GOLD + " La partie commence. Bonne chance !");
+        Bukkit.broadcastMessage(ParallelsPVP.pluginTAG + ChatColor.GOLD + " Le PVP sera activé dans 3 minutes.");
+        this.pvpCount = Bukkit.getScheduler().runTaskTimer(parallelsPVP, new PVPEnable(this), 0L, 20L);
 
         ArrayList<GamePlayer> remove = new ArrayList<GamePlayer>();
         Iterator<GamePlayer> iterator = players.iterator();
+
+        scoreboard.registerNewObjective("vie", "health").setDisplaySlot(DisplaySlot.BELOW_NAME);
+        scoreboard.getObjective("vie").setDisplayName(ChatColor.RED+"♥");
 
         for (Location spawn : this.spawns) {
             if (!iterator.hasNext())
@@ -235,6 +240,8 @@ public class Arena extends GameArena {
                 player.setGameMode(GameMode.SURVIVAL);
                 player.getInventory().addItem(ParallelsPVP.getCompass());
                 player.getInventory().addItem(ParallelsPVP.getSwap());
+                scoreboard.getObjective("vie").getScore(player.getName()).setScore((int)player.getHealth());
+                StatsApi.increaseStat(player, "parallelspvp", "played", 1);
             }
         }
 
@@ -242,8 +249,7 @@ public class Arena extends GameArena {
             players.remove(player);
         }
 
-        scoreboard.registerNewObjective("vie", "health").setDisplaySlot(DisplaySlot.BELOW_NAME);
-        scoreboard.getObjective("vie").setDisplayName("♥");
+
 
         RandomEffects eff = new RandomEffects(this);
         this.randomEffects = Bukkit.getScheduler().runTaskTimerAsynchronously(parallelsPVP, eff, 0L, 20L);
@@ -251,6 +257,9 @@ public class Arena extends GameArena {
 
     public void enablePVP() {
         this.isPVPEnabled = true;
+        if (this.pvpCount != null)
+            this.pvpCount.cancel();
+        this.pvpCount = null;
         Bukkit.broadcastMessage(ParallelsPVP.pluginTAG+ChatColor.GOLD+" Le PVP est activé ! C'est l'heure du d-d-d-duel !");
     }
 
@@ -259,6 +268,10 @@ public class Arena extends GameArena {
         this.isDeathmatch = true;
         ArrayList<Player> offline = new ArrayList<Player>();
         Iterator<Location> spawns = this.deathmatchSpawns.iterator();
+
+        if (!isPVPEnabled())
+            enablePVP();
+
         for (GamePlayer ap : this.players) {
             Player player = Bukkit.getPlayer(ap.getPlayerID());
             if (!spawns.hasNext()) {
@@ -268,6 +281,14 @@ public class Arena extends GameArena {
                 Location spawn = spawns.next();
                 player.teleport(spawn);
             }
+        }
+    }
+
+    public void broadcastSound(Sound sound) {
+        for (GamePlayer pl : this.players) {
+            Player p = pl.getPlayer();
+            if (p != null)
+                p.playSound(p.getLocation(), sound, 1, 1);
         }
     }
 
@@ -281,6 +302,9 @@ public class Arena extends GameArena {
                 return;
             }
 
+            if (this.dmCount != null)
+                this.dmCount.cancel();
+
             if (players.size() > 1)
                 return;
 
@@ -291,13 +315,14 @@ public class Arena extends GameArena {
                 return;
             }
 
+            StatsApi.increaseStat(player, "parallelspvp", "wins", 1);
+
             Bukkit.broadcastMessage(parallelsPVP.pluginTAG+ChatColor.GREEN+ChatColor.MAGIC+"aaa"+ChatColor.GOLD+" Victoire ! "+ChatColor.GREEN+ChatColor.MAGIC+"aaa"+ChatColor.GOLD+" Bravo a "+ChatColor.LIGHT_PURPLE+player.getName()+ChatColor.GOLD+" !");
 
             Bukkit.getScheduler().runTaskAsynchronously(parallelsPVP, new Runnable() {
                 @Override
                 public void run() {
-                    int montant = CoinsManager.syncCreditJoueur(player.getUniqueId(), 20, false, true);
-                    player.sendMessage(ChatColor.GOLD + "Vous gagnez " + montant + " coins " + ChatColor.AQUA + "(Victoire !)");
+                    CoinsManager.creditJoueur(player.getUniqueId(), 20, true, true, "Victoire !");
                 }
             });
 
@@ -362,7 +387,24 @@ public class Arena extends GameArena {
 
     public void resetArena() {
         this.updateStatus(Status.Stopping);
-        Bukkit.getServer().shutdown();
+
+        for (GamePlayer player : this.players) {
+            if (player.getPlayer() != null) {
+                parallelsPVP.kickPlayer(player.getPlayer());
+            }
+        }
+
+        for (GamePlayer player : this.spectators) {
+            if (player.getPlayer() != null) {
+                parallelsPVP.kickPlayer(player.getPlayer());
+            }
+        }
+
+        Bukkit.getScheduler().runTaskLater(parallelsPVP, new Runnable() {
+            public void run() {
+                Bukkit.getServer().shutdown();
+            }
+        }, 5*20L);
     }
 
     public void joinSpectators(Player p) {
@@ -370,11 +412,15 @@ public class Arena extends GameArena {
         p.setGameMode(GameMode.CREATIVE);
         p.teleport(this.waitLocation);
         p.sendMessage(ChatColor.GOLD+"Vous rejoignez les spectateurs.");
-
+        this.spectators.add(new GamePlayer(p));
         for (GamePlayer pl : this.players) {
             Player target = Bukkit.getPlayer(pl.getPlayerID());
             target.hidePlayer(p);
         }
+    }
+
+    public Location getWaitLocation() {
+        return waitLocation;
     }
 
     @Override
@@ -400,7 +446,7 @@ public class Arena extends GameArena {
 
         Player rPlayer = arPlayer.getPlayer();
 
-
+        StatsApi.increaseStat(player, "parallelspvp", "stumped", 1);
         if (logout && rPlayer != null) {
             Bukkit.broadcastMessage(ParallelsPVP.pluginTAG+ChatColor.RED+" "+rPlayer.getName()+" s'est déconnecté.");
         } else if (rPlayer != null) {
@@ -437,48 +483,6 @@ public class Arena extends GameArena {
     public boolean isPVPEnabled() {
         return isPVPEnabled;
     }
-
-    /*
-     Methods related to players management
-     */
-
-    /**
-     * This method *must* be called asynchroniously as it makes DB requests.
-     * @param playerId id du joueur
-     * @return
-     */
-
-    @Override
-    public String finishJoinPlayer(UUID playerId) {
-        String rep = super.finishJoinPlayer(playerId);
-        if (!rep.equals("OK"))
-            return rep;
-
-        Player player = Bukkit.getPlayer(playerId);
-        if (player == null)
-            return ChatColor.RED+"Une erreur de connexion s'est produite.";
-
-        int nbPlayers = this.countPlayers();
-
-        String reason = "";
-        if (nbPlayers > maxPlayers)
-            reason = ChatColor.GREEN+"[Slots Donateurs] ";
-
-        // Setup du joueur
-        player.sendMessage(ChatColor.GOLD+"Bienvenue dans "+ChatColor.RED+"Parallels PVP"+ChatColor.GOLD+" !");
-        resetPlayer(player);
-        nbPlayers++;
-        Bukkit.broadcastMessage(ParallelsPVP.pluginTAG+ChatColor.YELLOW+" "+
-                player.getName()+
-                ChatColor.YELLOW+" a rejoint la partie ! "+reason+
-                ChatColor.DARK_GRAY+"[" + ChatColor.RED + nbPlayers + ChatColor.DARK_GRAY + "/" + ChatColor.RED + maxPlayers + ChatColor.DARK_GRAY+"]");
-
-
-        player.teleport(this.waitLocation);
-
-        return "OK";
-    }
-
 
     public void resetPlayer(Player p) {
         p.setHealth(20.0);

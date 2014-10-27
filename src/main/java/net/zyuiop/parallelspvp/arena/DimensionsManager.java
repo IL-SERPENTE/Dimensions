@@ -1,13 +1,15 @@
 package net.zyuiop.parallelspvp.arena;
 
 import net.samagames.network.client.GamePlayer;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import net.zyuiop.parallelspvp.ParallelsPVP;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +29,8 @@ public class DimensionsManager {
     protected int decalage;
     protected String overworldName;
     protected String hardName;
+    protected HashMap<UUID, Integer> waitList = new HashMap<>();
+    protected HashMap<UUID, BukkitTask> tasks = new HashMap<>();
 
     public DimensionsManager(Arena parentArena, int decalage, String overworldName, String hardName) {
         this.parentArena = parentArena;
@@ -47,6 +51,11 @@ public class DimensionsManager {
     public void swap(Player p) {
         if (!parentArena.isStarted() || parentArena.isDeathmatch)
             return;
+
+        if (waitList.containsKey(p.getUniqueId())) {
+            p.sendMessage(ChatColor.RED+"Merci d'attendre "+waitList.get(p.getUniqueId())+" seconde(s) avant de changer de dimension.");
+            return;
+        }
 
         GamePlayer ap = new GamePlayer(p);
         Dimension dim = dimensions.get(ap.getPlayerID());
@@ -82,6 +91,8 @@ public class DimensionsManager {
             p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 100, 0));
             dimensions.put(ap.getPlayerID(), dim);
 
+            startCountdown(p);
+
             // Effets swag //
             if (dim == Dimension.OVERWORLD)
                 p.sendMessage(ChatColor.DARK_GREEN+"Vous êtes maintenant dans la dimension "+ChatColor.GREEN+overworldName);
@@ -99,5 +110,30 @@ public class DimensionsManager {
 
         Dimension ret = dimensions.get(player.getUniqueId());
         return (ret == null) ? Dimension.OVERWORLD : ret;
+    }
+
+    public void startCountdown(final Player player) {
+        waitList.put(player.getUniqueId(), 5);
+        this.tasks.put(player.getUniqueId(), Bukkit.getScheduler().runTaskTimer(ParallelsPVP.instance, new Runnable() {
+            @Override
+            public void run() {
+                Integer i = waitList.get(player.getUniqueId());
+                if (i > 0)
+                    waitList.put(player.getUniqueId(), i - 1);
+                else {
+                    waitList.remove(player.getUniqueId());
+                    cancel(player.getUniqueId());
+                }
+            }
+        }, 20L, 20L));
+    }
+
+    public void cancel(UUID player) {
+        BukkitTask t = tasks.get(player);
+        waitList.remove(player);
+        if (t != null) {
+            tasks.remove(player);
+            t.cancel();
+        }
     }
 }
