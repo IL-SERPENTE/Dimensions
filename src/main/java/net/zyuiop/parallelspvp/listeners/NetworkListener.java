@@ -8,11 +8,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 
 /**
  * Created by zyuiop on 27/10/14.
  */
-public class NetworkListener {
+public class NetworkListener implements Listener {
 
     protected Arena parent;
 

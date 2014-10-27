@@ -6,6 +6,7 @@ import net.samagames.network.client.GamePlayer;
 import net.samagames.network.json.Status;
 import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.parallelspvp.ParallelsPVP;
+import net.zyuiop.parallelspvp.listeners.NetworkListener;
 import net.zyuiop.parallelspvp.tasks.BeginCountdown;
 import net.zyuiop.parallelspvp.tasks.Deathmatch;
 import net.zyuiop.parallelspvp.tasks.PVPEnable;
@@ -179,6 +180,8 @@ public class Arena extends GameArena {
         this.setStatus(Status.Available);
 
         this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+
+        Bukkit.getPluginManager().registerEvents(new NetworkListener(this), parallelsPVP);
 
     }
 
