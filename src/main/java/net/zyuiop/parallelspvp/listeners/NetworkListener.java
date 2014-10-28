@@ -1,9 +1,10 @@
 package net.zyuiop.parallelspvp.listeners;
 
-import net.samagames.network.client.events.FinishJoinPlayerEvent;
-import net.samagames.network.client.events.PreJoinPlayerEvent;
+import net.samagames.gameapi.events.FinishJoinPlayerEvent;
+import net.samagames.gameapi.events.PreJoinPlayerEvent;
 import net.zyuiop.parallelspvp.ParallelsPVP;
 import net.zyuiop.parallelspvp.arena.Arena;
+import net.zyuiop.parallelspvp.arena.ParallelsPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -39,7 +40,7 @@ public class NetworkListener implements Listener {
         if (player == null)
             event.refuse(ChatColor.RED+"Une erreur de connexion s'est produite.");
 
-        int nbPlayers = parent.countPlayers();
+        int nbPlayers = parent.countPlayers() + 1;
 
         String reason = "";
         if (nbPlayers > parent.getMaxPlayers())
@@ -52,6 +53,8 @@ public class NetworkListener implements Listener {
                 player.getName()+
                 ChatColor.YELLOW+" a rejoint la partie ! "+reason+
                 ChatColor.DARK_GRAY+"[" + ChatColor.RED + nbPlayers + ChatColor.DARK_GRAY + "/" + ChatColor.RED + parent.getMaxPlayers() + ChatColor.DARK_GRAY+"]");
+
+        parent.addPlayer(new ParallelsPlayer(player));
 
 
         player.teleport(parent.getWaitLocation());

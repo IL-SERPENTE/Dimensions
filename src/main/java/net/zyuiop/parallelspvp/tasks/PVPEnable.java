@@ -35,7 +35,7 @@ public class PVPEnable implements Runnable {
         }
 
         if (time <= 5 || time == 10) {
-            parent.broadcastSound(Sound.ARROW_HIT);
+            parent.broadcastSound(Sound.NOTE_PIANO);
         }
     }
 }

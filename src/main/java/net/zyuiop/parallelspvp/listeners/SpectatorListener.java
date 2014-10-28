@@ -1,8 +1,8 @@
 package net.zyuiop.parallelspvp.listeners;
 
-import net.samagames.network.client.GamePlayer;
 import net.zyuiop.parallelspvp.ParallelsPVP;
 import net.zyuiop.parallelspvp.arena.Arena;
+import net.zyuiop.parallelspvp.arena.ParallelsPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -39,7 +39,7 @@ public class SpectatorListener implements Listener {
         if (!arena.isStarted()) {
             return true;
         }
-        return !arena.isPlaying(new GamePlayer(p));
+        return !arena.isPlaying(new ParallelsPlayer(p));
     }
 
     @EventHandler
@@ -98,7 +98,7 @@ public class SpectatorListener implements Listener {
 
     @EventHandler
     public void onMove(PlayerMoveEvent e) {
-        if (arena.isPlaying(new GamePlayer(e.getPlayer())))
+        if (arena.isPlaying(new ParallelsPlayer(e.getPlayer())))
             return;
 
         if (!arena.isStarted())
@@ -108,7 +108,7 @@ public class SpectatorListener implements Listener {
         for (Entity ent : entities) {
             if (ent instanceof Player) {
                 Player near = (Player) ent;
-                if (arena.isPlaying(new GamePlayer(e.getPlayer()))) {
+                if (arena.isPlaying(new ParallelsPlayer(e.getPlayer()))) {
                     e.getPlayer().sendMessage(ChatColor.RED+"Merci de ne pas tourner autour des joueurs !");
                     e.getPlayer().setVelocity(e.getPlayer().getLocation().getDirection().multiply(-1));
                 }

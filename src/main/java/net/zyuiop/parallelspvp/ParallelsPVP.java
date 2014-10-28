@@ -1,7 +1,6 @@
 package net.zyuiop.parallelspvp;
 
-import net.samagames.network.Network;
-import net.samagames.network.client.GamePlugin;
+import net.samagames.gameapi.GameAPI;
 import net.samagames.permissionsapi.PermissionsAPI;
 import net.samagames.permissionsbukkit.PermissionsBukkit;
 import net.zyuiop.parallelspvp.arena.Arena;
@@ -19,6 +18,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -29,21 +30,17 @@ import java.util.UUID;
 /**
  * Created by zyuiop on 26/09/14.
  */
-public class ParallelsPVP extends GamePlugin {
+public class ParallelsPVP extends JavaPlugin {
 
     protected PermissionsAPI permissionsAPI;
-    public static String pluginTAG = ChatColor.DARK_AQUA+"["+ChatColor.AQUA+"ParallelsPVP"+ChatColor.DARK_AQUA+"]";
+    public static String pluginTAG = ChatColor.DARK_AQUA+"["+ChatColor.AQUA+"Dimensions"+ChatColor.DARK_AQUA+"]";
     protected ArrayList<UUID> joinMod = new ArrayList<UUID>();
     public static ParallelsPVP instance;
+    public ArenaManager arenaManager;
 
     protected boolean testMode = false;
 
-    public ParallelsPVP() {
-        super("parallelspvp");
-    }
-
     public void onEnable() {
-        super.onEnable();
         this.saveDefaultConfig();
         testMode = this.getConfig().getBoolean("test-mode");
 
@@ -76,9 +73,9 @@ public class ParallelsPVP extends GamePlugin {
 
         this.getCommand("start").setExecutor(new CommandStart());
 
-        Network.registerGame(this, this.getConfig().getInt("com-port", 1234), this.getConfig().getString("BungeeName"));
+        GameAPI.registerGame("parallelspvp", this.getConfig().getInt("com-port", 1234), this.getConfig().getString("BungeeName"));
         instance = this;
-        Network.getManager().sendArenas();
+        GameAPI.getManager().sendArenas();
     }
 
     public static boolean isTesting() {
@@ -94,7 +91,7 @@ public class ParallelsPVP extends GamePlugin {
     }
 
     public Arena getArena() {
-        return (Arena) arenaManager.getArenas().values().toArray()[0];
+        return (Arena) GameAPI.getArenas().toArray()[0];
     }
 
     public void joinMod(UUID playerId) {

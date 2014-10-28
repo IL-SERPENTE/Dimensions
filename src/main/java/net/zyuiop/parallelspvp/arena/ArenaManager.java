@@ -1,9 +1,6 @@
 package net.zyuiop.parallelspvp.arena;
 
-import net.samagames.network.Network;
-import net.samagames.network.client.GameArena;
-import net.samagames.network.client.GameArenaManager;
-import net.samagames.network.json.Status;
+import net.samagames.gameapi.GameAPI;
 import net.zyuiop.parallelspvp.ParallelsPVP;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -14,8 +11,7 @@ import java.util.UUID;
 /**
  * Created by zyuiop on 05/10/14.
  */
-public class ArenaManager extends GameArenaManager {
-
+public class ArenaManager {
     public ArenaManager(ParallelsPVP plugin, YamlConfiguration arenaData, File arenaFile) {
         int maxPlayers = arenaData.getInt("max-players");
         int vipSlots = arenaData.getInt("vip-players");
@@ -26,15 +22,7 @@ public class ArenaManager extends GameArenaManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Arena ar = new Arena(plugin, arenaData, maxPlayers, vipSlots, arenaData.getString("mapname"), arenaId);
-        this.arenas.put(ar.getArenaID(), ar);
-    }
-
-    @Override
-    public void disable() {
-        for (GameArena ar : this.arenas.values()) {
-            ar.setStatus(Status.Stopping);
-        }
-        Network.getManager().sendArenas();
+        Arena ar = new Arena(plugin, arenaData, maxPlayers, vipSlots, arenaId);
+        GameAPI.registerArena(ar);
     }
 }

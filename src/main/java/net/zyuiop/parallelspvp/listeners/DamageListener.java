@@ -5,9 +5,9 @@ import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.parallelspvp.ParallelsPVP;
 import net.zyuiop.parallelspvp.arena.Arena;
 import net.zyuiop.parallelspvp.arena.DimensionsManager;
+import net.zyuiop.parallelspvp.arena.ParallelsPlayer;
 import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -31,7 +31,7 @@ public class DamageListener implements Listener {
     @EventHandler
     public void onDeath(final PlayerDeathEvent event) {
         final Arena arena = plugin.getArena();
-        if (!arena.isPlaying(new GamePlayer((Player) event.getEntity()))) {
+        if (!arena.isPlaying(new ParallelsPlayer((Player) event.getEntity()))) {
             return;
         }
 
@@ -81,7 +81,7 @@ public class DamageListener implements Listener {
         if (event.getEntity() instanceof Player) {
             if (event.getDamager() instanceof Player) {
                 Arena arena = plugin.getArena();
-                if (!arena.isPlaying(new GamePlayer((Player) event.getDamager())) || !arena.isPlaying(new GamePlayer((Player) event.getEntity())) || !arena.isPVPEnabled()) {
+                if (!arena.isPlaying(new ParallelsPlayer((Player) event.getDamager())) || !arena.isPlaying(new ParallelsPlayer((Player) event.getEntity())) || !arena.isPVPEnabled()) {
                     event.setCancelled(true);
                     return;
                 }
@@ -93,7 +93,7 @@ public class DamageListener implements Listener {
     public void onRegainHealth(EntityRegainHealthEvent event) {
         if (event.getEntity() instanceof Player) {
             Arena arena = plugin.getArena();
-            if (arena.isPlaying(new GamePlayer((Player) event.getEntity()))) {
+            if (arena.isPlaying(new ParallelsPlayer((Player) event.getEntity()))) {
                 if (arena.getDimensionsManager().getDimension((Player) event.getEntity()).equals(DimensionsManager.Dimension.PARALLEL))
                     event.setCancelled(event.getRegainReason().equals(EntityRegainHealthEvent.RegainReason.SATIATED));
             }

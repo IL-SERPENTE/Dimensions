@@ -1,24 +1,18 @@
 package net.zyuiop.parallelspvp.listeners;
 
-import net.samagames.network.client.GamePlayer;
 import net.zyuiop.parallelspvp.ParallelsPVP;
-import net.zyuiop.parallelspvp.arena.Arena;
+import net.zyuiop.parallelspvp.arena.ParallelsPlayer;
 import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-
-import java.util.UUID;
 
 /**
  * Created by zyuiop on 26/09/14.
- * This isn't actually a Network Listener.
+ * This isn't actually a Network listener.
  */
 public class InteractListener implements Listener {
 
@@ -39,7 +33,7 @@ public class InteractListener implements Listener {
                 Player nearest = null;
                 for (Entity e : p.getNearbyEntities(1000D, 1000D, 1000D)) {
                     if (e instanceof Player) {
-                        if (!plugin.getArena().isPlaying(new GamePlayer((Player)e)))
+                        if (!plugin.getArena().isPlaying(new ParallelsPlayer((Player)e)))
                             continue;
 
                         if (nearest == null || e.getLocation().distance(p.getLocation()) < e.getLocation().distance(nearest.getLocation())) {

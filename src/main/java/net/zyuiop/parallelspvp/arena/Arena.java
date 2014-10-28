@@ -1,9 +1,10 @@
 package net.zyuiop.parallelspvp.arena;
 
+import net.samagames.gameapi.GameAPI;
+import net.samagames.gameapi.json.Status;
+import net.samagames.gameapi.types.GameArena;
 import net.samagames.network.Network;
-import net.samagames.network.client.GameArena;
 import net.samagames.network.client.GamePlayer;
-import net.samagames.network.json.Status;
 import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.parallelspvp.ParallelsPVP;
 import net.zyuiop.parallelspvp.listeners.NetworkListener;
@@ -26,6 +27,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Scoreboard;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -34,7 +36,18 @@ import java.util.UUID;
 /**
  * Created by zyuiop on 26/09/14.
  */
-public class Arena extends GameArena {
+public class Arena implements GameArena {
+
+    /** Variables d'arène **/
+    protected int maxPlayers;
+    protected int maxVIP;
+    protected String mapName;
+    protected UUID arenaId;
+    protected boolean isFamous;
+    protected Status status = Status.Idle;
+
+    protected ArrayList<ParallelsPlayer> players = new ArrayList<>();
+    protected ArrayList<ParallelsPlayer> spectators = new ArrayList<>();
 
     protected ParallelsPVP parallelsPVP;
     protected BukkitTask countdown;
@@ -59,9 +72,10 @@ public class Arena extends GameArena {
         return allowed.contains(madeOf);
     }
 
-    public Arena(ParallelsPVP parallelsPVP, YamlConfiguration arenaData, int maxPlayers, int maxVIP, String mapName, UUID arenaId) {
-        super(maxPlayers, maxVIP, mapName, arenaId, false);
-
+    public Arena(ParallelsPVP parallelsPVP, YamlConfiguration arenaData, int maxPlayers, int maxVIP, UUID arenaId) {
+        this.maxPlayers = maxPlayers;
+        this.maxVIP = maxVIP;
+        this.arenaId = arenaId;
         this.parallelsPVP = parallelsPVP;
 
         dimensionsManager = new DimensionsManager(this, arenaData.getInt("dimension-diff"), arenaData.getString("overworld-name"), arenaData.getString("hard-name"));
@@ -177,11 +191,13 @@ public class Arena extends GameArena {
 
         countdown = Bukkit.getScheduler().runTaskTimerAsynchronously(parallelsPVP, new BeginCountdown(this, maxPlayers + this.maxVIP, minPlayers), 0, 20L);
 
-        this.setStatus(Status.Available);
+
 
         this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 
         Bukkit.getPluginManager().registerEvents(new NetworkListener(this), parallelsPVP);
+
+        status = Status.Available;
 
     }
 
@@ -194,7 +210,7 @@ public class Arena extends GameArena {
 
     protected void updateStatus(Status newStatus) {
         this.status = newStatus;
-        Network.getManager().refreshArena(this);
+        GameAPI.getManager().refreshArena(this);
     }
 
     public DimensionsManager getDimensionsManager() {
@@ -223,8 +239,8 @@ public class Arena extends GameArena {
         Bukkit.broadcastMessage(ParallelsPVP.pluginTAG + ChatColor.GOLD + " Le PVP sera activé dans 3 minutes.");
         this.pvpCount = Bukkit.getScheduler().runTaskTimer(parallelsPVP, new PVPEnable(this), 0L, 20L);
 
-        ArrayList<GamePlayer> remove = new ArrayList<GamePlayer>();
-        Iterator<GamePlayer> iterator = players.iterator();
+        ArrayList<ParallelsPlayer> remove = new ArrayList<ParallelsPlayer>();
+        Iterator<ParallelsPlayer> iterator = players.iterator();
 
         scoreboard.registerNewObjective("vie", "health").setDisplaySlot(DisplaySlot.BELOW_NAME);
         scoreboard.getObjective("vie").setDisplayName(ChatColor.RED+"♥");
@@ -232,7 +248,7 @@ public class Arena extends GameArena {
         for (Location spawn : this.spawns) {
             if (!iterator.hasNext())
                 break;
-            GamePlayer vplayer = iterator.next();
+            ParallelsPlayer vplayer = iterator.next();
             Player player = Bukkit.getPlayer(vplayer.getPlayerID());
             resetPlayer(player);
             if (player == null) {
@@ -248,7 +264,7 @@ public class Arena extends GameArena {
             }
         }
 
-        for (GamePlayer player : remove) {
+        for (ParallelsPlayer player : remove) {
             players.remove(player);
         }
 
@@ -275,7 +291,7 @@ public class Arena extends GameArena {
         if (!isPVPEnabled())
             enablePVP();
 
-        for (GamePlayer ap : this.players) {
+        for (ParallelsPlayer ap : this.players) {
             Player player = Bukkit.getPlayer(ap.getPlayerID());
             if (!spawns.hasNext()) {
                 Bukkit.broadcastMessage(ChatColor.RED+"Une erreur s'est produite, tous les joueurs ne peuvent pas être transférés en deathmatch.");
@@ -288,7 +304,7 @@ public class Arena extends GameArena {
     }
 
     public void broadcastSound(Sound sound) {
-        for (GamePlayer pl : this.players) {
+        for (ParallelsPlayer pl : this.players) {
             Player p = pl.getPlayer();
             if (p != null)
                 p.playSound(p.getLocation(), sound, 1, 1);
@@ -311,7 +327,7 @@ public class Arena extends GameArena {
             if (players.size() > 1)
                 return;
 
-            GamePlayer winner = players.get(0);
+            ParallelsPlayer winner = players.get(0);
             final Player player = Bukkit.getPlayer(winner.getPlayerID());
             if (player == null) {
                 resetArena();
@@ -391,13 +407,13 @@ public class Arena extends GameArena {
     public void resetArena() {
         this.updateStatus(Status.Stopping);
 
-        for (GamePlayer player : this.players) {
+        for (ParallelsPlayer player : this.players) {
             if (player.getPlayer() != null) {
                 parallelsPVP.kickPlayer(player.getPlayer());
             }
         }
 
-        for (GamePlayer player : this.spectators) {
+        for (ParallelsPlayer player : this.spectators) {
             if (player.getPlayer() != null) {
                 parallelsPVP.kickPlayer(player.getPlayer());
             }
@@ -415,8 +431,8 @@ public class Arena extends GameArena {
         p.setGameMode(GameMode.CREATIVE);
         p.teleport(this.waitLocation);
         p.sendMessage(ChatColor.GOLD+"Vous rejoignez les spectateurs.");
-        this.spectators.add(new GamePlayer(p));
-        for (GamePlayer pl : this.players) {
+        this.spectators.add(new ParallelsPlayer(p));
+        for (ParallelsPlayer pl : this.players) {
             Player target = Bukkit.getPlayer(pl.getPlayerID());
             target.hidePlayer(p);
         }
@@ -426,22 +442,25 @@ public class Arena extends GameArena {
         return waitLocation;
     }
 
-    @Override
+    public boolean isStarted() {
+        return status == Status.InGame;
+    }
+
     public void logout(UUID player) {
-        GamePlayer arPlayer = new GamePlayer(player);
+        ParallelsPlayer arPlayer = new ParallelsPlayer(player);
         if (!isStarted()) {
             players.remove(arPlayer);
             return;
         }
 
-        if (!isPlaying(arPlayer))
+        if (spectators.contains(arPlayer))
             spectators.remove(arPlayer);
         else
             stumpPlayer(player, true);
     }
 
     public void stumpPlayer(UUID player, boolean logout) {
-        GamePlayer arPlayer = new GamePlayer(player);
+        ParallelsPlayer arPlayer = new ParallelsPlayer(player);
 
         this.players.remove(arPlayer);
         int left = this.players.size();
@@ -468,19 +487,65 @@ public class Arena extends GameArena {
         }
     }
 
+    @Override
+    public int countGamePlayers() {
+        return players.size();
+    }
+
+    @Override
+    public int getMaxPlayers() {
+        return maxPlayers;
+    }
+
+    @Override
+    public int getTotalMaxPlayers() {
+        return maxPlayers + maxVIP;
+    }
+
+    @Override
+    public int getVIPSlots() {
+        return maxVIP;
+    }
+
+    @Override
+    public Status getStatus() {
+        return status;
+    }
+
+    @Override
+    public void setStatus(Status status) {
+        this.status = status;
+        GameAPI.getManager().refreshArena(this);
+    }
+
+    @Override
+    public UUID getUUID() {
+        return arenaId;
+    }
+
+    @Override
+    public boolean hasPlayer(UUID player) {
+        return players.contains(new GamePlayer(player)) || spectators.contains(new GamePlayer(player));
+    }
+
+    @Override
+    public String getMapName() {
+        return mapName;
+    }
+
+    @Override
+    public boolean isFamous() {
+        return isFamous;
+    }
+
     public enum FinishReason {
         END_OF_TIME,
         WIN,
         NO_PLAYERS;
     }
 
-    public boolean isPlaying(GamePlayer player) {
+    public boolean isPlaying(ParallelsPlayer player) {
         return players.contains(player);
-    }
-
-    @Override
-    public int countPlayersIngame() {
-        return players.size();
     }
 
     public boolean isPVPEnabled() {
@@ -511,4 +576,11 @@ public class Arena extends GameArena {
         return players.size();
     }
 
+    public void addPlayer(ParallelsPlayer arplayer) {
+        if (spectators.contains(arplayer))
+            spectators.remove(arplayer);
+
+        if (!players.contains(arplayer))
+            players.add(arplayer);
+    }
 }

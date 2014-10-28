@@ -1,6 +1,5 @@
 package net.zyuiop.parallelspvp.arena;
 
-import net.samagames.network.client.GamePlayer;
 import net.zyuiop.parallelspvp.ParallelsPVP;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -57,7 +56,7 @@ public class DimensionsManager {
             return;
         }
 
-        GamePlayer ap = new GamePlayer(p);
+        ParallelsPlayer ap = new ParallelsPlayer(p);
         Dimension dim = dimensions.get(ap.getPlayerID());
         if (dim == null)
             dim = Dimension.OVERWORLD;
