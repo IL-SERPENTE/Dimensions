@@ -39,50 +39,51 @@ public class ChestListener implements Listener {
         // Ici on fait les registers de chaque item //
 
         // ARMURES //
-        registerItem(new RandomItem(new ItemStack(Material.LEATHER_LEGGINGS, 1), 200, 400, 200, 0));
-        registerItem(new RandomItem(new ItemStack(Material.LEATHER_BOOTS, 1), 200, 400, 200, 0));
-        registerItem(new RandomItem(new ItemStack(Material.LEATHER_CHESTPLATE, 1), 200, 400, 200, 0));
-        registerItem(new RandomItem(new ItemStack(Material.LEATHER_HELMET, 1), 200, 400, 200, 0));
+        registerItem(new RandomItem(new ItemStack(Material.LEATHER_LEGGINGS, 1), 2000));
+        registerItem(new RandomItem(new ItemStack(Material.LEATHER_BOOTS, 1), 2000));
+        registerItem(new RandomItem(new ItemStack(Material.LEATHER_CHESTPLATE, 1), 2000));
+        registerItem(new RandomItem(new ItemStack(Material.LEATHER_HELMET, 1), 2000));
 
-        registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_HELMET, 1), 150, 300, 450, 50));
-        registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_BOOTS, 1), 150, 300, 450, 50));
-        registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_CHESTPLATE, 1), 100, 200, 300, 50));
-        registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_LEGGINGS, 1), 100, 200, 300, 50));
+        registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_HELMET, 1), 1500));
+        registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_BOOTS, 1), 1300));
+        registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_CHESTPLATE, 1), 1000));
+        registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_LEGGINGS, 1), 1000));
 
-        registerItem(new RandomItem(new ItemStack(Material.IRON_LEGGINGS, 1), 0, 0, 50, 500));
-        registerItem(new RandomItem(new ItemStack(Material.IRON_BOOTS, 1), 0, 0, 50, 500));
-        registerItem(new RandomItem(new ItemStack(Material.IRON_CHESTPLATE, 1), 0, 0, 40, 400));
-        registerItem(new RandomItem(new ItemStack(Material.IRON_HELMET, 1), 0, 0, 50, 500));
+        registerItem(new RandomItem(new ItemStack(Material.IRON_LEGGINGS, 1), 10));
+        registerItem(new RandomItem(new ItemStack(Material.IRON_BOOTS, 1), 10));
+        registerItem(new RandomItem(new ItemStack(Material.IRON_CHESTPLATE, 1), 10));
+        registerItem(new RandomItem(new ItemStack(Material.IRON_HELMET, 1), 10));
 
         // OUTILS ET ARMES //
-        registerItem(new RandomItem(new ItemStack(Material.STONE_PICKAXE, 1), 300, 200, 0, 0));
-        registerItem(new RandomItem(new ItemStack(Material.STONE_SWORD, 1), 200, 150, 100, 0));
-        registerItem(new RandomItem(new ItemStack(Material.STONE_AXE, 1), 300, 100, 0, 0));
-        registerItem(new RandomItem(new ItemStack(Material.IRON_SWORD, 1), 0, 50, 100, 200));
-        registerItem(new RandomItem(new ItemStack(Material.DIAMOND_SWORD, 1), 0, 1, 15, 70));
-        registerItem(new RandomItem(new ItemStack(Material.WOOD_SWORD, 1), 350, 100, 0, 0));
+        registerItem(new RandomItem(new ItemStack(Material.STONE_PICKAXE, 1), 3000));
+        registerItem(new RandomItem(new ItemStack(Material.STONE_SWORD, 1), 2000));
+        registerItem(new RandomItem(new ItemStack(Material.STONE_AXE, 1), 3000));
+        registerItem(new RandomItem(new ItemStack(Material.IRON_SWORD, 1), 500));
+        registerItem(new RandomItem(new ItemStack(Material.DIAMOND_SWORD, 1), 50));
+        registerItem(new RandomItem(new ItemStack(Material.WOOD_SWORD, 1), 3000));
 
         // RESSOURCES //
-        registerItem(new RandomItem(new ItemStack(Material.IRON_INGOT), 200, 400, 600, 800, new int[]{2, 3, 4, 5, 6, 7}));
-        registerItem(new RandomItem(new ItemStack(Material.BAKED_POTATO), 300, 200, 150, 100, new int[]{4, 5, 6, 7, 8, 9, 10}));
-        registerItem(new RandomItem(new ItemStack(Material.COOKED_BEEF), 300, 200, 150, 100, new int[]{2, 3, 4, 5}));
-        registerItem(new RandomItem(new ItemStack(Material.EXP_BOTTLE), 200, 300, 400, 400, new int[]{4, 5, 6, 7}));
-        registerItem(new RandomItem(new ItemStack(Material.LOG), 400, 300, 200, 150, new int[]{2, 3, 4}));
-        registerItem(new RandomItem(new ItemStack(Material.GLOWSTONE_DUST, 1), 20, 40, 60, 80));
-        registerItem(new RandomItem(new ItemStack(Material.STRING), 100, 200, 300, 450, new int[]{2, 3, 4}));
-        registerItem(new RandomItem(new ItemStack(Material.FEATHER, 1), 50, 100, 150, 150));
-        registerItem(new RandomItem(new ItemStack(Material.FLINT), 50, 100, 200, 250, new int[]{2, 3}));
-        registerItem(new RandomItem(new ItemStack(Material.COBBLESTONE), 100, 150, 200, 150, new int[]{3, 4, 5, 6}));
+        registerItem(new RandomItem(new ItemStack(Material.IRON_INGOT), 2000, new int[]{1, 2, 3, 4, 5, 6, 7}));
+        registerItem(new RandomItem(new ItemStack(Material.DIAMOND), 50, new int[]{1,2,3}));
+        registerItem(new RandomItem(new ItemStack(Material.BAKED_POTATO), 3000, new int[]{4, 5, 6, 7, 8, 9, 10}));
+        registerItem(new RandomItem(new ItemStack(Material.COOKED_BEEF), 3000, new int[]{2, 3, 4, 5}));
+        registerItem(new RandomItem(new ItemStack(Material.EXP_BOTTLE), 1000, new int[]{4, 5, 6, 7}));
+        registerItem(new RandomItem(new ItemStack(Material.LOG), 2000, new int[]{2, 3, 4}));
+        registerItem(new RandomItem(new ItemStack(Material.GLOWSTONE_DUST, 1), 400));
+        registerItem(new RandomItem(new ItemStack(Material.STRING), 1000, new int[]{2, 3, 4}));
+        registerItem(new RandomItem(new ItemStack(Material.FEATHER, 1), 1000));
+        registerItem(new RandomItem(new ItemStack(Material.FLINT), 1000, new int[]{2, 3}));
+        registerItem(new RandomItem(new ItemStack(Material.COBBLESTONE), 1500, new int[]{3, 4, 5, 6}));
 
         // POTIONS //
-        registerItem(new RandomItem(new Potion(PotionType.INSTANT_HEAL).toItemStack(1), 50, 100, 150, 200));
-        registerItem(new RandomItem(new Potion(PotionType.INSTANT_HEAL).splash().toItemStack(1), 50, 100, 150, 200));
-        registerItem(new RandomItem(new Potion(PotionType.INSTANT_HEAL, 2).toItemStack(1), 150, 300, 450, 450));
-        registerItem(new RandomItem(new Potion(PotionType.STRENGTH).toItemStack(1), 50, 100, 150, 200));
-        registerItem(new RandomItem(new Potion(PotionType.REGEN).toItemStack(1), 50, 100, 150, 200));
-        registerItem(new RandomItem(new Potion(PotionType.POISON).splash().toItemStack(1), 50, 100, 150, 200));
-        registerItem(new RandomItem(new Potion(PotionType.INSTANT_DAMAGE).splash().toItemStack(1), 50, 100, 150, 200));
-        registerItem(new RandomItem(new Potion(PotionType.SPEED).toItemStack(1), 50, 100, 150, 200));
+        registerItem(new RandomItem(new Potion(PotionType.INSTANT_HEAL).toItemStack(1), 1000));
+        registerItem(new RandomItem(new Potion(PotionType.INSTANT_HEAL).splash().toItemStack(1), 700));
+        registerItem(new RandomItem(new Potion(PotionType.INSTANT_HEAL, 2).toItemStack(1), 700));
+        registerItem(new RandomItem(new Potion(PotionType.STRENGTH).toItemStack(1), 300));
+        registerItem(new RandomItem(new Potion(PotionType.REGEN).toItemStack(1), 200));
+        registerItem(new RandomItem(new Potion(PotionType.POISON).splash().toItemStack(1), 500));
+        registerItem(new RandomItem(new Potion(PotionType.INSTANT_DAMAGE).splash().toItemStack(1), 1000));
+        registerItem(new RandomItem(new Potion(PotionType.SPEED).toItemStack(1), 1000));
 
         // Enchants
         ItemStack sharpness = new ItemStack(Material.ENCHANTED_BOOK);
@@ -95,14 +96,14 @@ public class ChestListener implements Listener {
         meta.addStoredEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, false);
         protection.setItemMeta(meta);
 
-        registerItem(new RandomItem(sharpness, 50, 100, 150, 200));
-        registerItem(new RandomItem(protection, 50, 100, 150, 200));
+        registerItem(new RandomItem(sharpness, 500));
+        registerItem(new RandomItem(protection, 500));
 
         // MISC //
-        registerItem(new RandomItem(new ItemStack(Material.ARROW), 150, 300, 450, 450, new int[]{3, 4, 5, 6, 7, 8, 9, 10}));
-        registerItem(new RandomItem(new ItemStack(Material.GOLDEN_APPLE), 0, 10, 20, 50));
-        registerItem(new RandomItem(new ItemStack(Material.TNT), 100, 100, 200, 300, new int[]{1, 3}));
-        registerItem(new RandomItem(new ItemStack(Material.APPLE), 200, 100, 50, 0));
+        registerItem(new RandomItem(new ItemStack(Material.ARROW), 3000, new int[]{3, 4, 5, 6, 7, 8, 9, 10}));
+        registerItem(new RandomItem(new ItemStack(Material.GOLDEN_APPLE), 100));
+        registerItem(new RandomItem(new ItemStack(Material.TNT), 1000, new int[]{1, 2, 3}));
+        registerItem(new RandomItem(new ItemStack(Material.APPLE), 1000));
 
         ItemStack axe = new ItemStack(Material.IRON_AXE);
         ItemMeta imeta = axe.getItemMeta();
@@ -111,8 +112,8 @@ public class ChestListener implements Listener {
         axe.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 2);
         axe.addUnsafeEnchantment(Enchantment.FIRE_ASPECT, 1);
         axe.addUnsafeEnchantment(Enchantment.DURABILITY, 2);
-        registerItem(new RandomItem(axe, 0, 0, 0, 50));
-        registerItem(new RandomItem(new ItemStack(Material.GOLDEN_APPLE, 1, (short)1), 0, 0, 0, 2));
+        registerItem(new RandomItem(axe, 5));
+        registerItem(new RandomItem(new ItemStack(Material.GOLDEN_APPLE, 1, (short)1), 2));
     }
 
     public void registerItem(RandomItem item) {
@@ -123,9 +124,6 @@ public class ChestListener implements Listener {
     public void onChestOpen(PlayerInteractEvent event) {
         if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK) && event.getClickedBlock().getType().equals(Material.CHEST)) {
             Chest chest = (Chest) event.getClickedBlock().getState();
-            ChestDescriptor info = plugin.getArena().getChestFromLocation(event.getClickedBlock().getLocation());
-            if (info == null)
-                return;
 
             Boolean wasOpened = (Boolean) Metadatas.getMetadata(chest, "opened");
             if (wasOpened == null || !wasOpened) {
@@ -140,19 +138,22 @@ public class ChestListener implements Listener {
                 Random rnd = new Random();
                 int slot = 0;
                 for (RandomItem item : items) {
-                    if (addedItems > 15)
+                    if (addedItems > 20)
                         break;
 
-                    int freq = item.getFrequency(info.getLootLevel());
-                    if (freq == 0)
-                        continue;
-                    if (rnd.nextInt(1000) <= freq) {
+                    int freq = item.getFrequency();
+                    if (rnd.nextInt(10000) <= freq) {
                         ItemStack stack = item.getItem();
                         stack.setAmount(item.getQuantity());
+                        while (inv.getItem(slot) != null)
+                            slot++;
                         inv.setItem(slot, item.getItem());
                         addedItems++;
                     }
                     slot++;
+
+                    if (slot > 26)
+                        slot = 0;
                 }
 
             }

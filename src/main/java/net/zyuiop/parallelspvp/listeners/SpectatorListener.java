@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -52,16 +53,6 @@ public class SpectatorListener implements Listener {
     }
 
     @EventHandler
-    public void onCraft(CraftItemEvent event) {
-        for (ItemStack item : event.getInventory().getContents()) {
-            if (item != null && item.getItemMeta().getDisplayName().equals(ParallelsPVP.getSwap().getItemMeta().getDisplayName())) {
-                event.setCancelled(true);
-                return;
-            }
-        }
-    }
-
-    @EventHandler
     public void onPlace(BlockPlaceEvent e) {
         e.setCancelled(cancel(e.getPlayer()));
         if (!e.isCancelled()) {
@@ -73,6 +64,13 @@ public class SpectatorListener implements Listener {
     @EventHandler (priority = EventPriority.LOWEST)
     public void onInteract(PlayerInteractEvent e) {
         e.setCancelled(cancel(e.getPlayer()));
+        if (!arena.isPlaying(new ParallelsPlayer(e.getPlayer()))) {
+            if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                if (e.getItem().getType() == Material.COMPASS) {
+                    arena.tpMenu(e.getPlayer());
+                }
+            }
+        }
     }
 
     @EventHandler (priority = EventPriority.LOWEST)

@@ -21,6 +21,3 @@ allowed:
 
 overworld-name: Paradis
 hard-name: Enfer
-
-chests:
-  - x;y;z;quality (1-3, qualité des loots trouvables)

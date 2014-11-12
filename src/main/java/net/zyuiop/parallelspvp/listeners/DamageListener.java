@@ -8,13 +8,13 @@ import net.zyuiop.parallelspvp.arena.DimensionsManager;
 import net.zyuiop.parallelspvp.arena.ParallelsPlayer;
 import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityRegainHealthEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 /**
@@ -31,6 +31,10 @@ public class DamageListener implements Listener {
     @EventHandler
     public void onDeath(final PlayerDeathEvent event) {
         final Arena arena = plugin.getArena();
+
+        event.getDrops().remove(ParallelsPVP.getCompass());
+        event.getDrops().remove(ParallelsPVP.getSwap());
+
         if (!arena.isPlaying(new ParallelsPlayer((Player) event.getEntity()))) {
             return;
         }
@@ -39,7 +43,6 @@ public class DamageListener implements Listener {
         if (last instanceof EntityDamageByEntityEvent) {
             final EntityDamageByEntityEvent obj = (EntityDamageByEntityEvent)last;
             if (obj.getDamager() instanceof Player) {
-                // C'est lui ki gagn des coins
                 Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
                     @Override
                     public void run() {
@@ -48,6 +51,19 @@ public class DamageListener implements Listener {
                         //((Player)obj.getDamager()).sendMessage(ChatColor.GOLD + "Vous gagnez " + montant + " coins " + ChatColor.AQUA + "(Un joueur tué !)");
                     }
                 });
+            } else if (obj.getDamager() instanceof Arrow) {
+                final Arrow damager = (Arrow) obj.getDamager();
+                final LivingEntity shooter = damager.getShooter();
+                if (shooter instanceof Player) {
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+                        @Override
+                        public void run() {
+                            CoinsManager.creditJoueur(shooter.getUniqueId(), 2, true, true, "Un joueur tué !");
+                            StatsApi.increaseStat(shooter.getUniqueId(), "parallelspvp", "kills", 1);
+                            //((Player)obj.getDamager()).sendMessage(ChatColor.GOLD + "Vous gagnez " + montant + " coins " + ChatColor.AQUA + "(Un joueur tué !)");
+                        }
+                    });
+                }
             }
         }
 
@@ -66,7 +82,7 @@ public class DamageListener implements Listener {
             ev.setCancelled(true);
 
         if (!plugin.getArena().isPVPEnabled()) {
-            if (ev.getCause() == EntityDamageEvent.DamageCause.POISON || ev.getCause() == EntityDamageEvent.DamageCause.MAGIC)
+            if (ev.getCause() == EntityDamageEvent.DamageCause.POISON || ev.getCause() == EntityDamageEvent.DamageCause.MAGIC || ev.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION || ev.getCause() == EntityDamageEvent.DamageCause.FIRE)
                 ev.setCancelled(true);
         }
     }
@@ -74,10 +90,25 @@ public class DamageListener implements Listener {
     @EventHandler
     public void onRespawn(PlayerRespawnEvent ev) {
         ev.setRespawnLocation(plugin.getArena().getWaitLocation());
+        plugin.getArena().respawnSpec(ev.getPlayer());
     }
 
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent event) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
+            if (event.getEntity() instanceof Player) {
+                if (event.getDamager() instanceof Projectile) {
+                    Arena arena = plugin.getArena();
+                    if (((Projectile) event.getDamager()).getShooter() instanceof Player) {
+                        if (! arena.isPlaying(new ParallelsPlayer((Player) ((Projectile) event.getDamager()).getShooter())) || ! arena.isPlaying(new ParallelsPlayer((Player) event.getEntity())) || ! arena.isPVPEnabled()) {
+                            event.setCancelled(true);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
         if (event.getEntity() instanceof Player) {
             if (event.getDamager() instanceof Player) {
                 Arena arena = plugin.getArena();

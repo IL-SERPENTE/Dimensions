@@ -3,8 +3,8 @@ package net.zyuiop.parallelspvp.arena;
 import net.samagames.gameapi.GameAPI;
 import net.samagames.gameapi.json.Status;
 import net.samagames.gameapi.types.GameArena;
-import net.samagames.network.Network;
-import net.samagames.network.client.GamePlayer;
+import net.samagames.utils.IconMenu;
+import net.zyuiop.MasterBundle.StarsManager;
 import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.parallelspvp.ParallelsPVP;
 import net.zyuiop.parallelspvp.listeners.NetworkListener;
@@ -21,21 +21,15 @@ import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Scoreboard;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
-/**
- * Created by zyuiop on 26/09/14.
- */
 public class Arena implements GameArena {
 
     /** Variables d'arène **/
@@ -53,7 +47,6 @@ public class Arena implements GameArena {
     protected BukkitTask countdown;
     protected ArrayList<Location> spawns = new ArrayList<Location>();
     protected ArrayList<Location> deathmatchSpawns = new ArrayList<Location>();
-    protected ArrayList<ChestDescriptor> chests = new ArrayList<ChestDescriptor>();
     protected Location waitLocation;
     protected DimensionsManager dimensionsManager;
     protected boolean isDeathmatch = false;
@@ -169,46 +162,18 @@ public class Arena implements GameArena {
             minPlayers = ((maxPlayers + maxVIP) / 100) * 50;
         }
 
-        for (Object chest : arenaData.getList("chests")) {
-            if (!(chest instanceof String)) {
-                Bukkit.getLogger().severe("ERREUR : info de chest invalides (not a string) dans le fichier d'arène.");
-                continue;
-            }
-
-            String chestString = (String) chest;
-
-            String[] parts = chestString.split(";");
-            if (parts.length < 4) {
-                Bukkit.getLogger().severe("ERREUR : infos de chest invalides (not enough params) dans le fichier d'arène.");
-                continue;
-            }
-
-            Location loc = new Location(world, Double.parseDouble(parts[0]), Double.parseDouble(parts[1]), Double.parseDouble(parts[2]));
-            int loots = Integer.parseInt(parts[3]);
-
-            chests.add(new ChestDescriptor(loc, loots));
-        }
 
         countdown = Bukkit.getScheduler().runTaskTimerAsynchronously(parallelsPVP, new BeginCountdown(this, maxPlayers + this.maxVIP, minPlayers), 0, 20L);
 
 
 
         this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-
         Bukkit.getPluginManager().registerEvents(new NetworkListener(this), parallelsPVP);
-
         status = Status.Available;
 
     }
 
-    public ChestDescriptor getChestFromLocation(Location loc) {
-        for (ChestDescriptor desc : chests)
-            if (desc.getLocation().equals(loc))
-                return desc;
-        return null;
-    }
-
-    protected void updateStatus(Status newStatus) {
+    public void updateStatus(Status newStatus) {
         this.status = newStatus;
         GameAPI.getManager().refreshArena(this);
     }
@@ -233,7 +198,7 @@ public class Arena implements GameArena {
             e.printStackTrace();
         }
 
-        this.setStatus(Status.InGame);
+        this.updateStatus(Status.InGame);
 
         Bukkit.broadcastMessage(ParallelsPVP.pluginTAG + ChatColor.GOLD + " La partie commence. Bonne chance !");
         Bukkit.broadcastMessage(ParallelsPVP.pluginTAG + ChatColor.GOLD + " Le PVP sera activé dans 3 minutes.");
@@ -245,6 +210,7 @@ public class Arena implements GameArena {
         scoreboard.registerNewObjective("vie", "health").setDisplaySlot(DisplaySlot.BELOW_NAME);
         scoreboard.getObjective("vie").setDisplayName(ChatColor.RED+"♥");
 
+        Collections.shuffle(this.spawns);
         for (Location spawn : this.spawns) {
             if (!iterator.hasNext())
                 break;
@@ -264,11 +230,17 @@ public class Arena implements GameArena {
             }
         }
 
+        while (iterator.hasNext()) {
+            try {
+                GameAPI.kickPlayer(iterator.next().getPlayer());
+            } catch (Exception e) {
+
+            }
+        }
+
         for (ParallelsPlayer player : remove) {
             players.remove(player);
         }
-
-
 
         RandomEffects eff = new RandomEffects(this);
         this.randomEffects = Bukkit.getScheduler().runTaskTimerAsynchronously(parallelsPVP, eff, 0L, 20L);
@@ -342,6 +314,7 @@ public class Arena implements GameArena {
                 @Override
                 public void run() {
                     CoinsManager.creditJoueur(player.getUniqueId(), 20, true, true, "Victoire !");
+                    StarsManager.creditJoueur(player.getUniqueId(), 1, "Victoire !");
                 }
             });
 
@@ -400,7 +373,7 @@ public class Arena implements GameArena {
                 public void run() {
                     resetArena();
                 }
-            }, 30*20L);
+            }, 15*20L);
         }
     }
 
@@ -430,12 +403,25 @@ public class Arena implements GameArena {
         p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 99999999, 1));
         p.setGameMode(GameMode.CREATIVE);
         p.teleport(this.waitLocation);
+        p.getInventory().clear();
+
         p.sendMessage(ChatColor.GOLD+"Vous rejoignez les spectateurs.");
         this.spectators.add(new ParallelsPlayer(p));
         for (ParallelsPlayer pl : this.players) {
             Player target = Bukkit.getPlayer(pl.getPlayerID());
             target.hidePlayer(p);
         }
+    }
+
+    public void respawnSpec(Player p) {
+        p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 99999999, 1));
+        p.setGameMode(GameMode.CREATIVE);
+        p.teleport(this.waitLocation);
+        ItemStack compass = new ItemStack(Material.COMPASS);
+        ItemMeta meta = compass.getItemMeta();
+        meta.setDisplayName(ChatColor.GREEN + "" + ChatColor.MAGIC + "|||" + ChatColor.GOLD+" Téléportation " + ChatColor.GREEN + ChatColor.MAGIC + "|||");
+        compass.setItemMeta(meta);
+        p.getInventory().setItem(4, compass);
     }
 
     public Location getWaitLocation() {
@@ -450,13 +436,15 @@ public class Arena implements GameArena {
         ParallelsPlayer arPlayer = new ParallelsPlayer(player);
         if (!isStarted()) {
             players.remove(arPlayer);
+            GameAPI.getManager().refreshArena(this);
             return;
         }
 
         if (spectators.contains(arPlayer))
             spectators.remove(arPlayer);
-        else
+        else if (players.contains(arPlayer))
             stumpPlayer(player, true);
+        GameAPI.getManager().refreshArena(this);
     }
 
     public void stumpPlayer(UUID player, boolean logout) {
@@ -476,6 +464,8 @@ public class Arena implements GameArena {
             joinSpectators(rPlayer);
         }
 
+        GameAPI.getManager().refreshArena(this);
+
         if (!isWon) {
             Bukkit.broadcastMessage(ChatColor.YELLOW+ "Il reste encore "+ChatColor.AQUA+left+ChatColor.YELLOW+" joueurs en vie.");
             if (left <= this.deathmatchSpawns.size() && !this.isDeathmatch && this.dmCount == null) {
@@ -485,6 +475,7 @@ public class Arena implements GameArena {
         } else {
             finish(FinishReason.WIN);
         }
+
     }
 
     @Override
@@ -515,7 +506,6 @@ public class Arena implements GameArena {
     @Override
     public void setStatus(Status status) {
         this.status = status;
-        GameAPI.getManager().refreshArena(this);
     }
 
     @Override
@@ -525,7 +515,7 @@ public class Arena implements GameArena {
 
     @Override
     public boolean hasPlayer(UUID player) {
-        return players.contains(new GamePlayer(player)) || spectators.contains(new GamePlayer(player));
+        return players.contains(new ParallelsPlayer(player)) || spectators.contains(new ParallelsPlayer(player));
     }
 
     @Override
@@ -582,5 +572,51 @@ public class Arena implements GameArena {
 
         if (!players.contains(arplayer))
             players.add(arplayer);
+    }
+
+    public void tpMenu(final Player player) {
+        double nb = players.size();
+        double nSlots = Math.ceil(nb / 9) * 9;
+        ParallelsPVP.menuManager.create(player, ChatColor.GOLD + "Téléportation !", (int) nSlots, new IconMenu.OptionClickEventHandler() {
+            @Override
+            public void onOptionClick(IconMenu.OptionClickEvent event) {
+                if (event.getName().equals("close")) {
+                    event.setWillClose(true);
+                    event.setWillDestroy(true);
+                } else {
+                    UUID user = UUID.fromString(event.getName());
+                    Player player1 = new ParallelsPlayer(user).getPlayer();
+                    if (player1 != null) {
+                        player.teleport(player1);
+                        player.sendMessage(ChatColor.GREEN + "Téléportation !");
+                    } else {
+                        player.sendMessage(ChatColor.RED + "Le joueur n'est plus connecté.");
+                    }
+                    event.setWillClose(true);
+                    event.setWillDestroy(true);
+                }
+            }
+        });
+
+        int slot = 0;
+        for (ParallelsPlayer p : players) {
+            DimensionsManager.Dimension dimension = dimensionsManager.dimensions.get(p.getPlayerID());
+            String dimName = ChatColor.DARK_GREEN + dimensionsManager.overworldName;
+            if (dimension != null && dimension == DimensionsManager.Dimension.PARALLEL)
+                dimName = ChatColor.DARK_RED + dimensionsManager.hardName;
+
+
+            if (p.getPlayer() == null)
+                continue;
+
+            String name = p.getPlayer().getDisplayName();
+
+            ParallelsPVP.menuManager.setOption(player, slot, new ItemStack(Material.STONE_SWORD), name, p.getPlayerID().toString(), new String[]{
+                    ChatColor.AQUA + ""+ ((int) Math.ceil(p.getPlayer().getHealth())) + ChatColor.GOLD + " points de vie",
+                    ChatColor.GOLD + "Dimension : " + dimName}, false);
+
+            slot++;
+        }
+        ParallelsPVP.menuManager.show(player);
     }
 }

@@ -1,5 +1,6 @@
 package net.zyuiop.parallelspvp.tasks;
 
+import net.samagames.gameapi.json.Status;
 import net.zyuiop.parallelspvp.ParallelsPVP;
 import net.zyuiop.parallelspvp.arena.Arena;
 import org.bukkit.Bukkit;
@@ -34,6 +35,7 @@ public class BeginCountdown implements Runnable {
         } else {
             if (nPlayers >= minPlayers && !ready) {
                 ready = true;
+                parent.updateStatus(Status.Starting);
                 time = 121;
             }
 
@@ -48,6 +50,7 @@ public class BeginCountdown implements Runnable {
             if (nPlayers < minPlayers && ready) {
                 ready = false;
                 Bukkit.broadcastMessage(ParallelsPVP.pluginTAG+ ChatColor.RED+" Il n'y a plus assez de joueurs pour commencer.");
+                parent.updateStatus(Status.Available);
                 for (Player p : Bukkit.getOnlinePlayers())
                     p.setLevel(120);
             }

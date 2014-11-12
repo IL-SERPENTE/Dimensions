@@ -1,8 +1,11 @@
 package net.zyuiop.parallelspvp;
 
 import net.samagames.gameapi.GameAPI;
+import net.samagames.gameapi.json.Status;
 import net.samagames.permissionsapi.PermissionsAPI;
 import net.samagames.permissionsbukkit.PermissionsBukkit;
+import net.samagames.utils.IconMenu;
+import net.samagames.utils.IconMenuManager;
 import net.zyuiop.parallelspvp.arena.Arena;
 import net.zyuiop.parallelspvp.arena.ArenaManager;
 import net.zyuiop.parallelspvp.commands.CommandStart;
@@ -37,6 +40,7 @@ public class ParallelsPVP extends JavaPlugin {
     protected ArrayList<UUID> joinMod = new ArrayList<UUID>();
     public static ParallelsPVP instance;
     public ArenaManager arenaManager;
+    public static IconMenuManager menuManager;
 
     protected boolean testMode = false;
 
@@ -46,6 +50,8 @@ public class ParallelsPVP extends JavaPlugin {
 
         PermissionsBukkit plugin = (PermissionsBukkit) this.getServer().getPluginManager().getPlugin("SamaPermissionsBukkit");
         permissionsAPI = plugin.getApi();
+
+        menuManager = new IconMenuManager(this);
 
         World world = Bukkit.getWorlds().get(0);
         File arenaFile = new File(world.getWorldFolder(), "arena.yml");
@@ -75,7 +81,13 @@ public class ParallelsPVP extends JavaPlugin {
 
         GameAPI.registerGame("parallelspvp", this.getConfig().getInt("com-port", 1234), this.getConfig().getString("BungeeName"));
         instance = this;
-        GameAPI.getManager().sendArenas();
+        GameAPI.getManager().sendSync();
+    }
+
+    public void onDisable() {
+        getArena().updateStatus(Status.Stopping);
+        GameAPI.getManager().sendSync();
+        GameAPI.getManager().disable();
     }
 
     public static boolean isTesting() {
@@ -91,7 +103,7 @@ public class ParallelsPVP extends JavaPlugin {
     }
 
     public Arena getArena() {
-        return (Arena) GameAPI.getArenas().toArray()[0];
+        return (Arena) GameAPI.getArena();
     }
 
     public void joinMod(UUID playerId) {
