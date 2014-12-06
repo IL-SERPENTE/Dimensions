@@ -7,11 +7,9 @@ import net.samagames.utils.IconMenu;
 import net.zyuiop.MasterBundle.StarsManager;
 import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.parallelspvp.ParallelsPVP;
+import net.zyuiop.parallelspvp.listeners.InteractListener;
 import net.zyuiop.parallelspvp.listeners.NetworkListener;
-import net.zyuiop.parallelspvp.tasks.BeginCountdown;
-import net.zyuiop.parallelspvp.tasks.Deathmatch;
-import net.zyuiop.parallelspvp.tasks.PVPEnable;
-import net.zyuiop.parallelspvp.tasks.RandomEffects;
+import net.zyuiop.parallelspvp.tasks.*;
 import net.zyuiop.parallelspvp.utils.Colors;
 import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.*;
@@ -55,11 +53,12 @@ public class Arena implements GameArena {
     protected ArrayList<Material> allowed = new ArrayList<>();
     protected Scoreboard scoreboard = null;
     protected BukkitTask randomEffects = null;
+    protected boolean inGame = false;
+    protected HashMap<UUID, UUID> targets = new HashMap<>(); // <Utilisateur : cible>
 
     public int getTotalMaxSlots() {
         return spawns.size();
     }
-
 
     public boolean canBreak(Material madeOf) {
         return allowed.contains(madeOf);
@@ -189,7 +188,7 @@ public class Arena implements GameArena {
 
     protected boolean isPVPEnabled = false;
 
-    public void start() {
+    public void preStart() {
         try {
             countdown.cancel();
             countdown = null;
@@ -200,16 +199,14 @@ public class Arena implements GameArena {
 
         this.updateStatus(Status.InGame);
 
-        Bukkit.broadcastMessage(ParallelsPVP.pluginTAG + ChatColor.GOLD + " La partie commence. Bonne chance !");
-        Bukkit.broadcastMessage(ParallelsPVP.pluginTAG + ChatColor.GOLD + " Le PVP sera activé dans 3 minutes.");
-        this.pvpCount = Bukkit.getScheduler().runTaskTimer(parallelsPVP, new PVPEnable(this), 0L, 20L);
-
-        ArrayList<ParallelsPlayer> remove = new ArrayList<ParallelsPlayer>();
-        Iterator<ParallelsPlayer> iterator = players.iterator();
+        Bukkit.broadcastMessage(ParallelsPVP.pluginTAG + ChatColor.GOLD + " Préparation du jeu !");
+        countdown = Bukkit.getScheduler().runTaskTimerAsynchronously(ParallelsPVP.instance, new PreparingCountdown(this), 0L, 20L);
 
         scoreboard.registerNewObjective("vie", "health").setDisplaySlot(DisplaySlot.BELOW_NAME);
         scoreboard.getObjective("vie").setDisplayName(ChatColor.RED+"♥");
 
+        ArrayList<ParallelsPlayer> remove = new ArrayList<ParallelsPlayer>();
+        Iterator<ParallelsPlayer> iterator = players.iterator();
         Collections.shuffle(this.spawns);
         for (Location spawn : this.spawns) {
             if (!iterator.hasNext())
@@ -223,8 +220,6 @@ public class Arena implements GameArena {
             } else {
                 player.teleport(spawn);
                 player.setGameMode(GameMode.SURVIVAL);
-                player.getInventory().addItem(ParallelsPVP.getCompass());
-                player.getInventory().addItem(ParallelsPVP.getSwap());
                 scoreboard.getObjective("vie").getScore(player.getName()).setScore((int)player.getHealth());
                 StatsApi.increaseStat(player, "parallelspvp", "played", 1);
             }
@@ -241,6 +236,34 @@ public class Arena implements GameArena {
         for (ParallelsPlayer player : remove) {
             players.remove(player);
         }
+    }
+
+    public void start() {
+        try {
+            countdown.cancel();
+            countdown = null;
+            Bukkit.getLogger().info("Cancelled thread");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        inGame = true;
+
+        Bukkit.broadcastMessage(ParallelsPVP.pluginTAG + ChatColor.GOLD + " La partie commence. Bonne chance !");
+        Bukkit.broadcastMessage(ParallelsPVP.pluginTAG + ChatColor.GOLD + " Le PVP sera activé dans 3 minutes.");
+        this.pvpCount = Bukkit.getScheduler().runTaskTimer(parallelsPVP, new PVPEnable(this), 0L, 20L);
+
+        for (ParallelsPlayer player : players) {
+            Player pl = player.getPlayer();
+            if (pl != null) {
+                resetPlayer(pl);
+                pl.setGameMode(GameMode.SURVIVAL);
+                pl.getInventory().setItem(7, ParallelsPVP.getCompass());
+                pl.getInventory().setItem(8, ParallelsPVP.getSwap());
+                pl.setExp(0);
+                pl.setLevel(0);
+            }
+        }
 
         RandomEffects eff = new RandomEffects(this);
         this.randomEffects = Bukkit.getScheduler().runTaskTimerAsynchronously(parallelsPVP, eff, 0L, 20L);
@@ -252,6 +275,17 @@ public class Arena implements GameArena {
             this.pvpCount.cancel();
         this.pvpCount = null;
         Bukkit.broadcastMessage(ParallelsPVP.pluginTAG+ChatColor.GOLD+" Le PVP est activé ! C'est l'heure du d-d-d-duel !");
+        Bukkit.getScheduler().runTaskLaterAsynchronously(ParallelsPVP.instance, new Runnable() {
+            @Override
+            public void run() {
+                for (ParallelsPlayer player : players) {
+                    Player target = getNewTarget(player.getPlayerID());
+                    ParallelsPVP.interactListener.targetPlayer(player.getPlayer(), target);
+                    player.getPlayer().sendMessage(ParallelsPVP.pluginTAG+ChatColor.GOLD+" Votre cible est "+target.getDisplayName()+ChatColor.GOLD+". Tuez le pour gagner un bonus de coins !");
+                    player.getPlayer().sendMessage(ParallelsPVP.pluginTAG+ChatColor.GOLD+" Votre boussole pointe désormais vers ce joueur. Faites clic gauche avec votre boussole pour la pointer vers lui à nouveau !");
+                }
+            }
+        }, 30*20L);
     }
 
     public void startDeathMatch() {
@@ -432,6 +466,10 @@ public class Arena implements GameArena {
         return status == Status.InGame;
     }
 
+    public boolean isInGame() {
+        return inGame;
+    }
+
     public void logout(UUID player) {
         ParallelsPlayer arPlayer = new ParallelsPlayer(player);
         if (!isStarted()) {
@@ -447,10 +485,11 @@ public class Arena implements GameArena {
         GameAPI.getManager().refreshArena(this);
     }
 
-    public void stumpPlayer(UUID player, boolean logout) {
+    public void stumpPlayer(final UUID player, boolean logout) {
         ParallelsPlayer arPlayer = new ParallelsPlayer(player);
 
         this.players.remove(arPlayer);
+        ParallelsPVP.interactListener.unregisterTask(arPlayer);
         int left = this.players.size();
         boolean isWon = (left <= 1);
 
@@ -472,10 +511,30 @@ public class Arena implements GameArena {
                 Deathmatch countdown = new Deathmatch(this);
                 dmCount = Bukkit.getScheduler().runTaskTimer(parallelsPVP, countdown, 0L, 20L);
             }
+
+            final ArrayList<UUID> ids = new ArrayList<>();
+            for (UUID plid : getTargetedBy(player)) {
+                ids.add(plid);
+                targets.remove(plid);
+            }
+
+            Bukkit.getScheduler().runTaskLaterAsynchronously(ParallelsPVP.instance, new Runnable() {
+                @Override
+                public void run() {
+                    for (UUID plid : ids) {
+                        ParallelsPlayer pl = new ParallelsPlayer(plid);
+                        if (!players.contains(pl))
+                            continue;
+                        Player target = getNewTarget(pl.getPlayerID());
+                        ParallelsPVP.interactListener.targetPlayer(pl.getPlayer(), target);
+                        pl.getPlayer().sendMessage(ParallelsPVP.pluginTAG+ChatColor.GOLD+" Votre cible est "+target.getDisplayName()+ChatColor.GOLD+". Tuez le pour gagner un bonus de coins !");
+                        pl.getPlayer().sendMessage(ParallelsPVP.pluginTAG+ChatColor.GOLD+" Votre boussole pointe désormais vers ce joueur. Faites clic gauche avec votre boussole pour la pointer vers lui à nouveau !");
+                    }
+                }
+            }, 10*20L);
         } else {
             finish(FinishReason.WIN);
         }
-
     }
 
     @Override
@@ -619,4 +678,39 @@ public class Arena implements GameArena {
         }
         ParallelsPVP.menuManager.show(player);
     }
+
+    public UUID getTarget(UUID player) {
+        return targets.get(player);
+    }
+
+    public ArrayList<UUID> getTargetedBy(UUID target) {
+        ArrayList<UUID> ret = new ArrayList<>();
+        for (UUID key : targets.keySet()) {
+            if (targets.get(key) != null && targets.get(key).equals(target))
+                ret.add(key);
+        }
+        return ret;
+    }
+
+    public Player getNewTarget(UUID player) {
+        return getNewTarget(player, 0);
+    }
+
+    public Player getNewTarget(UUID player, int redundency) {
+        Random rnd = new Random();
+        int id = rnd.nextInt(players.size());
+        if (id > players.size())
+            id--;
+        ParallelsPlayer target = players.get(id);
+        if (target.getPlayerID().equals(player) || target.getPlayer() == null || !target.getPlayer().isOnline()) {
+            if (redundency <= 15)
+                return getNewTarget(player, redundency+1);
+            else
+                return null;
+        }
+
+        targets.put(player, target.getPlayerID());
+        return target.getPlayer();
+    }
+
 }

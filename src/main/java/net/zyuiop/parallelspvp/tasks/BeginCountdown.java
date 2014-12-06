@@ -39,11 +39,11 @@ public class BeginCountdown implements Runnable {
                 time = 121;
             }
 
-            if (nPlayers >= (maxPlayers/100)*75 && time > 60) {
+            if (nPlayers >= ((double)maxPlayers/100.0)*65.0 && time > 60) {
                 time = 61;
             }
 
-            if (nPlayers >= (maxPlayers/100)*85 && time > 30) {
+            if (nPlayers >= ((double)maxPlayers/100.0)*85.0 && time > 30) {
                 time = 31;
             }
 
@@ -64,7 +64,7 @@ public class BeginCountdown implements Runnable {
 
     public void timeBroadcast() {
         if (time == 0) {
-            parent.start();
+            parent.preStart();
             return;
         }
 

@@ -30,7 +30,7 @@ public class PVPEnable implements Runnable {
             return;
         }
 
-        if (time <= 5 || time == 10 || time == 30 || time == 60) {
+        if (time <= 5 || time == 10 || time == 30 || time == 60 || time == 120) {
             Bukkit.broadcastMessage(ParallelsPVP.pluginTAG + ChatColor.GOLD + "Le PVP sera activé dans "+time+" secondes !");
         }
 

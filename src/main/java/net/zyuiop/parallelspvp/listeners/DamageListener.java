@@ -1,6 +1,5 @@
 package net.zyuiop.parallelspvp.listeners;
 
-import net.samagames.network.client.GamePlayer;
 import net.zyuiop.coinsManager.CoinsManager;
 import net.zyuiop.parallelspvp.ParallelsPVP;
 import net.zyuiop.parallelspvp.arena.Arena;
@@ -8,6 +7,7 @@ import net.zyuiop.parallelspvp.arena.DimensionsManager;
 import net.zyuiop.parallelspvp.arena.ParallelsPlayer;
 import net.zyuiop.statsapi.StatsApi;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -48,6 +48,10 @@ public class DamageListener implements Listener {
                     public void run() {
                        CoinsManager.creditJoueur(obj.getDamager().getUniqueId(), 2, true, true, "Un joueur tué !");
                         StatsApi.increaseStat(obj.getDamager().getUniqueId(), "parallelspvp", "kills", 1);
+                        if (arena.getTargetedBy(event.getEntity().getUniqueId()).contains(obj.getDamager().getUniqueId())) {
+                            ((Player) obj.getDamager()).sendMessage(ParallelsPVP.pluginTAG+ ChatColor.GOLD+" Vous avez tué votre cible \\o/");
+                            CoinsManager.creditJoueur(obj.getDamager().getUniqueId(), 5, true, true, "Objectif réussi !");
+                        }
                         //((Player)obj.getDamager()).sendMessage(ChatColor.GOLD + "Vous gagnez " + montant + " coins " + ChatColor.AQUA + "(Un joueur tué !)");
                     }
                 });
@@ -60,6 +64,10 @@ public class DamageListener implements Listener {
                         public void run() {
                             CoinsManager.creditJoueur(shooter.getUniqueId(), 2, true, true, "Un joueur tué !");
                             StatsApi.increaseStat(shooter.getUniqueId(), "parallelspvp", "kills", 1);
+                            if (arena.getTargetedBy(event.getEntity().getUniqueId()).contains(shooter.getUniqueId())) {
+                                ((Player) shooter).sendMessage(ParallelsPVP.pluginTAG+ ChatColor.GOLD+" Vous avez tué votre cible \\o/");
+                                CoinsManager.creditJoueur(shooter.getUniqueId(), 5, true, true, "Objectif réussi !");
+                            }
                             //((Player)obj.getDamager()).sendMessage(ChatColor.GOLD + "Vous gagnez " + montant + " coins " + ChatColor.AQUA + "(Un joueur tué !)");
                         }
                     });

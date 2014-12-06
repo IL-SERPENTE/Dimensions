@@ -13,7 +13,7 @@ public class CommandStart implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         commandSender.sendMessage(ChatColor.GREEN+">> L'arène est démarrée de force. <<");
-        ParallelsPVP.instance.getArena().start();
+        ParallelsPVP.instance.getArena().preStart();
         return true;
     }
 }

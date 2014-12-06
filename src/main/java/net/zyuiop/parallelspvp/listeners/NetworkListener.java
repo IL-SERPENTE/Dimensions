@@ -50,7 +50,7 @@ public class NetworkListener implements Listener {
 
         String reason = "";
         if (nbPlayers > parent.getMaxPlayers())
-            reason = ChatColor.GREEN+"[Slots Donateurs] ";
+            reason = ChatColor.GREEN+"[Slots VIP] ";
 
         // Setup du joueur
         player.sendMessage(ChatColor.GOLD+"Bienvenue dans "+ChatColor.RED+"Dimensions"+ChatColor.GOLD+" !");

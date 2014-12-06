@@ -37,10 +37,18 @@ public class SpectatorListener implements Listener {
     }
 
     public boolean cancel(Player p) {
-        if (!arena.isStarted()) {
+        if (!arena.isInGame()) {
             return true;
         }
         return !arena.isPlaying(new ParallelsPlayer(p));
+    }
+
+    @EventHandler
+    public void onMoveEvent(PlayerMoveEvent event) {
+        if (arena.isStarted() && !arena.isInGame() && arena.isPlaying(new ParallelsPlayer(event.getPlayer()))) {
+            if (event.getTo().getBlockX() != event.getFrom().getBlockX() || event.getTo().getBlockZ() != event.getFrom().getBlockZ())
+                event.setCancelled(true);
+        }
     }
 
     @EventHandler
@@ -56,7 +64,7 @@ public class SpectatorListener implements Listener {
     public void onPlace(BlockPlaceEvent e) {
         e.setCancelled(cancel(e.getPlayer()));
         if (!e.isCancelled()) {
-            if (e.getBlock().getType() != Material.TNT)
+            if (e.getBlock().getType() != Material.TNT && e.getBlock().getType() != Material.WORKBENCH && e.getBlock().getType() != Material.FURNACE)
                 e.setCancelled(true);
         }
     }
@@ -66,7 +74,7 @@ public class SpectatorListener implements Listener {
         e.setCancelled(cancel(e.getPlayer()));
         if (!arena.isPlaying(new ParallelsPlayer(e.getPlayer()))) {
             if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                if (e.getItem().getType() == Material.COMPASS) {
+                if (e.getItem() != null && e.getItem().getType() == Material.COMPASS) {
                     arena.tpMenu(e.getPlayer());
                 }
             }
@@ -99,7 +107,7 @@ public class SpectatorListener implements Listener {
         if (arena.isPlaying(new ParallelsPlayer(e.getPlayer())))
             return;
 
-        if (!arena.isStarted())
+        if (!arena.isInGame())
             return;
 
         List<Entity> entities = e.getPlayer().getNearbyEntities(1, 1, 1);

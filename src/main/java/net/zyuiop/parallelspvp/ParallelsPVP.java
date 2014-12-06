@@ -41,6 +41,7 @@ public class ParallelsPVP extends JavaPlugin {
     public static ParallelsPVP instance;
     public ArenaManager arenaManager;
     public static IconMenuManager menuManager;
+    public static InteractListener interactListener;
 
     protected boolean testMode = false;
 
@@ -69,7 +70,8 @@ public class ParallelsPVP extends JavaPlugin {
         this.arenaManager = new ArenaManager(this, arenaData, arenaFile);
 
         // Initialisation des listeners
-        Bukkit.getPluginManager().registerEvents(new InteractListener(this), this);
+        interactListener = new InteractListener(this);
+        Bukkit.getPluginManager().registerEvents(interactListener, this);
         Bukkit.getPluginManager().registerEvents(new DamageListener(this), this);
         new SpectatorListener(this);
         new ChestListener(this);

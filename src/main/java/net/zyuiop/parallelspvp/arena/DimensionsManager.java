@@ -61,20 +61,21 @@ public class DimensionsManager {
         if (dim == null)
             dim = Dimension.OVERWORLD;
 
-        Location tpTo = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY(), p.getLocation().getZ(), p.getLocation().getYaw(), p.getLocation().getPitch());
-        Location tpToWork = new Location(p.getLocation().getWorld(), p.getLocation().getX(), p.getLocation().getY() + 1, p.getLocation().getZ(), p.getLocation().getYaw(), p.getLocation().getPitch());
+        Location tpTo = new Location(p.getLocation().getWorld(), p.getLocation().getBlockX()+0.5, p.getLocation().getBlockY(), p.getLocation().getBlockZ()+0.5, p.getLocation().getYaw(), p.getLocation().getPitch());
+        Location tpToWork = new Location(p.getLocation().getWorld(), p.getLocation().getBlockX()+0.5, p.getLocation().getBlockY() + 1, p.getLocation().getBlockZ()+0.5, p.getLocation().getYaw(), p.getLocation().getPitch());
         if (dim == Dimension.OVERWORLD) {
             tpTo.setX(tpTo.getX() - decalage);
             dim = Dimension.PARALLEL;
+            p.setPlayerTime(17000,false);
         } else {
             tpTo.setX(tpTo.getX() + decalage);
             dim = Dimension.OVERWORLD;
+            p.setPlayerTime(6000, false);
         }
 
         Block b = tpTo.getBlock();
         Block up = tpToWork.getBlock();
         if (b.isEmpty() && up.isEmpty()) {
-            p.teleport(tpTo);
             tpToWork.setY(tpToWork.getY() - 2);
             while (tpToWork.getBlock().isEmpty()) {
                 tpToWork.setY(tpToWork.getY()-1);
@@ -84,9 +85,10 @@ public class DimensionsManager {
                 }
             }
             tpTo.setY(tpToWork.getY()+1);
+            p.teleport(tpTo);
 
             p.playSound(p.getLocation(), Sound.ENDERMAN_TELEPORT, 1, 1);
-            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 0));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 50, 0));
             p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 100, 0));
             dimensions.put(ap.getPlayerID(), dim);
 

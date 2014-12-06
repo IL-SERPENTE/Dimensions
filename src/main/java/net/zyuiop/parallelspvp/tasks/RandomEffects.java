@@ -36,7 +36,7 @@ public class RandomEffects implements Runnable {
         nextEffect--;
         if (nextEffect <= 0) {
             Random rnd = new Random();
-            nextEffect = 90 + rnd.nextInt(90);
+            nextEffect = 30 + rnd.nextInt(60);
 
             // On applique un effet dans la liste
             for (UUID player : parent.getDimensionsManager().getPlayersInDimension(DimensionsManager.Dimension.PARALLEL)) {
