@@ -1,9 +1,9 @@
-package net.samagames.parallelspvp.listeners;
+package net.samagames.dimensions.listeners;
 
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.themachine.ICoherenceMachine;
-import net.samagames.parallelspvp.ParallelsPVP;
-import net.samagames.parallelspvp.arena.DimensionsManager;
+import net.samagames.dimensions.Dimensions;
+import net.samagames.dimensions.arena.DimensionsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -24,12 +24,12 @@ import java.util.UUID;
  */
 public class InteractListener implements Listener {
 
-    protected ParallelsPVP plugin;
+    protected Dimensions plugin;
     protected HashMap<UUID, BukkitTask> tasks = new HashMap<>();
 
     protected ICoherenceMachine coherenceMachine;
 
-    public InteractListener(ParallelsPVP plugin) {
+    public InteractListener(Dimensions plugin) {
         this.plugin = plugin;
 
         coherenceMachine = SamaGamesAPI.get().getGameManager().getCoherenceMachine();
@@ -45,7 +45,7 @@ public class InteractListener implements Listener {
             if (ev.getItem() == null)
                 return;
 
-            if (ev.getItem().equals(ParallelsPVP.getCompass())) {
+            if (ev.getItem().equals(Dimensions.getCompass())) {
                 final Player p = ev.getPlayer();
                 Player nearest = null;
                 for (Entity e : p.getNearbyEntities(1000D, 1000D, 1000D)) {
@@ -70,7 +70,7 @@ public class InteractListener implements Listener {
                     p.setCompassTarget(nearest.getLocation());
                     targetPlayer(p, nearest);
                 }
-            } else if (ev.getItem().equals(ParallelsPVP.getSwap()) && ev.getItem().getAmount() == 1) {
+            } else if (ev.getItem().equals(Dimensions.getSwap()) && ev.getItem().getAmount() == 1) {
                 ev.setCancelled(true);
                 plugin.getArena().getDimensionsManager().swap(ev.getPlayer());
             }
@@ -78,7 +78,7 @@ public class InteractListener implements Listener {
             if (ev.getItem() == null)
                 return;
 
-            if (!ev.getItem().equals(ParallelsPVP.getCompass()))
+            if (!ev.getItem().equals(Dimensions.getCompass()))
                 return;
 
             UUID target = plugin.getArena().getTarget(ev.getPlayer().getUniqueId());
@@ -88,7 +88,7 @@ public class InteractListener implements Listener {
             Player p = Bukkit.getPlayer(target);
             if ((p == null || !p.isOnline()) && plugin.getArena().isPVPEnabled()) {
                 Player t = plugin.getArena().getNewTarget(ev.getPlayer().getUniqueId());
-                ParallelsPVP.interactListener.targetPlayer(ev.getPlayer(), t);
+                Dimensions.interactListener.targetPlayer(ev.getPlayer(), t);
                 ev.getPlayer().sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD+"Votre cible est "+t.getDisplayName()+ChatColor.GOLD+". Tuez le pour gagner un bonus de coins !");
                 ev.getPlayer().sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD+"Votre boussole pointe désormais vers ce joueur. Faites clic gauche avec votre boussole pour la pointer vers lui à nouveau !");
             }else if (this.plugin.getArena().isPVPEnabled()) {
@@ -116,7 +116,7 @@ public class InteractListener implements Listener {
     }
 
     public void targetPlayer(final Player player, final Player target) {
-        BukkitTask sched = Bukkit.getScheduler().runTaskTimer(ParallelsPVP.instance, () -> {
+        BukkitTask sched = Bukkit.getScheduler().runTaskTimer(Dimensions.instance, () -> {
             if (target.isOnline()) {
                 if (plugin.getArena().getDimensionsManager().getDimension(player) != plugin.getArena().getDimensionsManager().getDimension(target)) {
                     player.sendMessage(coherenceMachine.getGameTag() + " " + target.getDisplayName() + ChatColor.RED + " se situe dans une autre dimension...");

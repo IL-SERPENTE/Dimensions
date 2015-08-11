@@ -1,14 +1,14 @@
-package net.samagames.parallelspvp;
+package net.samagames.dimensions;
 
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.Status;
 import net.samagames.api.permissions.IPermissionsManager;
-import net.samagames.parallelspvp.arena.Arena;
-import net.samagames.parallelspvp.commands.CommandStart;
-import net.samagames.parallelspvp.listeners.ChestListener;
-import net.samagames.parallelspvp.listeners.DamageListener;
-import net.samagames.parallelspvp.listeners.InteractListener;
-import net.samagames.parallelspvp.listeners.SpectatorListener;
+import net.samagames.dimensions.arena.Arena;
+import net.samagames.dimensions.commands.CommandStart;
+import net.samagames.dimensions.listeners.ChestListener;
+import net.samagames.dimensions.listeners.DamageListener;
+import net.samagames.dimensions.listeners.InteractListener;
+import net.samagames.dimensions.listeners.SpectatorListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -25,9 +25,9 @@ import java.io.IOException;
 /**
  * Created by zyuiop on 26/09/14.
  */
-public class ParallelsPVP extends JavaPlugin {
+public class Dimensions extends JavaPlugin {
 
-    public static ParallelsPVP instance;
+    public static Dimensions instance;
     public static InteractListener interactListener;
     public Arena arena;
     protected IPermissionsManager permissionsAPI;

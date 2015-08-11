@@ -1,4 +1,4 @@
-package net.samagames.parallelspvp.utils;
+package net.samagames.dimensions.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

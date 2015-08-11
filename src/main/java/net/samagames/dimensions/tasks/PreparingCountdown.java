@@ -1,9 +1,9 @@
-package net.samagames.parallelspvp.tasks;
+package net.samagames.dimensions.tasks;
 
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.themachine.ICoherenceMachine;
-import net.samagames.parallelspvp.ParallelsPVP;
-import net.samagames.parallelspvp.arena.Arena;
+import net.samagames.dimensions.Dimensions;
+import net.samagames.dimensions.arena.Arena;
 import net.samagames.tools.Titles;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -35,7 +35,7 @@ public class PreparingCountdown implements Runnable, Listener {
 
     public void timeBroadcast() {
         if (time == 0) {
-            Bukkit.getScheduler().runTask(ParallelsPVP.instance, () -> parent.start());
+            Bukkit.getScheduler().runTask(Dimensions.instance, () -> parent.start());
             return;
         }
 

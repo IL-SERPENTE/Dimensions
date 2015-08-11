@@ -1,13 +1,13 @@
-package net.samagames.parallelspvp.listeners;
+package net.samagames.dimensions.listeners;
 
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.Status;
 import net.samagames.api.games.themachine.ICoherenceMachine;
-import net.samagames.parallelspvp.ParallelsPVP;
-import net.samagames.parallelspvp.arena.APlayer;
-import net.samagames.parallelspvp.arena.Arena;
-import net.samagames.parallelspvp.arena.DimensionsManager;
-import net.samagames.parallelspvp.utils.Metadatas;
+import net.samagames.dimensions.Dimensions;
+import net.samagames.dimensions.arena.APlayer;
+import net.samagames.dimensions.arena.Arena;
+import net.samagames.dimensions.arena.DimensionsManager;
+import net.samagames.dimensions.utils.Metadatas;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -35,11 +35,11 @@ import java.util.UUID;
  */
 public class DamageListener implements Listener {
 
-    protected ParallelsPVP plugin;
+    protected Dimensions plugin;
 
     protected ICoherenceMachine coherenceMachine;
 
-    public DamageListener(ParallelsPVP plugin) {
+    public DamageListener(Dimensions plugin) {
         this.plugin = plugin;
 
         coherenceMachine = SamaGamesAPI.get().getGameManager().getCoherenceMachine();
@@ -60,8 +60,8 @@ public class DamageListener implements Listener {
             event.getDrops().remove(rem);
         }
 
-        event.getDrops().remove(ParallelsPVP.getCompass());
-        event.getDrops().remove(ParallelsPVP.getSwap());
+        event.getDrops().remove(Dimensions.getCompass());
+        event.getDrops().remove(Dimensions.getSwap());
 
         if (!arena.hasPlayer(p)) {
             return;

@@ -1,12 +1,12 @@
-name: ParallelsPVP
-main: net.zyuiop.parallelspvp.ParallelsPVP
+name: Dimensions
+main: net.samagames.dimensions.Dimensions
 version: 0.1
 depend: [SamaGamesAPI]
 commands:
    start:
       description: Démarre la partie
       usage: /<command> now
-      permission: ParallelsPVP.op
+      permission: Dimensions.op
       permission-message: Permission non accordée
 permissions:
    ParallelsPVP.op:

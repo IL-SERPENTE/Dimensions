@@ -1,4 +1,4 @@
-package net.samagames.parallelspvp.arena;
+package net.samagames.dimensions.arena;
 
 import org.bukkit.inventory.ItemStack;
 

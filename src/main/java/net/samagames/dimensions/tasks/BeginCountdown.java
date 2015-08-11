@@ -1,8 +1,8 @@
-package net.samagames.parallelspvp.tasks;
+package net.samagames.dimensions.tasks;
 
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.Status;
-import net.samagames.parallelspvp.arena.Arena;
+import net.samagames.dimensions.arena.Arena;
 import net.samagames.tools.Titles;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

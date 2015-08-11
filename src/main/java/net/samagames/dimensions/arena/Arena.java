@@ -1,4 +1,4 @@
-package net.samagames.parallelspvp.arena;
+package net.samagames.dimensions.arena;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -9,10 +9,10 @@ import net.samagames.api.games.GamePlayer;
 import net.samagames.api.games.IGameProperties;
 import net.samagames.api.games.Status;
 import net.samagames.api.gui.AbstractGui;
-import net.samagames.parallelspvp.ParallelsPVP;
-import net.samagames.parallelspvp.tasks.*;
-import net.samagames.parallelspvp.utils.Colors;
-import net.samagames.parallelspvp.utils.Utils;
+import net.samagames.dimensions.Dimensions;
+import net.samagames.dimensions.tasks.*;
+import net.samagames.dimensions.utils.Colors;
+import net.samagames.dimensions.utils.Utils;
 import net.samagames.tools.Titles;
 import net.samagames.tools.scoreboards.VObjective;
 import org.bukkit.*;
@@ -38,7 +38,7 @@ public class Arena extends Game<APlayer> {
     protected int minPlayers;
     protected String mapName;
 
-    protected ParallelsPVP plugin;
+    protected Dimensions plugin;
 
     protected ArrayList<Location> spawns = new ArrayList<>();
     protected ArrayList<Location> deathmatchSpawns = new ArrayList<>();
@@ -61,7 +61,7 @@ public class Arena extends Game<APlayer> {
     private Scoreboard scoreboard;
     private VObjective objectiveTab;
 
-    public Arena(ParallelsPVP plugin) {
+    public Arena(Dimensions plugin) {
         super("dimensions", "Dimensions", APlayer.class);
         this.plugin = plugin;
 
@@ -173,7 +173,7 @@ public class Arena extends Game<APlayer> {
         }
 
         coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.GOLD + "Préparation du jeu !", true);
-        beginTimer = Bukkit.getScheduler().runTaskTimerAsynchronously(ParallelsPVP.instance, new PreparingCountdown(this), 0L, 20L);
+        beginTimer = Bukkit.getScheduler().runTaskTimerAsynchronously(Dimensions.instance, new PreparingCountdown(this), 0L, 20L);
 
         scoreboard.registerNewObjective("vie", "health").setDisplaySlot(DisplaySlot.BELOW_NAME);
         scoreboard.getObjective("vie").setDisplayName(ChatColor.RED + "♥");
@@ -264,8 +264,8 @@ public class Arena extends Game<APlayer> {
                 if (pl != null) {
                     resetPlayer(pl);
                     pl.setGameMode(GameMode.SURVIVAL);
-                    pl.getInventory().setItem(7, ParallelsPVP.getCompass());
-                    pl.getInventory().setItem(8, ParallelsPVP.getSwap());
+                    pl.getInventory().setItem(7, Dimensions.getCompass());
+                    pl.getInventory().setItem(8, Dimensions.getSwap());
                     pl.setExp(0);
                     pl.setLevel(0);
                 }
@@ -283,13 +283,13 @@ public class Arena extends Game<APlayer> {
         this.pvpCount = null;
 
         coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.GOLD + "Le PVP est activé ! C'est l'heure du d-d-d-duel !", true);
-        Bukkit.getScheduler().runTaskLaterAsynchronously(ParallelsPVP.instance, () -> {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(Dimensions.instance, () -> {
             for (GamePlayer player : getInGamePlayers().values()) {
                 Player bPlayer = player.getPlayerIfOnline();
                 Player target = getNewTarget(player.getUUID());
                 if(target == null)
                     continue;
-                ParallelsPVP.interactListener.targetPlayer(bPlayer, target);
+                Dimensions.interactListener.targetPlayer(bPlayer, target);
                 bPlayer.sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD + "Votre cible est " + target.getDisplayName() + ChatColor.GOLD + ". Tuez le pour gagner un bonus de coins !");
                 bPlayer.sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD + "Votre boussole pointe désormais vers ce joueur. Faites clic gauche avec votre boussole pour la pointer vers lui à nouveau !");
             }
@@ -476,7 +476,7 @@ public class Arena extends Game<APlayer> {
     }
 
     public void stumpPlayer(final Player player, boolean logout) {
-        ParallelsPVP.interactListener.unregisterTask(player);
+        Dimensions.interactListener.unregisterTask(player);
         int left = getConnectedPlayers();
         boolean isWon = (left <= 1);
 
@@ -511,14 +511,14 @@ public class Arena extends Game<APlayer> {
 
             if(!isDeathmatch())
             {
-                Bukkit.getScheduler().runTaskLaterAsynchronously(ParallelsPVP.instance, () -> {
+                Bukkit.getScheduler().runTaskLaterAsynchronously(Dimensions.instance, () -> {
                     for (UUID plid : ids) {
                         GamePlayer pl = getPlayer(plid);
                         if (pl == null)
                             continue;
 
                         Player target = getNewTarget(pl.getUUID());
-                        ParallelsPVP.interactListener.targetPlayer(pl.getPlayerIfOnline(), target);
+                        Dimensions.interactListener.targetPlayer(pl.getPlayerIfOnline(), target);
                         pl.getPlayerIfOnline().sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD+" Votre cible est "+target.getDisplayName()+ChatColor.GOLD+". Tuez le pour gagner un bonus de coins !");
                         pl.getPlayerIfOnline().sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD+" Votre boussole pointe désormais vers ce joueur. Faites clic gauche avec votre boussole pour la pointer vers lui à nouveau !");
                     }

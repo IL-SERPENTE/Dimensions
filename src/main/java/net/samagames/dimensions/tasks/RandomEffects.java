@@ -1,8 +1,8 @@
-package net.samagames.parallelspvp.tasks;
+package net.samagames.dimensions.tasks;
 
-import net.samagames.parallelspvp.ParallelsPVP;
-import net.samagames.parallelspvp.arena.Arena;
-import net.samagames.parallelspvp.arena.DimensionsManager;
+import net.samagames.dimensions.Dimensions;
+import net.samagames.dimensions.arena.Arena;
+import net.samagames.dimensions.arena.DimensionsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -45,7 +45,7 @@ public class RandomEffects implements Runnable {
             for (UUID player : parent.getDimensionsManager().getPlayersInDimension(DimensionsManager.Dimension.PARALLEL)) {
                 int effect = rnd.nextInt(effects.length);
                 Player p = Bukkit.getPlayer(player);
-                Bukkit.getScheduler().runTask(ParallelsPVP.instance, () -> {
+                Bukkit.getScheduler().runTask(Dimensions.instance, () -> {
                     if (p != null)
                         p.addPotionEffect(effects[effect]);
                 });

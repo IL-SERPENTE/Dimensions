@@ -1,7 +1,7 @@
-package net.samagames.parallelspvp.arena;
+package net.samagames.dimensions.arena;
 
 import net.samagames.api.games.GamePlayer;
-import net.samagames.parallelspvp.ParallelsPVP;
+import net.samagames.dimensions.Dimensions;
 import net.samagames.tools.scoreboards.ObjectiveSign;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -59,8 +59,8 @@ public class APlayer extends GamePlayer {
 
     protected void updateKills()
     {
-        ParallelsPVP.instance.getArena().getObjectiveTab().getScore(getPlayerIfOnline().getName()).setScore(kills);
-        ParallelsPVP.instance.getArena().getObjectiveTab().updateScore(true);
+        Dimensions.instance.getArena().getObjectiveTab().getScore(getPlayerIfOnline().getName()).setScore(kills);
+        Dimensions.instance.getArena().getObjectiveTab().updateScore(true);
     }
 
     public float getTpTime() {

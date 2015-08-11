@@ -1,7 +1,7 @@
-package net.samagames.parallelspvp.arena;
+package net.samagames.dimensions.arena;
 
 import net.samagames.api.games.Status;
-import net.samagames.parallelspvp.ParallelsPVP;
+import net.samagames.dimensions.Dimensions;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -138,7 +138,7 @@ public class DimensionsManager {
 
     public void startCountdown(final APlayer player) {
         waitList.put(player.getUUID(), (int) player.getTpTime());
-        this.tasks.put(player.getUUID(), Bukkit.getScheduler().runTaskTimer(ParallelsPVP.instance, () -> {
+        this.tasks.put(player.getUUID(), Bukkit.getScheduler().runTaskTimer(Dimensions.instance, () -> {
             Integer i = waitList.get(player.getUUID());
             if (i > 0)
                 waitList.put(player.getUUID(), i - 1);

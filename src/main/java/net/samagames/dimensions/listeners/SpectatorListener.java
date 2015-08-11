@@ -1,8 +1,8 @@
-package net.samagames.parallelspvp.listeners;
+package net.samagames.dimensions.listeners;
 
 import net.samagames.api.games.Status;
-import net.samagames.parallelspvp.ParallelsPVP;
-import net.samagames.parallelspvp.arena.Arena;
+import net.samagames.dimensions.Dimensions;
+import net.samagames.dimensions.arena.Arena;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -30,10 +30,10 @@ import java.util.List;
 public class SpectatorListener implements Listener {
 
     public ArrayList<Material> whitelist = new ArrayList<>();
-    protected ParallelsPVP plugin;
+    protected Dimensions plugin;
     protected Arena arena;
 
-    public SpectatorListener(ParallelsPVP plugin) {
+    public SpectatorListener(Dimensions plugin) {
         this.plugin = plugin;
         this.arena = plugin.getArena();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);

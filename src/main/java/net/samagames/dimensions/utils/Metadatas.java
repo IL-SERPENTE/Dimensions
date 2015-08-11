@@ -1,6 +1,6 @@
-package net.samagames.parallelspvp.utils;
+package net.samagames.dimensions.utils;
 
-import net.samagames.parallelspvp.ParallelsPVP;
+import net.samagames.dimensions.Dimensions;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.metadata.Metadatable;
@@ -15,7 +15,7 @@ public class Metadatas {
         List<MetadataValue> values = object.getMetadata(key);
         for (MetadataValue value : values) {
             // Plugins are singleton objects, so using == is safe here
-            if (value.getOwningPlugin() == ParallelsPVP.instance) {
+            if (value.getOwningPlugin() == Dimensions.instance) {
                 return value.value();
             }
         }
@@ -23,6 +23,6 @@ public class Metadatas {
     }
 
     public static void setMetadata(Metadatable object, String key, Object value) {
-        object.setMetadata(key, new FixedMetadataValue(ParallelsPVP.instance,value));
+        object.setMetadata(key, new FixedMetadataValue(Dimensions.instance,value));
     }
 }

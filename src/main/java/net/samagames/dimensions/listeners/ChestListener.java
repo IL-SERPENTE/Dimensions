@@ -1,8 +1,8 @@
-package net.samagames.parallelspvp.listeners;
+package net.samagames.dimensions.listeners;
 
-import net.samagames.parallelspvp.ParallelsPVP;
-import net.samagames.parallelspvp.arena.RandomItem;
-import net.samagames.parallelspvp.utils.Metadatas;
+import net.samagames.dimensions.Dimensions;
+import net.samagames.dimensions.arena.RandomItem;
+import net.samagames.dimensions.utils.Metadatas;
 import org.bukkit.*;
 import org.bukkit.block.Chest;
 import org.bukkit.enchantments.Enchantment;
@@ -33,10 +33,10 @@ import java.util.Random;
  */
 public class ChestListener implements Listener {
 
-    protected ParallelsPVP plugin;
+    protected Dimensions plugin;
     protected ArrayList<RandomItem> items = new ArrayList<RandomItem>();
 
-    public ChestListener(ParallelsPVP plugin) {
+    public ChestListener(Dimensions plugin) {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
@@ -128,7 +128,7 @@ public class ChestListener implements Listener {
         fwm.addEffect(effect);
         fwm.setPower(0);
         fw.setFireworkMeta(fwm);
-        Bukkit.getScheduler().runTaskLater(ParallelsPVP.instance, () -> {
+        Bukkit.getScheduler().runTaskLater(Dimensions.instance, () -> {
             fw.detonate();
         }, 2);
     }

@@ -1,6 +1,6 @@
-package net.samagames.parallelspvp.commands;
+package net.samagames.dimensions.commands;
 
-import net.samagames.parallelspvp.ParallelsPVP;
+import net.samagames.dimensions.Dimensions;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -13,7 +13,7 @@ public class CommandStart implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         commandSender.sendMessage(ChatColor.GREEN+">> L'arène est démarrée de force. <<");
-        ParallelsPVP.instance.getArena().startGame();
+        Dimensions.instance.getArena().startGame();
         return true;
     }
 }
