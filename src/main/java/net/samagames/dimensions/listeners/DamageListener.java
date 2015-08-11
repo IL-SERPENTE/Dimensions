@@ -129,7 +129,7 @@ public class DamageListener implements Listener {
                     arena.addCoins(pplayer.getPlayerIfOnline(), 20, "Un joueur tué !");
                     arena.increaseStat(lastDamager, "kills", 1);
                     if (DamageListener.this.plugin.getArena().getTargetedBy(dead.getUniqueId()).contains(lastDamager) && !DamageListener.this.plugin.getArena().isDeathmatch()) {
-                        killer.sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD + "Vous avez tué votre cible \\o/");
+                        killer.sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD + " Vous avez tué votre cible \\o/");
                         arena.addCoins(pplayer.getPlayerIfOnline(), 40, "Objectif réussi !");
                     }
                     if (killer.getHealth() >= 1.0 && DamageListener.this.plugin.getArena().isPlaying(pplayer.getPlayerIfOnline())) {
@@ -143,7 +143,7 @@ public class DamageListener implements Listener {
                         }
                         final Integer strenghtAtKill = pplayer.getStrengthAtKill();
                         if (strenghtAtKill != null) {
-                            killer.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * strenghtAtKill, 0));
+                            Bukkit.getScheduler().runTask(plugin, () -> killer.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * strenghtAtKill, 0)));
                         }
                     }
                 });

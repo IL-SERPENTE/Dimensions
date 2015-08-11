@@ -50,7 +50,7 @@ public class APlayer extends GamePlayer {
 
         healAtKill = Integer.valueOf(getData(shopsManager, "healAtKill", "0"));
 
-        tpTime = Integer.valueOf(getData(shopsManager, "tpTime", "0"));
+        tpTime = Integer.valueOf(getData(shopsManager, "tpTime", "17"));
 
     }
 

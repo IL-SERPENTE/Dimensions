@@ -361,17 +361,17 @@ public class Arena extends Game<APlayer> {
                 if (p.getUniqueId().equals(player.getUniqueId())) {
                     continue;
                 }
-                Titles.sendTitle(p, 5, 80, 5, ChatColor.GOLD + "Fin de partie !", ChatColor.GREEN + "Bravo \u00e0 " + player.getDisplayName());
+                Titles.sendTitle(p, 5, 80, 5, ChatColor.GOLD + "Fin de partie !", ChatColor.GREEN + "Bravo à " + player.getDisplayName());
             }
 
             increaseStat(player.getUniqueId(), "wins", 1);
 
-            coherenceMachine.getTemplateManager().getPlayerWinTemplate().execute(player);
+            coherenceMachine.getTemplateManager().getPlayerWinTemplate().execute(player, winner.getKills());
             //Bukkit.broadcastMessage(plugin.pluginTAG+ChatColor.GREEN+ChatColor.MAGIC+"aaa"+ChatColor.GOLD+" Victoire ! "+ChatColor.GREEN+ChatColor.MAGIC+"aaa"+ChatColor.GOLD+" Bravo a "+ChatColor.LIGHT_PURPLE+player.getName()+ChatColor.GOLD+" !");
 
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 addCoins(player, 20, "Victoire !");
-                addStars(player, 1, "Victoire !");
+                addStars(player, 3, "Victoire !");
             });
 
             // Feux d'artifice swag
@@ -439,7 +439,10 @@ public class Arena extends Game<APlayer> {
 
     public void joinSpectators(Player p) {
         p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 99999999, 1));
-        p.setGameMode(GameMode.CREATIVE);
+        p.setGameMode(GameMode.ADVENTURE);
+        p.setAllowFlight(true);
+        p.setFlying(true);
+        p.setFlySpeed(0.2F);
         p.teleport(this.waitLocation);
         p.getInventory().clear();
 
@@ -477,7 +480,7 @@ public class Arena extends Game<APlayer> {
 
     public void stumpPlayer(final Player player, boolean logout) {
         Dimensions.interactListener.unregisterTask(player);
-        int left = getConnectedPlayers();
+        int left = getConnectedPlayers()-1;
         boolean isWon = (left <= 1);
 
         if (left == 2) {
@@ -490,7 +493,7 @@ public class Arena extends Game<APlayer> {
 
         increaseStat(player.getUniqueId(), "stumped", 1);
         if (player != null && player.isOnline()) {
-            coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.RED + " " + player.getName() + " a été éliminé.", true);
+            coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.RED + player.getName() + " a été éliminé.", true);
             joinSpectators(player);
         }
 

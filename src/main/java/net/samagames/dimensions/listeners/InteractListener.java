@@ -89,13 +89,13 @@ public class InteractListener implements Listener {
             if ((p == null || !p.isOnline()) && plugin.getArena().isPVPEnabled()) {
                 Player t = plugin.getArena().getNewTarget(ev.getPlayer().getUniqueId());
                 Dimensions.interactListener.targetPlayer(ev.getPlayer(), t);
-                ev.getPlayer().sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD+"Votre cible est "+t.getDisplayName()+ChatColor.GOLD+". Tuez le pour gagner un bonus de coins !");
-                ev.getPlayer().sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD+"Votre boussole pointe désormais vers ce joueur. Faites clic gauche avec votre boussole pour la pointer vers lui à nouveau !");
+                ev.getPlayer().sendMessage(ChatColor.GOLD+"Votre cible est "+t.getDisplayName()+ChatColor.GOLD+". Tuez le pour gagner un bonus de coins !");
+                ev.getPlayer().sendMessage(ChatColor.GOLD+"Votre boussole pointe désormais vers ce joueur. Faites clic gauche avec votre boussole pour la pointer vers lui à nouveau !");
             }else if (this.plugin.getArena().isPVPEnabled()) {
                 final DimensionsManager dm = this.plugin.getArena().getDimensionsManager();
                 if (dm.getDimension(p) == dm.getDimension(ev.getPlayer())) {
-                    ev.getPlayer().sendMessage(ChatColor.GREEN + "Votre boussole pointe d\u00e9sormais vers " + ChatColor.GOLD + p.getDisplayName());
-                    ev.getPlayer().sendMessage(ChatColor.GREEN + "Tuez ce joueur pour gagner un bonus de coins !");
+                    ev.getPlayer().sendMessage(ChatColor.GREEN + " Votre boussole pointe désormais vers " + ChatColor.GOLD + p.getDisplayName());
+                    ev.getPlayer().sendMessage(ChatColor.GREEN + " Tuez ce joueur pour gagner un bonus de coins !");
                     this.targetPlayer(ev.getPlayer(), p);
                 }
                 else {
@@ -117,7 +117,7 @@ public class InteractListener implements Listener {
 
     public void targetPlayer(final Player player, final Player target) {
         BukkitTask sched = Bukkit.getScheduler().runTaskTimer(Dimensions.instance, () -> {
-            if (target.isOnline()) {
+            if (target != null && target.isOnline()) {
                 if (plugin.getArena().getDimensionsManager().getDimension(player) != plugin.getArena().getDimensionsManager().getDimension(target)) {
                     player.sendMessage(coherenceMachine.getGameTag() + " " + target.getDisplayName() + ChatColor.RED + " se situe dans une autre dimension...");
                     unregisterTask(player);
