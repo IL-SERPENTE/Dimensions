@@ -141,7 +141,7 @@ public class DamageListener implements Listener {
                             }
                             killer.setHealth(health);
                         }
-                        final Integer strenghtAtKill = pplayer.getStrenghtAtKill();
+                        final Integer strenghtAtKill = pplayer.getStrengthAtKill();
                         if (strenghtAtKill != null) {
                             killer.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * strenghtAtKill, 0));
                         }

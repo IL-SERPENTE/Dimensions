@@ -1,6 +1,8 @@
 package net.samagames.dimensions.arena;
 
+import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.GamePlayer;
+import net.samagames.api.shops.AbstractShopsManager;
 import net.samagames.dimensions.Dimensions;
 import net.samagames.tools.scoreboards.ObjectiveSign;
 import org.bukkit.ChatColor;
@@ -16,21 +18,46 @@ import org.bukkit.entity.Player;
 public class APlayer extends GamePlayer {
 
     private int healAtKill = 0;
-    private int strenghtAtKill;
+    private int strengthAtKill;
     private int healAtStrike;
     private float tpTime = 17;
 
     private int kills = 0;
 
+    private Player player;
+
     private ObjectiveSign objectiveInfo;
 
     public APlayer(Player player) {
         super(player);
+        this.player = player;
 
         objectiveInfo = new ObjectiveSign("infoSide", ChatColor.GREEN + "" + ChatColor.BOLD + "  Dimensions  ");
         objectiveInfo.addReceiver(player);
 
         updateKills();
+
+        loadShop();
+    }
+
+    public void loadShop()
+    {
+        AbstractShopsManager shopsManager = SamaGamesAPI.get().getShopsManager(Dimensions.instance.getArena().getGameCodeName());
+
+        strengthAtKill = Integer.valueOf(getData(shopsManager, "strengthAtKill", "0"));
+
+        healAtStrike = Integer.valueOf(getData(shopsManager, "healAtStrike", "0"));
+
+        healAtKill = Integer.valueOf(getData(shopsManager, "healAtKill", "0"));
+
+        tpTime = Integer.valueOf(getData(shopsManager, "tpTime", "0"));
+
+    }
+
+    public String getData(AbstractShopsManager shopsManager, String key, String defaut)
+    {
+        String data = shopsManager.getItemLevelForPlayer(player, key);
+        return (data != null)? data : defaut;
     }
 
     public int getHealAtKill() {
@@ -41,12 +68,12 @@ public class APlayer extends GamePlayer {
         this.healAtKill = healAtKill;
     }
 
-    public int getStrenghtAtKill() {
-        return strenghtAtKill;
+    public int getStrengthAtKill() {
+        return strengthAtKill;
     }
 
-    public void setStrenghtAtKill(int strenghtAtKill) {
-        this.strenghtAtKill = strenghtAtKill;
+    public void setStrengthAtKill(int strenghtAtKill) {
+        this.strengthAtKill = strenghtAtKill;
     }
 
     public int getHealAtStrike() {
