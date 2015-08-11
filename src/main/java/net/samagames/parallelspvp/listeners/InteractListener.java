@@ -1,19 +1,18 @@
-package net.zyuiop.parallelspvp.listeners;
+package net.samagames.parallelspvp.listeners;
 
-import net.zyuiop.parallelspvp.ParallelsPVP;
-import net.zyuiop.parallelspvp.arena.DimensionsManager;
-import net.zyuiop.parallelspvp.arena.ParallelsPlayer;
+import net.samagames.api.SamaGamesAPI;
+import net.samagames.api.games.themachine.ICoherenceMachine;
+import net.samagames.parallelspvp.ParallelsPVP;
+import net.samagames.parallelspvp.arena.DimensionsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EnchantingInventory;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
@@ -28,12 +27,20 @@ public class InteractListener implements Listener {
     protected ParallelsPVP plugin;
     protected HashMap<UUID, BukkitTask> tasks = new HashMap<>();
 
+    protected ICoherenceMachine coherenceMachine;
+
     public InteractListener(ParallelsPVP plugin) {
         this.plugin = plugin;
+
+        coherenceMachine = SamaGamesAPI.get().getGameManager().getCoherenceMachine();
     }
 
     @EventHandler
     public void onInteract(PlayerInteractEvent ev) {
+        if (ev.getClickedBlock() != null && (ev.getClickedBlock().getType() == Material.BED || ev.getClickedBlock().getType() == Material.BED_BLOCK)) {
+            ev.setCancelled(true);
+        }
+
         if (ev.getAction().equals(Action.RIGHT_CLICK_BLOCK) || ev.getAction().equals(Action.RIGHT_CLICK_AIR)) {
             if (ev.getItem() == null)
                 return;
@@ -44,7 +51,7 @@ public class InteractListener implements Listener {
                 for (Entity e : p.getNearbyEntities(1000D, 1000D, 1000D)) {
                     if (e instanceof Player) {
                         Player current = (Player) e;
-                        if (!plugin.getArena().isPlaying(new ParallelsPlayer(current)))
+                        if (!plugin.getArena().isPlaying(current))
                             continue;
 
                         if (plugin.getArena().getDimensionsManager().getDimension(current) != plugin.getArena().getDimensionsManager().getDimension(p)) {
@@ -82,49 +89,48 @@ public class InteractListener implements Listener {
             if ((p == null || !p.isOnline()) && plugin.getArena().isPVPEnabled()) {
                 Player t = plugin.getArena().getNewTarget(ev.getPlayer().getUniqueId());
                 ParallelsPVP.interactListener.targetPlayer(ev.getPlayer(), t);
-                ev.getPlayer().sendMessage(ParallelsPVP.pluginTAG+ChatColor.GOLD+" Votre cible est "+t.getDisplayName()+ChatColor.GOLD+". Tuez le pour gagner un bonus de coins !");
-                ev.getPlayer().sendMessage(ParallelsPVP.pluginTAG+ChatColor.GOLD+" Votre boussole pointe désormais vers ce joueur. Faites clic gauche avec votre boussole pour la pointer vers lui à nouveau !");
-            } else {
-                DimensionsManager dm = plugin.getArena().getDimensionsManager();
+                ev.getPlayer().sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD+"Votre cible est "+t.getDisplayName()+ChatColor.GOLD+". Tuez le pour gagner un bonus de coins !");
+                ev.getPlayer().sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD+"Votre boussole pointe désormais vers ce joueur. Faites clic gauche avec votre boussole pour la pointer vers lui à nouveau !");
+            }else if (this.plugin.getArena().isPVPEnabled()) {
+                final DimensionsManager dm = this.plugin.getArena().getDimensionsManager();
                 if (dm.getDimension(p) == dm.getDimension(ev.getPlayer())) {
-                    ev.getPlayer().sendMessage(ParallelsPVP.pluginTAG+ChatColor.GOLD+" Votre boussole pointe désormais vers "+p.getDisplayName());
-                    targetPlayer(ev.getPlayer(), p);
-                } else {
-                    ev.getPlayer().sendMessage(ParallelsPVP.pluginTAG+" "+p.getDisplayName()+ChatColor.RED+" se situe dans une autre dimension...");
+                    ev.getPlayer().sendMessage(ChatColor.GREEN + "Votre boussole pointe d\u00e9sormais vers " + ChatColor.GOLD + p.getDisplayName());
+                    ev.getPlayer().sendMessage(ChatColor.GREEN + "Tuez ce joueur pour gagner un bonus de coins !");
+                    this.targetPlayer(ev.getPlayer(), p);
+                }
+                else {
+                    ev.getPlayer().sendMessage(coherenceMachine.getGameTag() + p.getDisplayName() + ChatColor.RED + " se situe dans une autre dimension...");
                 }
             }
         }
     }
 
-    public void unregisterTask(ParallelsPlayer player) {
-        BukkitTask current = tasks.get(player.getPlayerID());
+    public void unregisterTask(Player player) {
+        BukkitTask current = tasks.get(player.getUniqueId());
         if (current != null)
             current.cancel();
         else
             plugin.getLogger().warning("Unregistering task but no task detected...");
-        tasks.remove(player.getPlayerID());
-        plugin.getLogger().info("Unregistered task for player " + player.getPlayer().getDisplayName());
+        tasks.remove(player.getUniqueId());
+        plugin.getLogger().info("Unregistered task for player " + player.getDisplayName());
     }
 
     public void targetPlayer(final Player player, final Player target) {
-        BukkitTask sched = Bukkit.getScheduler().runTaskTimer(ParallelsPVP.instance, new Runnable() {
-            @Override
-            public void run() {
-                if (target.isOnline()) {
-                    if (plugin.getArena().getDimensionsManager().getDimension(player) != plugin.getArena().getDimensionsManager().getDimension(target)) {
-                        player.sendMessage(ParallelsPVP.pluginTAG + " " + target.getDisplayName() + ChatColor.RED + " se situe dans une autre dimension...");
-                        unregisterTask(new ParallelsPlayer(player));
-                    } else
-                        player.setCompassTarget(target.getLocation());
+        BukkitTask sched = Bukkit.getScheduler().runTaskTimer(ParallelsPVP.instance, () -> {
+            if (target.isOnline()) {
+                if (plugin.getArena().getDimensionsManager().getDimension(player) != plugin.getArena().getDimensionsManager().getDimension(target)) {
+                    player.sendMessage(coherenceMachine.getGameTag() + " " + target.getDisplayName() + ChatColor.RED + " se situe dans une autre dimension...");
+                    unregisterTask(player);
                 } else
-                    unregisterTask(new ParallelsPlayer(player));
-            }
+                    player.setCompassTarget(target.getLocation());
+            } else
+                unregisterTask(player);
         }, 5L, 5L);
-        updateTask(new ParallelsPlayer(player), sched);
+        updateTask(player, sched);
     }
 
-    public void updateTask(ParallelsPlayer player, BukkitTask task) {
+    public void updateTask(Player player, BukkitTask task) {
         unregisterTask(player);
-        tasks.put(player.getPlayerID(), task);
+        tasks.put(player.getUniqueId(), task);
     }
 }

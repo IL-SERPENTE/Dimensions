@@ -1,8 +1,9 @@
-package net.zyuiop.parallelspvp.tasks;
+package net.samagames.parallelspvp.tasks;
 
-import net.samagames.gameapi.json.Status;
-import net.zyuiop.parallelspvp.ParallelsPVP;
-import net.zyuiop.parallelspvp.arena.Arena;
+import net.samagames.api.SamaGamesAPI;
+import net.samagames.api.games.Status;
+import net.samagames.parallelspvp.arena.Arena;
+import net.samagames.tools.Titles;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -23,11 +24,12 @@ public class BeginCountdown implements Runnable {
         this.parent = parentArena;
         this.maxPlayers = maxPlayers;
         this.minPlayers = minPlayers;
+
     }
 
     @Override
     public void run() {
-        int nPlayers = parent.countPlayers();
+        int nPlayers = parent.getConnectedPlayers();
 
         if (nPlayers >= maxPlayers && time > 10) {
             ready = true;
@@ -35,7 +37,7 @@ public class BeginCountdown implements Runnable {
         } else {
             if (nPlayers >= minPlayers && !ready) {
                 ready = true;
-                parent.updateStatus(Status.Starting);
+                parent.setStatus(Status.STARTING);
                 time = 121;
             }
 
@@ -49,8 +51,8 @@ public class BeginCountdown implements Runnable {
 
             if (nPlayers < minPlayers && ready) {
                 ready = false;
-                Bukkit.broadcastMessage(ParallelsPVP.pluginTAG+ ChatColor.RED+" Il n'y a plus assez de joueurs pour commencer.");
-                parent.updateStatus(Status.Available);
+                SamaGamesAPI.get().getGameManager().getCoherenceMachine().getMessageManager().writeCustomMessage(ChatColor.RED+"Il n'y a plus assez de joueurs pour commencer.", true);
+                parent.setStatus(Status.WAITING_FOR_PLAYERS);
                 for (Player p : Bukkit.getOnlinePlayers())
                     p.setLevel(120);
             }
@@ -64,15 +66,19 @@ public class BeginCountdown implements Runnable {
 
     public void timeBroadcast() {
         if (time == 0) {
-            parent.preStart();
+            parent.startGame();
             return;
         }
 
-        for (Player p : Bukkit.getOnlinePlayers())
+        for (Player p : Bukkit.getOnlinePlayers()){
             p.setLevel(time);
+            if (this.time <= 5 || this.time == 10) {
+                Titles.sendTitle(p, 2, 16, 2, ChatColor.GOLD + "Début dans " + ChatColor.RED + this.time + ChatColor.GOLD + " sec", ChatColor.GOLD + "Préparez vous au combat !");
+            }
+        }
 
         if (time <= 5 || time == 10 || time % 30 == 0) {
-            Bukkit.broadcastMessage(ParallelsPVP.pluginTAG+ ChatColor.YELLOW+" Début de la partie dans "+ChatColor.RED+time+" seconde"+((time > 1) ? "s" : "")+" !");
+            SamaGamesAPI.get().getGameManager().getCoherenceMachine().getMessageManager().writeCustomMessage(ChatColor.YELLOW + "Début de la partie dans " + ChatColor.RED + time + " seconde" + ((time > 1) ? "s" : "") + " !", true);
         }
 
         if (time <= 5 || time == 10) {

@@ -1,4 +1,4 @@
-package net.zyuiop.parallelspvp.utils;
+package net.samagames.parallelspvp.utils;
 
 import org.bukkit.Color;
 

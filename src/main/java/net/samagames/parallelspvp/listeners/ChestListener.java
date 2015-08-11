@@ -1,21 +1,26 @@
-package net.zyuiop.parallelspvp.listeners;
+package net.samagames.parallelspvp.listeners;
 
-import net.zyuiop.parallelspvp.ParallelsPVP;
-import net.zyuiop.parallelspvp.arena.RandomItem;
-import net.zyuiop.parallelspvp.utils.Metadatas;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import net.samagames.parallelspvp.ParallelsPVP;
+import net.samagames.parallelspvp.arena.RandomItem;
+import net.samagames.parallelspvp.utils.Metadatas;
+import org.bukkit.*;
 import org.bukkit.block.Chest;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Firework;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Dye;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionType;
 
@@ -38,10 +43,10 @@ public class ChestListener implements Listener {
         // Ici on fait les registers de chaque item //
 
         // ARMURES //
-        registerItem(new RandomItem(new ItemStack(Material.LEATHER_LEGGINGS, 1), 1500));
-        registerItem(new RandomItem(new ItemStack(Material.LEATHER_BOOTS, 1), 1500));
-        registerItem(new RandomItem(new ItemStack(Material.LEATHER_CHESTPLATE, 1), 1500));
-        registerItem(new RandomItem(new ItemStack(Material.LEATHER_HELMET, 1), 1500));
+        this.registerItem(new RandomItem(new ItemStack(Material.LEATHER_LEGGINGS, 1), 1500));
+        this.registerItem(new RandomItem(new ItemStack(Material.LEATHER_BOOTS, 1), 1500));
+        this.registerItem(new RandomItem(new ItemStack(Material.LEATHER_CHESTPLATE, 1), 1500));
+        this.registerItem(new RandomItem(new ItemStack(Material.LEATHER_HELMET, 1), 1500));
 
         registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_HELMET, 1), 1000));
         registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_BOOTS, 1), 1300));
@@ -66,6 +71,9 @@ public class ChestListener implements Listener {
         registerItem(new RandomItem(new ItemStack(Material.BAKED_POTATO), 3000, new int[]{4, 5, 6, 7, 8, 9, 10}));
         registerItem(new RandomItem(new ItemStack(Material.COOKED_BEEF), 3000, new int[]{2, 3, 4, 5}));
         registerItem(new RandomItem(new ItemStack(Material.EXP_BOTTLE), 1000, new int[]{4, 5, 6, 7}));
+        final Dye dye = new Dye();
+        dye.setColor(DyeColor.BLUE);
+        this.registerItem(new RandomItem(dye.toItemStack(), 1300, new int[]{3, 4, 5, 6, 7, 8}));
         registerItem(new RandomItem(new ItemStack(Material.LOG), 2000, new int[]{2, 3, 4}));
         registerItem(new RandomItem(new ItemStack(Material.BOW), 1000));
         registerItem(new RandomItem(new ItemStack(Material.FLINT), 1000, new int[]{2, 3}));
@@ -112,6 +120,19 @@ public class ChestListener implements Listener {
         registerItem(new RandomItem(new ItemStack(Material.GOLDEN_APPLE, 1, (short)1), 2));
     }
 
+    public static void launchfw(Location loc, final FireworkEffect effect)
+    {
+        loc = loc.add(0.5,0.5,0.5);
+        final Firework fw = (Firework) loc.getWorld().spawnEntity(loc, EntityType.FIREWORK);
+        FireworkMeta fwm = fw.getFireworkMeta();
+        fwm.addEffect(effect);
+        fwm.setPower(0);
+        fw.setFireworkMeta(fwm);
+        Bukkit.getScheduler().runTaskLater(ParallelsPVP.instance, () -> {
+            fw.detonate();
+        }, 2);
+    }
+
     public void registerItem(RandomItem item) {
         this.items.add(item);
     }
@@ -153,6 +174,16 @@ public class ChestListener implements Listener {
                 }
 
             }
+        }
+    }
+
+    @EventHandler
+    public void onInventoryClose(final InventoryCloseEvent event) {
+        final InventoryHolder holder = event.getInventory().getHolder();
+        if (holder instanceof Chest) {
+            final Chest chest = (Chest)holder;
+            launchfw(chest.getLocation(), FireworkEffect.builder().withColor(new Color[] { Color.WHITE, Color.GRAY, Color.BLACK }).with(FireworkEffect.Type.STAR).build());
+            chest.getBlock().setType(Material.AIR);
         }
     }
 }

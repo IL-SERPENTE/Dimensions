@@ -1,6 +1,6 @@
-package net.zyuiop.parallelspvp.utils;
+package net.samagames.parallelspvp.utils;
 
-import net.zyuiop.parallelspvp.ParallelsPVP;
+import net.samagames.parallelspvp.ParallelsPVP;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.metadata.Metadatable;

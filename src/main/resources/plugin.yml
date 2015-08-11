@@ -1,7 +1,7 @@
 name: ParallelsPVP
 main: net.zyuiop.parallelspvp.ParallelsPVP
 version: 0.1
-depend: [MasterBundle, SamaPermissionsBukkit]
+depend: [SamaGamesAPI]
 commands:
    start:
       description: Démarre la partie

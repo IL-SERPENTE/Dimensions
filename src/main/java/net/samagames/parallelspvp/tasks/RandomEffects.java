@@ -1,10 +1,9 @@
-package net.zyuiop.parallelspvp.tasks;
+package net.samagames.parallelspvp.tasks;
 
-import net.zyuiop.parallelspvp.ParallelsPVP;
-import net.zyuiop.parallelspvp.arena.Arena;
-import net.zyuiop.parallelspvp.arena.DimensionsManager;
+import net.samagames.parallelspvp.ParallelsPVP;
+import net.samagames.parallelspvp.arena.Arena;
+import net.samagames.parallelspvp.arena.DimensionsManager;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -35,6 +34,10 @@ public class RandomEffects implements Runnable {
     public void run() {
         nextEffect--;
         if (nextEffect <= 0) {
+            if (this.parent.isDeathmatch()) {
+                return;
+            }
+
             Random rnd = new Random();
             nextEffect = 30 + rnd.nextInt(60);
 
@@ -42,8 +45,10 @@ public class RandomEffects implements Runnable {
             for (UUID player : parent.getDimensionsManager().getPlayersInDimension(DimensionsManager.Dimension.PARALLEL)) {
                 int effect = rnd.nextInt(effects.length);
                 Player p = Bukkit.getPlayer(player);
-                if (p != null)
-                    p.addPotionEffect(effects[effect]);
+                Bukkit.getScheduler().runTask(ParallelsPVP.instance, () -> {
+                    if (p != null)
+                        p.addPotionEffect(effects[effect]);
+                });
             }
         }
     }

@@ -1,4 +1,4 @@
-package net.zyuiop.parallelspvp.arena;
+package net.samagames.parallelspvp.arena;
 
 import org.bukkit.inventory.ItemStack;
 
