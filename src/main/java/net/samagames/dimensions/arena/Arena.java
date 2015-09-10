@@ -176,7 +176,9 @@ public class Arena extends Game<APlayer> {
         beginTimer = Bukkit.getScheduler().runTaskTimerAsynchronously(Dimensions.instance, new PreparingCountdown(this), 0L, 20L);
 
         scoreboard.registerNewObjective("vie", "health").setDisplaySlot(DisplaySlot.BELOW_NAME);
+        scoreboard.registerNewObjective("vieb", "health").setDisplaySlot(DisplaySlot.PLAYER_LIST);
         scoreboard.getObjective("vie").setDisplayName(ChatColor.RED + "♥");
+        scoreboard.getObjective("vieb").setDisplayName(ChatColor.RED + "♥");
 
         ArrayList<APlayer> remove = new ArrayList<>();
         Iterator<APlayer> iterator = gamePlayers.values().iterator();
@@ -199,7 +201,8 @@ public class Arena extends Game<APlayer> {
                  */
                 player.teleport(spawn);
                 player.setGameMode(GameMode.SURVIVAL);
-                scoreboard.getObjective("vie").getScore(player.getName()).setScore((int) player.getHealth());
+                scoreboard.getObjective("vie").getScore(player.getName()).setScore(20);
+                scoreboard.getObjective("vieb").getScore(player.getName()).setScore(20);
                 increaseStat(gamePlayer.getUUID(), "played", 1);
             }
         }
