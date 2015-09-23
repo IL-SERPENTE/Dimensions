@@ -1,6 +1,6 @@
 name: Dimensions
 main: net.samagames.dimensions.Dimensions
-version: 0.1
+version: 3.0
 depend: [SamaGamesAPI]
 commands:
    start:
