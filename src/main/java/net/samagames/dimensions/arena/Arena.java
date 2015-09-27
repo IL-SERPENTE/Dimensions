@@ -450,7 +450,6 @@ public class Arena extends Game<APlayer> {
         p.getInventory().clear();
 
         p.sendMessage(ChatColor.GOLD + "Vous rejoignez les spectateurs.");
-        setSpectator(p);
         for (GamePlayer pl : getInGamePlayers().values()) {
             Player target = Bukkit.getPlayer(pl.getUUID());
             target.hidePlayer(p);

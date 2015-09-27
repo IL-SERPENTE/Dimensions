@@ -49,6 +49,7 @@ public class DamageListener implements Listener {
     public void onDeath(final PlayerDeathEvent event) {
         final Arena arena = plugin.getArena();
         Player p = event.getEntity();
+        p.setHealth(p.getMaxHealth());
 
         final ArrayList<ItemStack> remove = new ArrayList<>();
         for (final ItemStack stack : event.getDrops()) {

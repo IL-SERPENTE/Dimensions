@@ -76,7 +76,7 @@ public class Dimensions extends JavaPlugin {
         // Initialisation de l'arène
 
         this.getCommand("start").setExecutor(new CommandStart());
-
+        SamaGamesAPI.get().getGameManager().disableNature();
         instance = this;
     }
 
