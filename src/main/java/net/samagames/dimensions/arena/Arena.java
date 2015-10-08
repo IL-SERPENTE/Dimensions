@@ -342,7 +342,7 @@ public class Arena extends Game<APlayer> {
 
         if (reason.equals(FinishReason.WIN)) {
             if (getInGamePlayers().size() == 0) {
-                resetArena();
+                this.handleGameEnd();
                 return;
             }
 
@@ -355,7 +355,7 @@ public class Arena extends Game<APlayer> {
             APlayer winner = getInGamePlayers().values().iterator().next();
             final Player player = winner.getPlayerIfOnline();
             if (player == null) {
-                resetArena();
+                this.handleGameEnd();
                 return;
             }
 
@@ -428,16 +428,8 @@ public class Arena extends Game<APlayer> {
 
             }, 5L, 5L);
 
-            Bukkit.getScheduler().runTaskLater(plugin, () -> resetArena(), 15*20L);
+            this.handleGameEnd();
         }
-    }
-
-    public void resetArena() {
-        setStatus(Status.REBOOTING);
-
-        this.gamePlayers.values().stream().filter(player -> player.getPlayerIfOnline() != null).forEach(player -> plugin.kickPlayer(player.getPlayerIfOnline()));
-
-        Bukkit.getScheduler().runTaskLater(plugin, () -> Bukkit.getServer().shutdown(), 5 * 20L);
     }
 
     public void joinSpectators(Player p) {

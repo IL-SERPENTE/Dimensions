@@ -54,8 +54,7 @@ public class Dimensions extends JavaPlugin {
     }
 
     public void onEnable() {
-        this.saveDefaultConfig();
-        testMode = this.getConfig().getBoolean("test-mode");
+        testMode = false;
 
         permissionsAPI = SamaGamesAPI.get().getPermissionsManager();
 
@@ -97,20 +96,6 @@ public class Dimensions extends JavaPlugin {
     }
 
     public void kickPlayer(final Player player) {
-        ByteArrayOutputStream b = new ByteArrayOutputStream();
-        DataOutputStream out = new DataOutputStream(b);
-
-        try {
-            out.writeUTF("Connect");
-            out.writeUTF("lobby");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        player.sendPluginMessage(this, "BungeeCord", b.toByteArray());
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-            public void run() {
-                player.kickPlayer("Votre serveur de destination ne répond pas.");
-            }
-        }, 5*20L);
+        SamaGamesAPI.get().getGameManager().kickPlayer(player, null);
     }
 }
