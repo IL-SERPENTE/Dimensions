@@ -474,7 +474,7 @@ public class Arena extends Game<APlayer> {
 
     public void stumpPlayer(final Player player, boolean logout) {
         Dimensions.interactListener.unregisterTask(player);
-        int left = getConnectedPlayers()-1;
+        int left = getInGamePlayers().size()-1;
         boolean isWon = (left <= 1);
 
         if (left == 2) {
