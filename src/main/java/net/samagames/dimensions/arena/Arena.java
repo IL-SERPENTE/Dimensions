@@ -470,6 +470,7 @@ public class Arena extends Game<APlayer> {
     public void handleLogout(Player player) {
         stumpPlayer(player, true);
         super.handleLogout(player);
+        gameManager.refreshArena();
     }
 
     public void stumpPlayer(final Player player, boolean logout) {
