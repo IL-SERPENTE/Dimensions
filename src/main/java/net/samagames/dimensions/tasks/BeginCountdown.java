@@ -67,7 +67,7 @@ public class BeginCountdown implements Runnable {
 
     public void timeBroadcast() {
         if (time == 0) {
-            Bukkit.getScheduler().runTaskAsynchronously(Dimensions.instance, () -> parent.startGame());
+            Bukkit.getScheduler().runTask(Dimensions.instance, () -> parent.startGame());
             return;
         }
 
