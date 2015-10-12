@@ -4,10 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import net.samagames.api.SamaGamesAPI;
-import net.samagames.api.games.Game;
-import net.samagames.api.games.GamePlayer;
-import net.samagames.api.games.IGameProperties;
-import net.samagames.api.games.Status;
+import net.samagames.api.games.*;
 import net.samagames.api.gui.AbstractGui;
 import net.samagames.dimensions.Dimensions;
 import net.samagames.dimensions.tasks.*;
@@ -78,6 +75,11 @@ public class Arena extends Game<APlayer> {
         objectiveTab = new VObjective("TabKills", "kills");
         objectiveTab.setLocation(VObjective.ObjectiveLocation.LIST);
 
+    }
+
+    public void handlePostRegistration()
+    {
+        this.coherenceMachine = this.gameManager.getCoherenceMachine();
     }
 
     public boolean canBreak(Material madeOf) {

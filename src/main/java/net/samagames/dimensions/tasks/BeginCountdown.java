@@ -2,6 +2,7 @@ package net.samagames.dimensions.tasks;
 
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.Status;
+import net.samagames.dimensions.Dimensions;
 import net.samagames.dimensions.arena.Arena;
 import net.samagames.tools.Titles;
 import org.bukkit.Bukkit;
@@ -66,7 +67,7 @@ public class BeginCountdown implements Runnable {
 
     public void timeBroadcast() {
         if (time == 0) {
-            parent.startGame();
+            Bukkit.getScheduler().runTaskAsynchronously(Dimensions.instance, () -> parent.startGame());
             return;
         }
 
