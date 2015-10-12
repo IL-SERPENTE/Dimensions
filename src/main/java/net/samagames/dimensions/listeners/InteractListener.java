@@ -10,9 +10,11 @@ import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
@@ -132,5 +134,11 @@ public class InteractListener implements Listener {
     public void updateTask(Player player, BukkitTask task) {
         unregisterTask(player);
         tasks.put(player.getUniqueId(), task);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onUnloadChunk(WorldUnloadEvent event)
+    {
+        event.setCancelled(true);
     }
 }
