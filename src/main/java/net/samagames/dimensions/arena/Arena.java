@@ -52,6 +52,7 @@ public class Arena extends Game<APlayer> {
     protected HashMap<UUID, UUID> targets = new HashMap<>(); // <Utilisateur : cible>
 
     protected BukkitTask gameTimer;
+    private BukkitTask preparationTimer;
 
     //Scoreboards
     protected boolean isPVPEnabled = false;
@@ -114,10 +115,9 @@ public class Arena extends Game<APlayer> {
         }
 
         if (spawns.size() < maxPlayers ) {
-            Bukkit.getLogger().severe("ATTENTION : pas assez de spawns, nombre de joueurs max réduit a "+maxPlayers);
+            Bukkit.getLogger().severe("ATTENTION : pas assez de spawns, nombre de joueurs max réduit a " + maxPlayers);
         }
 
-        beginTimer = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new BeginCountdown(this, maxPlayers, minPlayers), 0, 20L);
     }
 
     public DimensionsManager getDimensionsManager() {
@@ -158,24 +158,17 @@ public class Arena extends Game<APlayer> {
         player.teleport(getWaitLocation());
     }
 
+    @Override
     public void startGame() {
-        try {
-            beginTimer.cancel();
-            beginTimer = null;
-            Bukkit.getLogger().info("Cancelled thread");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
-        setStatus(Status.IN_GAME);
-
+        super.startGame();
         for(APlayer aPlayer : gamePlayers.values())
         {
             objectiveTab.addReceiver(aPlayer.getPlayerIfOnline());
         }
 
         coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.GOLD + "Préparation du jeu !", true);
-        beginTimer = Bukkit.getScheduler().runTaskTimerAsynchronously(Dimensions.instance, new PreparingCountdown(this), 0L, 20L);
+        preparationTimer = Bukkit.getScheduler().runTaskTimerAsynchronously(Dimensions.instance, new PreparingCountdown(this), 0L, 20L);
 
         scoreboard.registerNewObjective("vie", "health").setDisplaySlot(DisplaySlot.BELOW_NAME);
         scoreboard.registerNewObjective("vieb", "health").setDisplaySlot(DisplaySlot.PLAYER_LIST);
@@ -211,7 +204,7 @@ public class Arena extends Game<APlayer> {
 
         while (iterator.hasNext()) {
             try {
-                SamaGamesAPI.get().getGameManager().kickPlayer(iterator.next().getPlayerIfOnline(),"");
+                SamaGamesAPI.get().getGameManager().kickPlayer(iterator.next().getPlayerIfOnline(), null);
             } catch (Exception e) {
 
             }
@@ -219,7 +212,7 @@ public class Arena extends Game<APlayer> {
 
         for (GamePlayer player : remove) {
             try {
-                SamaGamesAPI.get().getGameManager().kickPlayer(player.getPlayerIfOnline(),"");
+                SamaGamesAPI.get().getGameManager().kickPlayer(player.getPlayerIfOnline(), null);
             } catch (Exception e) {
 
             }
@@ -228,8 +221,8 @@ public class Arena extends Game<APlayer> {
 
     public void start() {
         try {
-            beginTimer.cancel();
-            beginTimer = null;
+            preparationTimer.cancel();
+            preparationTimer = null;
             Bukkit.getLogger().info("Cancelled thread");
         } catch (Exception e) {
             e.printStackTrace();
