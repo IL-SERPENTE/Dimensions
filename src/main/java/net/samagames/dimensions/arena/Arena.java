@@ -78,11 +78,6 @@ public class Arena extends Game<APlayer> {
 
     }
 
-    public void handlePostRegistration()
-    {
-        this.coherenceMachine = this.gameManager.getCoherenceMachine();
-    }
-
     public boolean canBreak(Material madeOf) {
         return allowed.contains(madeOf);
     }
