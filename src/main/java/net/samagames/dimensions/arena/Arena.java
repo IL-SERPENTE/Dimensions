@@ -423,30 +423,13 @@ public class Arena extends Game<APlayer> {
     }
 
     public void joinSpectators(Player p) {
-        p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 99999999, 1));
-        p.setGameMode(GameMode.ADVENTURE);
-        p.setAllowFlight(true);
-        p.setFlying(true);
-        p.setFlySpeed(0.2F);
-        p.teleport(this.waitLocation);
-        p.getInventory().clear();
-
-        p.sendMessage(ChatColor.GOLD + "Vous rejoignez les spectateurs.");
-        for (GamePlayer pl : getInGamePlayers().values()) {
-            Player target = Bukkit.getPlayer(pl.getUUID());
-            target.hidePlayer(p);
-        }
+        GamePlayer player = this.getPlayer(p.getUniqueId());
+        if (player != null)
+            player.setSpectator();
     }
 
     public void respawnSpec(Player p) {
-        p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 99999999, 1));
-        p.setGameMode(GameMode.CREATIVE);
-        p.teleport(this.waitLocation);
-        ItemStack compass = new ItemStack(Material.COMPASS);
-        ItemMeta meta = compass.getItemMeta();
-        meta.setDisplayName(ChatColor.GREEN + "" + ChatColor.MAGIC + "|||" + ChatColor.GOLD+" Téléportation " + ChatColor.GREEN + ChatColor.MAGIC + "|||");
-        compass.setItemMeta(meta);
-        p.getInventory().setItem(4, compass);
+        this.joinSpectators(p);
     }
 
     public Location getWaitLocation() {
@@ -465,11 +448,11 @@ public class Arena extends Game<APlayer> {
 
     public void stumpPlayer(final Player player, boolean logout) {
         Dimensions.interactListener.unregisterTask(player);
-        int left = getInGamePlayers().size()-1;
+        int left = getInGamePlayers().size() - 1;
         boolean isWon = (left <= 1);
 
         if (left == 2) {
-            addCoins(player, 20,"Troisième !");
+            addCoins(player, 20, "Troisième !");
         }
         else if (left == 1) {
             addCoins(player, 40, "Second !");
@@ -481,8 +464,6 @@ public class Arena extends Game<APlayer> {
             coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.RED + player.getName() + " a été éliminé.", true);
             joinSpectators(player);
         }
-
-        SamaGamesAPI.get().getGameManager().refreshArena();
 
         if (!isWon) {
             Bukkit.broadcastMessage(ChatColor.YELLOW+ "Il reste encore "+ChatColor.AQUA+left+ChatColor.YELLOW+" joueurs en vie.");
