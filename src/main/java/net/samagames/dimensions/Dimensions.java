@@ -4,7 +4,6 @@ import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.Status;
 import net.samagames.api.permissions.IPermissionsManager;
 import net.samagames.dimensions.arena.Arena;
-import net.samagames.dimensions.commands.CommandStart;
 import net.samagames.dimensions.listeners.ChestListener;
 import net.samagames.dimensions.listeners.DamageListener;
 import net.samagames.dimensions.listeners.InteractListener;
@@ -12,15 +11,10 @@ import net.samagames.dimensions.listeners.SpectatorListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 
 /**
  * Created by zyuiop on 26/09/14.
@@ -53,12 +47,11 @@ public class Dimensions extends JavaPlugin {
         return i;
     }
 
+    @Override
     public void onEnable() {
         testMode = false;
 
         permissionsAPI = SamaGamesAPI.get().getPermissionsManager();
-
-        World world = Bukkit.getWorlds().get(0);
 
         arena = new Arena(this);
 
@@ -70,15 +63,12 @@ public class Dimensions extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new DamageListener(this), this);
         new SpectatorListener(this);
         new ChestListener(this);
-        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 
-        // Initialisation de l'arène
-
-        this.getCommand("start").setExecutor(new CommandStart());
         SamaGamesAPI.get().getGameManager().disableNature();
         instance = this;
     }
 
+    @Override
     public void onDisable() {
         getArena().setStatus(Status.REBOOTING);
     }

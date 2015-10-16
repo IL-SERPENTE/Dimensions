@@ -19,14 +19,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Arena extends Game<APlayer> {
 
@@ -124,6 +122,7 @@ public class Arena extends Game<APlayer> {
      Methods related to game management
      */
 
+    @Override
     public void handleLogin(Player player)
     {
         super.handleLogin(player);
@@ -182,7 +181,6 @@ public class Arena extends Game<APlayer> {
             resetPlayer(player);
             if (player == null) {
                 remove.add(gamePlayer);
-                continue;
             } else {
                 /*
                         while (!spawn.getBlock().isEmpty() && spawn.getY() < 200.0) {
@@ -200,7 +198,6 @@ public class Arena extends Game<APlayer> {
             try {
                 SamaGamesAPI.get().getGameManager().kickPlayer(iterator.next().getPlayerIfOnline(), null);
             } catch (Exception e) {
-
             }
         }
 
@@ -330,7 +327,7 @@ public class Arena extends Game<APlayer> {
         }
 
         if (reason.equals(FinishReason.WIN)) {
-            if (getInGamePlayers().size() == 0) {
+            if (getInGamePlayers().isEmpty()) {
                 this.handleGameEnd();
                 return;
             }
@@ -371,6 +368,7 @@ public class Arena extends Game<APlayer> {
             Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
                 int compteur = 0;
 
+                @Override
                 public void run() {
 
                     if (compteur >= nb || player == null) {
@@ -439,6 +437,7 @@ public class Arena extends Game<APlayer> {
         return inGame;
     }
 
+    @Override
     public void handleLogout(Player player) {
         stumpPlayer(player, true);
         super.handleLogout(player);
@@ -565,6 +564,7 @@ public class Arena extends Game<APlayer> {
                 player.openInventory(this.inventory);
             }
 
+            @Override
             public void onClick(Player player, ItemStack stack, String action)
             {
                 if (!action.equals("close")) {
@@ -592,13 +592,8 @@ public class Arena extends Game<APlayer> {
         return targets.get(player);
     }
 
-    public ArrayList<UUID> getTargetedBy(UUID target) {
-        ArrayList<UUID> ret = new ArrayList<>();
-        for (UUID key : targets.keySet()) {
-            if (targets.get(key) != null && targets.get(key).equals(target))
-                ret.add(key);
-        }
-        return ret;
+    public List<UUID> getTargetedBy(UUID target) {
+        return targets.keySet().stream().filter(key -> targets.get(key) != null && targets.get(key).equals(target)).collect(Collectors.toList());
     }
 
     public Player getNewTarget(UUID player) {
@@ -625,7 +620,7 @@ public class Arena extends Game<APlayer> {
     public enum FinishReason {
         END_OF_TIME,
         WIN,
-        NO_PLAYERS;
+        NO_PLAYERS
     }
 
 }

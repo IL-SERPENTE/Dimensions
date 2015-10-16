@@ -26,7 +26,7 @@ public class Utils {
         int minutes = (int)(time/60);
         String secondsStr = (seconds<10 ? "0" : "")+ seconds;
         String minutesStr = (minutes<10 ? "0" : "")+ minutes;
-        return new String(minutesStr + ":" + secondsStr);
+        return minutesStr + ":" + secondsStr;
     }
 
     public static String secondsToStringHours(long time){
@@ -36,6 +36,6 @@ public class Utils {
         String secondsStr = (seconds<10 ? "0" : "")+ seconds;
         String minutesStr = (minutes<10 ? "0" : "")+ minutes;
         String hoursStr = (hours<10 ? "0" : "")+ hours;
-        return new String(hoursStr + ":" + minutesStr + ":" + secondsStr);
+        return hoursStr + ":" + minutesStr + ":" + secondsStr;
     }
 }

@@ -35,7 +35,7 @@ public class PreparingCountdown implements Runnable, Listener {
 
     public void timeBroadcast() {
         if (time == 0) {
-            Bukkit.getScheduler().runTask(Dimensions.instance, () -> parent.start());
+            Bukkit.getScheduler().runTask(Dimensions.instance, parent::start);
             return;
         }
 

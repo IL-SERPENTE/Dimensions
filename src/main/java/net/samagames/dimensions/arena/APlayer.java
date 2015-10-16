@@ -98,14 +98,13 @@ public class APlayer extends GamePlayer {
         this.tpTime = tpTime;
     }
 
-    public int addKill()
+    public void addKill()
     {
         kills++;
         updateKills();
 
         objectiveInfo.setLine(5, ChatColor.GRAY + "Kills: " + ChatColor.WHITE + kills);
         objectiveInfo.updateLines();
-        return kills;
     }
 
     public int getKills() {

@@ -10,6 +10,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by zyuiop on 26/09/14.
@@ -30,13 +31,8 @@ public class DimensionsManager {
         this.hardName = hardName;
     }
 
-    public ArrayList<UUID> getPlayersInDimension(Dimension dim) {
-        ArrayList<UUID> ret = new ArrayList<>();
-        for (UUID pl : dimensions.keySet()) {
-            if (dimensions.get(pl) == Dimension.PARALLEL)
-                ret.add(pl);
-        }
-        return ret;
+    public List<UUID> getPlayersInDimension(Dimension dim) {
+        return dimensions.keySet().stream().filter(pl -> dimensions.get(pl) == Dimension.PARALLEL).collect(Collectors.toList());
     }
 
     public void swap(Player p) {

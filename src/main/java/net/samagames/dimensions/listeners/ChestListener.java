@@ -34,7 +34,7 @@ import java.util.Random;
 public class ChestListener implements Listener {
 
     protected Dimensions plugin;
-    protected ArrayList<RandomItem> items = new ArrayList<RandomItem>();
+    protected ArrayList<RandomItem> items = new ArrayList<>();
 
     public ChestListener(Dimensions plugin) {
         this.plugin = plugin;
@@ -128,9 +128,7 @@ public class ChestListener implements Listener {
         fwm.addEffect(effect);
         fwm.setPower(0);
         fw.setFireworkMeta(fwm);
-        Bukkit.getScheduler().runTaskLater(Dimensions.instance, () -> {
-            fw.detonate();
-        }, 2);
+        Bukkit.getScheduler().runTaskLater(Dimensions.instance, fw::detonate, 2);
     }
 
     public void registerItem(RandomItem item) {

@@ -26,9 +26,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Created by zyuiop on 26/09/14.
@@ -51,12 +52,7 @@ public class DamageListener implements Listener {
         Player p = event.getEntity();
         p.setHealth(p.getMaxHealth());
 
-        final ArrayList<ItemStack> remove = new ArrayList<>();
-        for (final ItemStack stack : event.getDrops()) {
-            if (stack.getType() == Material.COMPASS || stack.getType() == Material.EYE_OF_ENDER) {
-                remove.add(stack);
-            }
-        }
+        final List<ItemStack> remove = event.getDrops().stream().filter(stack -> stack.getType() == Material.COMPASS || stack.getType() == Material.EYE_OF_ENDER).collect(Collectors.toList());
         for (final ItemStack rem : remove) {
             event.getDrops().remove(rem);
         }
@@ -243,7 +239,7 @@ public class DamageListener implements Listener {
         final Entity entityDamager = event.getDamager();
         final Entity entityDamaged = event.getEntity();
         if (!(entityDamager instanceof Arrow) || !(entityDamaged instanceof Player) || ((Arrow)entityDamager).getShooter() instanceof Player) {
-            return;
+            // FIXME: WHAT IS THIS SHIT?!
         }
     }
 }
