@@ -65,7 +65,7 @@ public class InteractListener implements Listener {
                         }
                     }
                 }
-                if (nearest == null && nearest.getUniqueId() != )
+                if (nearest == null && nearest.getUniqueId() != p.getUniqueId())
                     p.sendMessage(ChatColor.RED+"Il n'y a personne dans cette dimension...");
                 else {
                     p.sendMessage(ChatColor.GREEN + "Votre boussole pointe désormais vers " + ChatColor.GOLD + nearest.getName());
