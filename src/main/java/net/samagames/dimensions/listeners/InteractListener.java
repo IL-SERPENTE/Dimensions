@@ -60,7 +60,7 @@ public class InteractListener implements Listener {
                             continue;
                         }
 
-                        if (nearest == null || e.getLocation().distance(p.getLocation()) < e.getLocation().distance(nearest.getLocation())) {
+                        if ((nearest == null || e.getLocation().distance(p.getLocation()) < e.getLocation().distance(nearest.getLocation())) && nearest.getUniqueId() != p.getUniqueId()) {
                             nearest = current;
                         }
                     }
@@ -90,7 +90,7 @@ public class InteractListener implements Listener {
             Player p = Bukkit.getPlayer(target);
             if ((p == null || !p.isOnline()) && plugin.getArena().isPVPEnabled()) {
                 Player t = plugin.getArena().getNewTarget(ev.getPlayer().getUniqueId());
-                Dimensions.interactListener.targetPlayer(ev.getPlayer(), t);
+                targetPlayer(ev.getPlayer(), t);
                 ev.getPlayer().sendMessage(ChatColor.GOLD+"Votre cible est "+t.getDisplayName()+ChatColor.GOLD+". Tuez le pour gagner un bonus de coins !");
                 ev.getPlayer().sendMessage(ChatColor.GOLD+"Votre boussole pointe désormais vers ce joueur. Faites clic gauche avec votre boussole pour la pointer vers lui à nouveau !");
             }else if (this.plugin.getArena().isPVPEnabled()) {

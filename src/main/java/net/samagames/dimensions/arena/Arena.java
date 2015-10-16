@@ -612,7 +612,7 @@ public class Arena extends Game<APlayer> {
         List<GamePlayer> players = new ArrayList<>(getInGamePlayers().values());
         GamePlayer target = players.get(rnd.nextInt(players.size()));
 
-        if (target.getUUID().equals(player) || target.getPlayerIfOnline() == null || !target.getPlayerIfOnline().isOnline()) {
+        if (target.getUUID().equals(player) || target.getPlayerIfOnline() == null) {
             if (redundency <= 15)
                 return getNewTarget(player, redundency+1);
             else
