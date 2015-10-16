@@ -76,6 +76,10 @@ public class InteractListener implements Listener {
                 ev.setCancelled(true);
                 plugin.getArena().getDimensionsManager().swap(ev.getPlayer());
             }
+            if (!plugin.getArena().isInGame())
+            {
+                ev.setCancelled(true);
+            }
         } else if (ev.getAction().equals(Action.LEFT_CLICK_BLOCK) || ev.getAction().equals(Action.LEFT_CLICK_AIR)) {
             if (ev.getItem() == null)
                 return;

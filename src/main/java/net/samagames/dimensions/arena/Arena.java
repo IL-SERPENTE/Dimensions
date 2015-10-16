@@ -165,9 +165,7 @@ public class Arena extends Game<APlayer> {
         preparationTimer = Bukkit.getScheduler().runTaskTimerAsynchronously(Dimensions.instance, new PreparingCountdown(this), 0L, 20L);
 
         scoreboard.registerNewObjective("vie", "health").setDisplaySlot(DisplaySlot.BELOW_NAME);
-        scoreboard.registerNewObjective("vieb", "health").setDisplaySlot(DisplaySlot.PLAYER_LIST);
         scoreboard.getObjective("vie").setDisplayName(ChatColor.RED + "♥");
-        scoreboard.getObjective("vieb").setDisplayName(ChatColor.RED + "♥");
 
         ArrayList<APlayer> remove = new ArrayList<>();
         Iterator<APlayer> iterator = gamePlayers.values().iterator();
@@ -190,7 +188,6 @@ public class Arena extends Game<APlayer> {
                 player.teleport(spawn);
                 player.setGameMode(GameMode.SURVIVAL);
                 scoreboard.getObjective("vie").getScore(player.getName()).setScore(20);
-                scoreboard.getObjective("vieb").getScore(player.getName()).setScore(20);
             }
         }
 
@@ -449,15 +446,20 @@ public class Arena extends Game<APlayer> {
         int left = getInGamePlayers().size() - 1;
         boolean isWon = (left <= 1);
 
-        if (left == 2) {
-            addCoins(player, 20, "Troisième !");
-        }
-        else if (left == 1) {
-            addCoins(player, 40, "Second !");
-            addStars(player, 1, "Vous y êtes presque !");
+        //We check if player doesn't suicide
+        if(!(player != null && player.getKiller().getUniqueId().equals(player.getUniqueId())))
+        {
+            if (left == 2) {
+                addCoins(player, 20, "Troisième !");
+            }
+            else if (left == 1) {
+                addCoins(player, 40, "Second !");
+                addStars(player, 1, "Vous y êtes presque !");
+            }
+
+            increaseStat(player.getUniqueId(), "kills", 1);
         }
 
-        increaseStat(player.getUniqueId(), "kills", 1);
         if (player != null && player.isOnline()) {
             coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.RED + player.getName() + " a été éliminé.", true);
             joinSpectators(player);

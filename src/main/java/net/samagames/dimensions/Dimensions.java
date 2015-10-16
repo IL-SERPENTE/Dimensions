@@ -16,9 +16,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
-/**
- * Created by zyuiop on 26/09/14.
- */
 public class Dimensions extends JavaPlugin {
 
     public static Dimensions instance;
@@ -64,8 +61,9 @@ public class Dimensions extends JavaPlugin {
         new SpectatorListener(this);
         new ChestListener(this);
 
-        SamaGamesAPI.get().getGameManager().disableNature();
         instance = this;
+        SamaGamesAPI.get().getGameManager().disableNature();
+
     }
 
     @Override

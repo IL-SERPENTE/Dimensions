@@ -24,7 +24,8 @@ public class ChestDescriptor
         return this.location;
     }
 
-    public void setLocation(final Location location) {
+    public void setLocation(final Location location)
+    {
         this.location = location;
     }
 

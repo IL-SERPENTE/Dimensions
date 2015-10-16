@@ -121,29 +121,32 @@ public class DamageListener implements Listener {
                 }
                 Bukkit.broadcastMessage(coherenceMachine.getGameTag() + ChatColor.RED + dead.getDisplayName() + " " + ChatColor.RED + "a été tué par " + killer.getDisplayName() + ".");
                 pplayer.addKill();
-                Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
-                    Arena arena = plugin.getArena();
-                    arena.addCoins(pplayer.getPlayerIfOnline(), 20, "Un joueur tué !");
-                    arena.increaseStat(lastDamager, "kills", 1);
-                    if (DamageListener.this.plugin.getArena().getTargetedBy(dead.getUniqueId()).contains(lastDamager) && !DamageListener.this.plugin.getArena().isDeathmatch()) {
-                        killer.sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD + " Vous avez tué votre cible \\o/");
-                        arena.addCoins(pplayer.getPlayerIfOnline(), 40, "Objectif réussi !");
-                    }
-                    if (killer.getHealth() >= 1.0 && DamageListener.this.plugin.getArena().isPlaying(pplayer.getPlayerIfOnline())) {
-                        final Integer healAtKill = pplayer.getHealAtKill();
-                        if (healAtKill != null) {
-                            double health = killer.getHealth() + healAtKill;
-                            if (health > killer.getMaxHealth()) {
-                                health = killer.getMaxHealth();
+                if(!pplayer.getUUID().equals(killer.getUniqueId()))
+                {
+                    Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
+                        Arena arena = plugin.getArena();
+                        arena.addCoins(pplayer.getPlayerIfOnline(), 20, "Un joueur tué !");
+                        arena.increaseStat(lastDamager, "kills", 1);
+                        if (DamageListener.this.plugin.getArena().getTargetedBy(dead.getUniqueId()).contains(lastDamager) && !DamageListener.this.plugin.getArena().isDeathmatch()) {
+                            killer.sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD + " Vous avez tué votre cible \\o/");
+                            arena.addCoins(pplayer.getPlayerIfOnline(), 40, "Objectif réussi !");
+                        }
+                        if (killer.getHealth() >= 1.0 && DamageListener.this.plugin.getArena().isPlaying(pplayer.getPlayerIfOnline())) {
+                            final Integer healAtKill = pplayer.getHealAtKill();
+                            if (healAtKill != null) {
+                                double health = killer.getHealth() + healAtKill;
+                                if (health > killer.getMaxHealth()) {
+                                    health = killer.getMaxHealth();
+                                }
+                                killer.setHealth(health);
                             }
-                            killer.setHealth(health);
+                            final Integer strenghtAtKill = pplayer.getStrengthAtKill();
+                            if (strenghtAtKill != null) {
+                                Bukkit.getScheduler().runTask(plugin, () -> killer.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * strenghtAtKill, 0)));
+                            }
                         }
-                        final Integer strenghtAtKill = pplayer.getStrengthAtKill();
-                        if (strenghtAtKill != null) {
-                            Bukkit.getScheduler().runTask(plugin, () -> killer.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * strenghtAtKill, 0)));
-                        }
-                    }
-                });
+                    });
+                }
             }
         }
     }

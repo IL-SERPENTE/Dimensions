@@ -101,7 +101,7 @@ public class ChestListener implements Listener {
         registerItem(new RandomItem(protection, 500));
 
         ItemStack bow = new ItemStack(Material.BOW);
-        bow.addEnchantment(Enchantment.ARROW_DAMAGE, 2);
+        bow.addEnchantment(Enchantment.ARROW_DAMAGE, 1);
         registerItem(new RandomItem(bow, 300));
         // MISC //
         registerItem(new RandomItem(new ItemStack(Material.ARROW), 3000, new int[]{3, 4, 5, 6, 7, 8, 9, 10}));
