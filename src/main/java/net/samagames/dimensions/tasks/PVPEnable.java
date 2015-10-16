@@ -14,7 +14,7 @@ import org.bukkit.Sound;
 public class PVPEnable implements Runnable {
 
     protected Arena parent;
-    protected int time = 181; // 3 Minutes
+    protected int time = 121; // 2 Minutes
 
     protected ICoherenceMachine coherenceMachine;
 
