@@ -131,7 +131,7 @@ public class Arena extends Game<APlayer> {
 
         player.setGameMode(GameMode.ADVENTURE);
         //To hide exp bar xD
-        player.setLevel(-10);
+        //player.setLevel(-10);
 
         ItemStack book = new ItemStack(Material.WRITTEN_BOOK, 1);
         BookMeta bm = (BookMeta)book.getItemMeta();
