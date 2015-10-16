@@ -193,7 +193,6 @@ public class Arena extends Game<APlayer> {
                 player.setGameMode(GameMode.SURVIVAL);
                 scoreboard.getObjective("vie").getScore(player.getName()).setScore(20);
                 scoreboard.getObjective("vieb").getScore(player.getName()).setScore(20);
-                increaseStat(gamePlayer.getUUID(), "played", 1);
             }
         }
 
@@ -459,7 +458,7 @@ public class Arena extends Game<APlayer> {
             addStars(player, 1, "Vous y êtes presque !");
         }
 
-        increaseStat(player.getUniqueId(), "stumped", 1);
+        increaseStat(player.getUniqueId(), "kills", 1);
         if (player != null && player.isOnline()) {
             coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.RED + player.getName() + " a été éliminé.", true);
             joinSpectators(player);
