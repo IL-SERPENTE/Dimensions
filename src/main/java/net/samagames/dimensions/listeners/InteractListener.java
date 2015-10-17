@@ -63,7 +63,7 @@ public class InteractListener implements Listener {
                         if (p.equals(current))
                         	continue ;
                         
-                        if ((nearest == null || e.getLocation().distance(p.getLocation()) < e.getLocation().distance(nearest.getLocation())) && nearest.getUniqueId() != p.getUniqueId()) {
+                        if (nearest == null || e.getLocation().distance(p.getLocation()) < e.getLocation().distance(nearest.getLocation())) {
                             nearest = current;
                         }
                     }
