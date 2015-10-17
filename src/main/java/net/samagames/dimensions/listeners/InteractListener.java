@@ -59,13 +59,16 @@ public class InteractListener implements Listener {
                         if (plugin.getArena().getDimensionsManager().getDimension(current) != plugin.getArena().getDimensionsManager().getDimension(p)) {
                             continue;
                         }
-
+                        
+                        if (p.equals(current))
+                        	continue ;
+                        
                         if ((nearest == null || e.getLocation().distance(p.getLocation()) < e.getLocation().distance(nearest.getLocation())) && nearest.getUniqueId() != p.getUniqueId()) {
                             nearest = current;
                         }
                     }
                 }
-                if (nearest == null && nearest.getUniqueId() != p.getUniqueId())
+                if (nearest == null)
                     p.sendMessage(ChatColor.RED+"Il n'y a personne dans cette dimension...");
                 else {
                     p.sendMessage(ChatColor.GREEN + "Votre boussole pointe désormais vers " + ChatColor.GOLD + nearest.getName());
