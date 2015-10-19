@@ -119,14 +119,6 @@ public class DamageListener implements Listener {
     public void onDamage(EntityDamageEvent ev) {
         if (ev.getCause() == EntityDamageEvent.DamageCause.WITHER)
             ev.setCancelled(true);
-
-
-        if (ev.getCause() == EntityDamageEvent.DamageCause.POISON
-                || ev.getCause() == EntityDamageEvent.DamageCause.MAGIC
-                || ev.getCause() == EntityDamageEvent.DamageCause.BLOCK_EXPLOSION
-                || ev.getCause() == EntityDamageEvent.DamageCause.FIRE)
-            ev.setCancelled(true);
-
     }
 
     @EventHandler
