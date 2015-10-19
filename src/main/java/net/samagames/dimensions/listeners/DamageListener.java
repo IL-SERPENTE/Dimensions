@@ -11,10 +11,7 @@ import net.samagames.dimensions.utils.Metadatas;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -63,43 +60,10 @@ public class DamageListener implements Listener {
         if (!arena.hasPlayer(p)) {
             return;
         }
-/*
-        EntityDamageEvent last = event.getEntity().getLastDamageCause();
-        if (last instanceof EntityDamageByEntityEvent) {
-            final EntityDamageByEntityEvent obj = (EntityDamageByEntityEvent)last;
-            if (obj.getDamager() instanceof Player) {
-                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                    arena.addCoins((Player) obj.getDamager(), 2, "Un joueur tué !");
-                    arena.increaseStat(obj.getDamager().getUniqueId(), "kills", 1);
-
-                    if (arena.getTargetedBy(event.getEntity().getUniqueId()).contains(obj.getDamager().getUniqueId())) {
-                        ((Player) obj.getDamager()).sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD + " Vous avez tué votre cible \\o/");
-                        arena.addCoins((Player) obj.getDamager(), 5, "Objectif réussi !");
-                    }
-                    //((Player)obj.getDamager()).sendMessage(ChatColor.GOLD + "Vous gagnez " + montant + " coins " + ChatColor.AQUA + "(Un joueur tué !)");
-                });
-            } else if (obj.getDamager() instanceof Arrow) {
-                final Arrow damager = (Arrow) obj.getDamager();
-                final LivingEntity shooter = (LivingEntity) damager.getShooter();
-                if (shooter instanceof Player) {
-                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-
-                        arena.addCoins((Player) shooter, 2, "Un joueur tué !");
-                        arena.increaseStat(shooter.getUniqueId(), "kills", 1);
-                        if (arena.getTargetedBy(event.getEntity().getUniqueId()).contains(shooter.getUniqueId())) {
-                            ((Player) shooter).sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD+" Vous avez tué votre cible \\o/");
-                            arena.addCoins((Player) shooter, 5, "Objectif réussi !");
-                        }
-                        //((Player)obj.getDamager()).sendMessage(ChatColor.GOLD + "Vous gagnez " + montant + " coins " + ChatColor.AQUA + "(Un joueur tué !)");
-                    });
-                }
-            }
-        }*/
 
         event.setDeathMessage("");
         this.playerDie(event.getEntity());
-
-        Bukkit.getScheduler().runTaskLater(plugin, () -> arena.stumpPlayer(event.getEntity(), false), 10L);
+        arena.stumpPlayer(event.getEntity(), false);
     }
 
     private void playerDie(final Player dead) {
