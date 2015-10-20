@@ -447,7 +447,7 @@ public class Arena extends Game<APlayer> {
         boolean isWon = (left <= 1);
 
         //We check if player doesn't suicide
-        if(!(player != null && player.getKiller().getUniqueId().equals(player.getUniqueId())))
+        if(!(player != null && player.getKiller() != null && player.getKiller().getUniqueId().equals(player.getUniqueId())))
         {
             if (left == 2) {
                 addCoins(player, 20, "Troisième !");
