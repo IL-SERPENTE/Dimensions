@@ -118,7 +118,17 @@ public class DamageListener implements Listener {
     @EventHandler
     public void onDamage(EntityDamageEvent ev) {
         if (ev.getCause() == EntityDamageEvent.DamageCause.WITHER)
+        {
             ev.setCancelled(true);
+        }
+
+        if(ev.getCause() == EntityDamageEvent.DamageCause.MAGIC)
+        {
+            if(!this.plugin.getArena().isPVPEnabled())
+            {
+                ev.setCancelled(true);
+            }
+        }
     }
 
     @EventHandler
