@@ -62,8 +62,6 @@ public class Dimensions extends JavaPlugin {
         new ChestListener(this);
 
         instance = this;
-        SamaGamesAPI.get().getGameManager().disableNature();
-
     }
 
     @Override
