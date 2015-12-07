@@ -79,7 +79,7 @@ public class InteractListener implements Listener {
                 ev.setCancelled(true);
                 plugin.getArena().getDimensionsManager().swap(ev.getPlayer());
             }
-            if (!plugin.getArena().isInGame())
+            if (!plugin.getArena().isInGame()  && ev.getItem().getType() != Material.WRITTEN_BOOK)
             {
                 ev.setCancelled(true);
             }
