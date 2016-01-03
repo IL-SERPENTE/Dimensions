@@ -74,15 +74,11 @@ public class DamageListener implements Listener {
         else {
             final APlayer pplayer = (APlayer)OlastDamager;
             final UUID lastDamager = pplayer.getUUID();
-            if (!this.plugin.getArena().isPlaying(pplayer.getPlayerIfOnline())) {
+            final Player killer = pplayer.getPlayerIfOnline();
+            if (killer == null || !this.plugin.getArena().isPlaying(killer)) {
                 Bukkit.broadcastMessage(coherenceMachine.getGameTag() + ChatColor.RED + dead.getDisplayName() + " " + ChatColor.RED + "a été éliminé.");
             }
             else {
-                final Player killer = pplayer.getPlayerIfOnline();
-                if (killer == null) {
-                    Bukkit.broadcastMessage(coherenceMachine.getGameTag() + ChatColor.RED + dead.getDisplayName() + " " + ChatColor.RED + "a été éliminé.");
-                    return;
-                }
                 Bukkit.broadcastMessage(coherenceMachine.getGameTag() + ChatColor.RED + dead.getDisplayName() + " " + ChatColor.RED + "a été tué par " + killer.getDisplayName() + ".");
                 pplayer.addKill();
                 if(!pplayer.getUUID().equals(killer.getUniqueId()))
