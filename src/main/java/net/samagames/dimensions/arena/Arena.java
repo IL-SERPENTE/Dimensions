@@ -356,7 +356,7 @@ public class Arena extends Game<APlayer> {
             //Bukkit.broadcastMessage(plugin.pluginTAG+ChatColor.GREEN+ChatColor.MAGIC+"aaa"+ChatColor.GOLD+" Victoire ! "+ChatColor.GREEN+ChatColor.MAGIC+"aaa"+ChatColor.GOLD+" Bravo a "+ChatColor.LIGHT_PURPLE+player.getName()+ChatColor.GOLD+" !");
 
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                addCoins(player, 20, "Victoire !");
+                addCoins(player, 60, "Victoire !");
                 addStars(player, 3, "Victoire !");
             });
 
