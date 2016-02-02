@@ -102,7 +102,7 @@ public class DamageListener implements Listener {
                             }
                             final Integer strenghtAtKill = pplayer.getStrengthAtKill();
                             if (strenghtAtKill != null) {
-                                Bukkit.getScheduler().runTask(plugin, () -> killer.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * strenghtAtKill, 0)));
+                                Bukkit.getScheduler().runTask(plugin, () -> killer.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * strenghtAtKill, 1)));
                             }
                         }
                     });
