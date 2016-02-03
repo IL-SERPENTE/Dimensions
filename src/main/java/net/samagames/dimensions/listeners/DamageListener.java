@@ -91,7 +91,7 @@ public class DamageListener implements Listener {
                             killer.sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD + " Vous avez tué votre cible \\o/");
                             arena.addCoins(killer, 40, "Objectif réussi !");
                         }
-                        if (killer.getHealth() >= 1.0 && DamageListener.this.plugin.getArena().isPlaying(killer) {
+                        if (killer.getHealth() >= 1.0 && DamageListener.this.plugin.getArena().isPlaying(killer)) {
                             final Integer healAtKill = pplayer.getHealAtKill();
                             if (healAtKill != null) {
                                 double health = killer.getHealth() + healAtKill;
