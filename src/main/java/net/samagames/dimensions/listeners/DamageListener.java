@@ -81,17 +81,17 @@ public class DamageListener implements Listener {
             else {
                 Bukkit.broadcastMessage(coherenceMachine.getGameTag() + ChatColor.RED + dead.getDisplayName() + " " + ChatColor.RED + "a été tué par " + killer.getDisplayName() + ".");
                 pplayer.addKill();
-                if(!pplayer.getUUID().equals(killer.getUniqueId()))
+                if(pplayer.getUUID().equals(killer.getUniqueId())) //USELESS
                 {
                     Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
                         Arena arena = plugin.getArena();
-                        arena.addCoins(pplayer.getPlayerIfOnline(), 20, "Un joueur tué !");
+                        arena.addCoins(killer, 20, "Un joueur tué !");
                         arena.increaseStat(lastDamager, "kills", 1);
                         if (DamageListener.this.plugin.getArena().getTargetedBy(dead.getUniqueId()).contains(lastDamager) && !DamageListener.this.plugin.getArena().isDeathmatch()) {
                             killer.sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD + " Vous avez tué votre cible \\o/");
-                            arena.addCoins(pplayer.getPlayerIfOnline(), 40, "Objectif réussi !");
+                            arena.addCoins(killer, 40, "Objectif réussi !");
                         }
-                        if (killer.getHealth() >= 1.0 && DamageListener.this.plugin.getArena().isPlaying(pplayer.getPlayerIfOnline())) {
+                        if (killer.getHealth() >= 1.0 && DamageListener.this.plugin.getArena().isPlaying(killer) {
                             final Integer healAtKill = pplayer.getHealAtKill();
                             if (healAtKill != null) {
                                 double health = killer.getHealth() + healAtKill;
