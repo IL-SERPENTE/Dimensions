@@ -66,6 +66,8 @@ public class Dimensions extends JavaPlugin {
 
         SamaGamesAPI.get().getShopsManager().setShopToLoad(GamesNames.DIMENSION, true);
         SamaGamesAPI.get().getStatsManager().setStatsToLoad(GamesNames.DIMENSION, true);
+
+        SamaGamesAPI.get().getGameManager().setLegacyPvP(true);
     }
 
     @Override
