@@ -58,7 +58,7 @@ public class Arena extends Game<APlayer> {
     private VObjective objectiveTab;
 
     public Arena(Dimensions plugin) {
-        super("dimensions", "Dimensions", APlayer.class);
+        super("dimensions", "Dimensions", "", APlayer.class);
         this.plugin = plugin;
 
         this.allowed.add(Material.TNT);
@@ -194,14 +194,14 @@ public class Arena extends Game<APlayer> {
         while (iterator.hasNext()) {
             try {
                 SamaGamesAPI.get().getGameManager().kickPlayer(iterator.next().getPlayerIfOnline(), null);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
 
         for (GamePlayer player : remove) {
             try {
                 SamaGamesAPI.get().getGameManager().kickPlayer(player.getPlayerIfOnline(), null);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
 
             }
         }
@@ -350,7 +350,7 @@ public class Arena extends Game<APlayer> {
                 Titles.sendTitle(p, 5, 80, 5, ChatColor.GOLD + "Fin de partie !", ChatColor.GREEN + "Bravo à " + player.getDisplayName());
             }
 
-            increaseStat(player.getUniqueId(), "wins", 1);
+            SamaGamesAPI.get().getStatsManager().getPlayerStats(player.getUniqueId()).getDimensionStatistics().incrByKills(1);
 
             coherenceMachine.getTemplateManager().getPlayerWinTemplate().execute(player, winner.getKills());
             //Bukkit.broadcastMessage(plugin.pluginTAG+ChatColor.GREEN+ChatColor.MAGIC+"aaa"+ChatColor.GOLD+" Victoire ! "+ChatColor.GREEN+ChatColor.MAGIC+"aaa"+ChatColor.GOLD+" Bravo a "+ChatColor.LIGHT_PURPLE+player.getName()+ChatColor.GOLD+" !");
@@ -368,7 +368,7 @@ public class Arena extends Game<APlayer> {
                 @Override
                 public void run() {
 
-                    if (compteur >= nb || player == null) {
+                    if (compteur >= nb) {
                         return;
                     }
 
@@ -463,7 +463,7 @@ public class Arena extends Game<APlayer> {
                 addStars(player, 1, "Vous y êtes presque !");
             }
 
-            increaseStat(player.getUniqueId(), "kills", 1);
+            SamaGamesAPI.get().getStatsManager().getPlayerStats(player.getUniqueId()).getDimensionStatistics().incrByKills(1);
         }
 
         if (player != null && player.isOnline()) {

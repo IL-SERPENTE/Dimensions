@@ -2,7 +2,7 @@ package net.samagames.dimensions.arena;
 
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.GamePlayer;
-import net.samagames.api.shops.AbstractShopsManager;
+import net.samagames.api.shops.IShopsManager;
 import net.samagames.dimensions.Dimensions;
 import net.samagames.tools.scoreboards.ObjectiveSign;
 import org.bukkit.ChatColor;
@@ -42,23 +42,24 @@ public class APlayer extends GamePlayer {
 
     public void loadShop()
     {
-        AbstractShopsManager shopsManager = SamaGamesAPI.get().getShopsManager(Dimensions.instance.getArena().getGameCodeName());
+        //IShopsManager shopsManager = SamaGamesAPI.get().getShopsManager();
+        //TODO: Shops
 
-        strengthAtKill = Integer.valueOf(getData(shopsManager, "strengthAtKill", "0"));
+        strengthAtKill = 0;//Integer.valueOf(getData(shopsManager, "strengthAtKill", "0"));
 
-        healAtStrike = Integer.valueOf(getData(shopsManager, "healAtStrike", "0"));
+        healAtStrike = 0;//Integer.valueOf(getData(shopsManager, "healAtStrike", "0"));
 
-        healAtKill = Integer.valueOf(getData(shopsManager, "healAtKill", "0"));
+        healAtKill = 0;//Integer.valueOf(getData(shopsManager, "healAtKill", "0"));
 
-        tpTime = Integer.valueOf(getData(shopsManager, "tpTime", "17"));
+        tpTime = 0;//Integer.valueOf(getData(shopsManager, "tpTime", "17"));
 
     }
 
-    public String getData(AbstractShopsManager shopsManager, String key, String defaut)
+    /*public String getData(IShopsManager shopsManager, String key, String defaut)
     {
         String data = shopsManager.getItemLevelForPlayer(player, key);
         return (data != null)? data : defaut;
-    }
+    }*/
 
     public int getHealAtKill() {
         return healAtKill;

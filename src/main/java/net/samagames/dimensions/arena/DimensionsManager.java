@@ -84,7 +84,7 @@ public class DimensionsManager {
             p.teleport(tpTo);
             oldLoc.setY(tpToWork.getY());
             this.swapBlocks(oldLoc, tpToWork);
-            p.playSound(p.getLocation(), Sound.ENDERMAN_TELEPORT, 1.0f, 1.0f);
+            p.playSound(p.getLocation(), Sound.ENTITY_ENDERMEN_TELEPORT, 1.0f, 1.0f);
             p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 50, 0));
             p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 100, 0));
             this.dimensions.put(p.getUniqueId(), dim);

@@ -1,13 +1,15 @@
 name: Dimensions
 main: net.samagames.dimensions.Dimensions
-version: 3.0
+version: 4.0
 depend: [SamaGamesAPI]
+
 commands:
    start:
       description: Démarre la partie
       usage: /<command> now
       permission: Dimensions.op
       permission-message: Permission non accordée
+
 permissions:
    ParallelsPVP.op:
       description: Commandes OP PPVP

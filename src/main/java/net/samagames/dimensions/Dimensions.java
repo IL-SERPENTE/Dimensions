@@ -1,6 +1,7 @@
 package net.samagames.dimensions;
 
 import net.samagames.api.SamaGamesAPI;
+import net.samagames.api.games.GamesNames;
 import net.samagames.api.games.Status;
 import net.samagames.api.permissions.IPermissionsManager;
 import net.samagames.dimensions.arena.Arena;
@@ -62,6 +63,9 @@ public class Dimensions extends JavaPlugin {
         new ChestListener(this);
 
         instance = this;
+
+        SamaGamesAPI.get().getShopsManager().setShopToLoad(GamesNames.DIMENSION, true);
+        SamaGamesAPI.get().getStatsManager().setStatsToLoad(GamesNames.DIMENSION, true);
     }
 
     @Override

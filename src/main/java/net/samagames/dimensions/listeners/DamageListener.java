@@ -86,7 +86,7 @@ public class DamageListener implements Listener {
                     Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
                         Arena arena = plugin.getArena();
                         arena.addCoins(killer, 20, "Un joueur tué !");
-                        arena.increaseStat(lastDamager, "kills", 1);
+                        SamaGamesAPI.get().getStatsManager().getPlayerStats(lastDamager).getDimensionStatistics().incrByKills(1);
                         if (DamageListener.this.plugin.getArena().getTargetedBy(dead.getUniqueId()).contains(lastDamager) && !DamageListener.this.plugin.getArena().isDeathmatch()) {
                             killer.sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD + " Vous avez tué votre cible \\o/");
                             arena.addCoins(killer, 40, "Objectif réussi !");
