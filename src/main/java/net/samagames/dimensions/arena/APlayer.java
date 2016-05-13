@@ -2,6 +2,7 @@ package net.samagames.dimensions.arena;
 
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.GamePlayer;
+import net.samagames.api.shops.IPlayerShop;
 import net.samagames.api.shops.IShopsManager;
 import net.samagames.dimensions.Dimensions;
 import net.samagames.tools.scoreboards.ObjectiveSign;
@@ -42,24 +43,33 @@ public class APlayer extends GamePlayer {
 
     public void loadShop()
     {
-        //IShopsManager shopsManager = SamaGamesAPI.get().getShopsManager();
-        //TODO: Shops
+        IPlayerShop shopsManager = SamaGamesAPI.get().getShopsManager().getPlayer(this.uuid);
 
-        strengthAtKill = 0;//Integer.valueOf(getData(shopsManager, "strengthAtKill", "0"));
+        strengthAtKill = getData(shopsManager, new int[]{ 134, 135, 136, 137, 138, 139 });
 
-        healAtStrike = 0;//Integer.valueOf(getData(shopsManager, "healAtStrike", "0"));
+        healAtStrike = getData(shopsManager, new int[]{ 127, 128, 129, 130, 131, 132, 133 });
 
-        healAtKill = 0;//Integer.valueOf(getData(shopsManager, "healAtKill", "0"));
+        healAtKill = getData(shopsManager, new int[]{ 122, 123, 124, 125, 126 });
 
-        tpTime = 0;//Integer.valueOf(getData(shopsManager, "tpTime", "17"));
+        tpTime = getData(shopsManager, new int[]{ 117, 118, 119, 120, 121 });
 
     }
 
-    /*public String getData(IShopsManager shopsManager, String key, String defaut)
+    public int getData(IPlayerShop playerShop, int[] items)
     {
-        String data = shopsManager.getItemLevelForPlayer(player, key);
-        return (data != null)? data : defaut;
-    }*/
+        try
+        {
+            int selected = playerShop.getSelectedItemFromList(items);
+            for (int i = 0; i < items.length; i++)
+                if (items[i] == selected)
+                    return i + 1;
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            return 0;
+        }
+    }
 
     public int getHealAtKill() {
         return healAtKill;
