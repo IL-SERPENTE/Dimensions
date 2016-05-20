@@ -68,6 +68,7 @@ public class Dimensions extends JavaPlugin {
         SamaGamesAPI.get().getStatsManager().setStatsToLoad(GamesNames.DIMENSION, true);
 
         SamaGamesAPI.get().getGameManager().setLegacyPvP(true);
+        SamaGamesAPI.get().getGameManager().setKeepPlayerCache(true);
     }
 
     @Override
