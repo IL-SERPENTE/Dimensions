@@ -446,7 +446,7 @@ public class Arena extends Game<APlayer> {
     public void stumpPlayer(final Player player, boolean logout) {
         Dimensions.interactListener.unregisterTask(player);
 
-        if(getStatus() != Status.IN_GAME)
+        if(getStatus() != Status.IN_GAME || (player != null && this.isSpectator(player)))
         {
             return;
         }
@@ -455,7 +455,7 @@ public class Arena extends Game<APlayer> {
         boolean isWon = (left <= 1);
 
         //We check if player doesn't suicide
-        if(!(player != null && player.getKiller() != null && player.getKiller().getUniqueId().equals(player.getUniqueId())))
+        if(player != null && !(player.getKiller() != null && player.getKiller().getUniqueId().equals(player.getUniqueId())))
         {
             if (left == 2) {
                 addCoins(player, 20, "Troisième !");
@@ -465,7 +465,10 @@ public class Arena extends Game<APlayer> {
                 addStars(player, 1, "Vous y êtes presque !");
             }
 
-            SamaGamesAPI.get().getStatsManager().getPlayerStats(player.getUniqueId()).getDimensionStatistics().incrByKills(1);
+            try
+            {
+                SamaGamesAPI.get().getStatsManager().getPlayerStats(player.getUniqueId()).getDimensionStatistics().incrByKills(1);
+            } catch (Exception ignored) {}
         }
 
         if (player != null && player.isOnline()) {
@@ -480,6 +483,9 @@ public class Arena extends Game<APlayer> {
                 dmCount = Bukkit.getScheduler().runTaskTimer(plugin, countdown, 0L, 20L);
             }
 
+            if (player == null)
+                return ;
+
             final ArrayList<UUID> ids = new ArrayList<>();
             for (UUID plid : getTargetedBy(player.getUniqueId())) {
                 ids.add(plid);
@@ -489,15 +495,20 @@ public class Arena extends Game<APlayer> {
             if(!isDeathmatch())
             {
                 Bukkit.getScheduler().runTaskLaterAsynchronously(Dimensions.instance, () -> {
+                    if (status != Status.IN_GAME)
+                        return ;
                     for (UUID plid : ids) {
                         GamePlayer pl = getPlayer(plid);
                         if (pl == null)
-                            continue;
+                            continue ;
+                        Player p = pl.getPlayerIfOnline();
+                        if (p == null)
+                            continue ;
 
                         Player target = getNewTarget(pl.getUUID());
-                        Dimensions.interactListener.targetPlayer(pl.getPlayerIfOnline(), target);
-                        pl.getPlayerIfOnline().sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD+" Votre cible est "+target.getDisplayName()+ChatColor.GOLD+". Tuez le pour gagner un bonus de coins !");
-                        pl.getPlayerIfOnline().sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD+" Votre boussole pointe désormais vers ce joueur. Faites clic gauche avec votre boussole pour la pointer vers lui à nouveau !");
+                        Dimensions.interactListener.targetPlayer(p, target);
+                        p.sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD+" Votre cible est "+target.getDisplayName()+ChatColor.GOLD+". Tuez le pour gagner un bonus de coins !");
+                        p.sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD+" Votre boussole pointe désormais vers ce joueur. Faites clic gauche avec votre boussole pour la pointer vers lui à nouveau !");
                     }
                 }, 10*20L);
             }
