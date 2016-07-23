@@ -69,17 +69,17 @@ public class DamageListener implements Listener {
     private void playerDie(final Player dead) {
         final Object OlastDamager = Metadatas.getMetadata(dead, "lastDamager");
         if (OlastDamager == null) {
-            Bukkit.broadcastMessage(coherenceMachine.getGameTag() + ChatColor.RED + dead.getDisplayName() + " " + ChatColor.RED + "a été éliminé sans aide extérieure.");
+            Bukkit.broadcastMessage(coherenceMachine.getGameTag() + ChatColor.RED + " " + dead.getDisplayName() + " " + ChatColor.RED + "a été éliminé sans aide extérieure.");
         }
         else {
             final APlayer pplayer = (APlayer)OlastDamager;
             final UUID lastDamager = pplayer.getUUID();
             final Player killer = pplayer.getPlayerIfOnline();
             if (killer == null || !this.plugin.getArena().isPlaying(killer)) {
-                Bukkit.broadcastMessage(coherenceMachine.getGameTag() + ChatColor.RED + dead.getDisplayName() + " " + ChatColor.RED + "a été éliminé.");
+                Bukkit.broadcastMessage(coherenceMachine.getGameTag() + ChatColor.RED + " " + dead.getDisplayName() + " " + ChatColor.RED + "a été éliminé.");
             }
             else {
-                Bukkit.broadcastMessage(coherenceMachine.getGameTag() + ChatColor.RED + dead.getDisplayName() + " " + ChatColor.RED + "a été tué par " + killer.getDisplayName() + ".");
+                Bukkit.broadcastMessage(coherenceMachine.getGameTag() + ChatColor.RED + " " + dead.getDisplayName() + " " + ChatColor.RED + "a été tué par " + killer.getDisplayName() + ".");
                 pplayer.addKill();
                 if(pplayer.getUUID().equals(killer.getUniqueId())) //USELESS
                 {

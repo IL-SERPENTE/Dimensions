@@ -53,6 +53,7 @@ public class APlayer extends GamePlayer {
 
         tpTime = getData(shopsManager, new int[]{ 117, 118, 119, 120, 121 });
 
+        tpTime = new float[]{14, 14, 12, 10, 8, 7}[(int)tpTime];
     }
 
     public int getData(IPlayerShop playerShop, int[] items)
