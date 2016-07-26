@@ -5,6 +5,7 @@ import net.samagames.api.games.GamesNames;
 import net.samagames.api.games.Status;
 import net.samagames.api.permissions.IPermissionsManager;
 import net.samagames.dimensions.arena.Arena;
+import net.samagames.dimensions.arena.ArenaStatisticsHelper;
 import net.samagames.dimensions.listeners.ChestListener;
 import net.samagames.dimensions.listeners.DamageListener;
 import net.samagames.dimensions.listeners.InteractListener;
@@ -53,6 +54,7 @@ public class Dimensions extends JavaPlugin {
 
         arena = new Arena(this);
 
+        SamaGamesAPI.get().getGameManager().setGameStatisticsHelper(new ArenaStatisticsHelper());
         SamaGamesAPI.get().getGameManager().registerGame(arena);
 
         // Initialisation des listeners

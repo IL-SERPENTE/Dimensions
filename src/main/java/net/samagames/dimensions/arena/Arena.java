@@ -342,6 +342,8 @@ public class Arena extends Game<APlayer> {
                 return;
             }
 
+            this.handleWinner(winner.getUUID());
+
             Titles.sendTitle(player, 5, 80, 5, ChatColor.GOLD + "Victoire !", ChatColor.GREEN + "Vous gagnez la partie en " + ChatColor.AQUA + winner.getKills() + ChatColor.GREEN + " kills !");
             for (final Player p : Bukkit.getOnlinePlayers()) {
                 if (p.getUniqueId().equals(player.getUniqueId())) {
@@ -349,10 +351,6 @@ public class Arena extends Game<APlayer> {
                 }
                 Titles.sendTitle(p, 5, 80, 5, ChatColor.GOLD + "Fin de partie !", ChatColor.GREEN + "Bravo à " + player.getDisplayName());
             }
-
-            try {
-                SamaGamesAPI.get().getStatsManager().getPlayerStats(player.getUniqueId()).getDimensionStatistics().incrByKills(1);
-            } catch (Exception ignored){}
 
             coherenceMachine.getTemplateManager().getPlayerWinTemplate().execute(player, winner.getKills());
             //Bukkit.broadcastMessage(plugin.pluginTAG+ChatColor.GREEN+ChatColor.MAGIC+"aaa"+ChatColor.GOLD+" Victoire ! "+ChatColor.GREEN+ChatColor.MAGIC+"aaa"+ChatColor.GOLD+" Bravo a "+ChatColor.LIGHT_PURPLE+player.getName()+ChatColor.GOLD+" !");
@@ -465,10 +463,7 @@ public class Arena extends Game<APlayer> {
                 addStars(player, 1, "Vous y êtes presque !");
             }
 
-            try
-            {
-                SamaGamesAPI.get().getStatsManager().getPlayerStats(player.getUniqueId()).getDimensionStatistics().incrByKills(1);
-            } catch (Exception ignored) {}
+            ((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseDeaths(player.getUniqueId());
         }
 
         if (player != null && player.isOnline()) {
