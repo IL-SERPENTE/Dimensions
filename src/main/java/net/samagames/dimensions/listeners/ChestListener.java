@@ -3,6 +3,7 @@ package net.samagames.dimensions.listeners;
 import net.samagames.dimensions.Dimensions;
 import net.samagames.dimensions.arena.RandomItem;
 import net.samagames.dimensions.utils.Metadatas;
+import net.samagames.tools.MojangShitUtils;
 import org.bukkit.*;
 import org.bukkit.block.Chest;
 import org.bukkit.enchantments.Enchantment;
@@ -29,13 +30,14 @@ import java.util.Collections;
 import java.util.Random;
 
 /**
- * Created by zyuiop on 26/09/14.
+ * Updated by Reelwens on 28/07/16.
  */
 public class ChestListener implements Listener {
 
     protected Dimensions plugin;
     protected ArrayList<RandomItem> items = new ArrayList<>();
 
+    @SuppressWarnings("deprecation")
     public ChestListener(Dimensions plugin) {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -43,46 +45,52 @@ public class ChestListener implements Listener {
         // Ici on fait les registers de chaque item //
 
         // ARMURES //
-        this.registerItem(new RandomItem(new ItemStack(Material.LEATHER_LEGGINGS, 1), 1500));
-        this.registerItem(new RandomItem(new ItemStack(Material.LEATHER_BOOTS, 1), 1500));
-        this.registerItem(new RandomItem(new ItemStack(Material.LEATHER_CHESTPLATE, 1), 1500));
-        this.registerItem(new RandomItem(new ItemStack(Material.LEATHER_HELMET, 1), 1500));
+        this.registerItem(new RandomItem(new ItemStack(Material.LEATHER_LEGGINGS, 1), 700));
+        this.registerItem(new RandomItem(new ItemStack(Material.LEATHER_BOOTS, 1), 1000));
+        this.registerItem(new RandomItem(new ItemStack(Material.LEATHER_CHESTPLATE, 1), 700));
+        this.registerItem(new RandomItem(new ItemStack(Material.LEATHER_HELMET, 1), 1000));
 
-        registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_HELMET, 1), 1000));
-        registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_BOOTS, 1), 1300));
+        registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_HELMET, 1), 700));
+        registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_BOOTS, 1), 700));
         registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_CHESTPLATE, 1), 1000));
         registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_LEGGINGS, 1), 1000));
 
-        registerItem(new RandomItem(new ItemStack(Material.IRON_LEGGINGS, 1), 500));
-        registerItem(new RandomItem(new ItemStack(Material.IRON_BOOTS, 1), 500));
-        registerItem(new RandomItem(new ItemStack(Material.IRON_CHESTPLATE, 1), 500));
-        registerItem(new RandomItem(new ItemStack(Material.IRON_HELMET, 1), 500));
+        registerItem(new RandomItem(new ItemStack(Material.IRON_LEGGINGS, 1), 700));
+        registerItem(new RandomItem(new ItemStack(Material.IRON_BOOTS, 1), 700));
+        registerItem(new RandomItem(new ItemStack(Material.IRON_CHESTPLATE, 1), 700));
+        registerItem(new RandomItem(new ItemStack(Material.IRON_HELMET, 1), 700));
+
+        registerItem(new RandomItem(new ItemStack(Material.DIAMOND_LEGGINGS, 1), 25));
+        registerItem(new RandomItem(new ItemStack(Material.DIAMOND_BOOTS, 1), 25));
+        registerItem(new RandomItem(new ItemStack(Material.DIAMOND_CHESTPLATE, 1), 25));
+        registerItem(new RandomItem(new ItemStack(Material.DIAMOND_HELMET, 1), 25));
 
         // OUTILS ET ARMES //
-        registerItem(new RandomItem(new ItemStack(Material.STONE_PICKAXE, 1), 2000));
+        registerItem(new RandomItem(new ItemStack(Material.STONE_PICKAXE, 1), 1000));
         registerItem(new RandomItem(new ItemStack(Material.STONE_SWORD, 1), 2000));
         registerItem(new RandomItem(new ItemStack(Material.STONE_AXE, 1), 2000));
         registerItem(new RandomItem(new ItemStack(Material.IRON_SWORD, 1), 500));
         registerItem(new RandomItem(new ItemStack(Material.DIAMOND_SWORD, 1), 50));
+        registerItem(new RandomItem(new ItemStack(Material.WOOD_SWORD, 1), 500));
+        registerItem(new RandomItem(new ItemStack(Material.WOOD_AXE, 1), 500));
 
         // RESSOURCES //
-        registerItem(new RandomItem(new ItemStack(Material.IRON_INGOT), 1500, new int[]{1, 2, 3, 4, 5}));
+        registerItem(new RandomItem(new ItemStack(Material.IRON_INGOT), 3500, new int[]{4, 5, 6, 7, 8, 9, 10}));
         registerItem(new RandomItem(new ItemStack(Material.DIAMOND), 50, new int[]{1,2,3}));
-        registerItem(new RandomItem(new ItemStack(Material.BAKED_POTATO), 3000, new int[]{4, 5, 6, 7, 8, 9, 10}));
-        registerItem(new RandomItem(new ItemStack(Material.COOKED_BEEF), 3000, new int[]{2, 3, 4, 5}));
-        registerItem(new RandomItem(new ItemStack(Material.EXP_BOTTLE), 1000, new int[]{4, 5, 6, 7}));
+        registerItem(new RandomItem(new ItemStack(Material.COOKED_CHICKEN), 2000, new int[]{4, 5, 6, 7, 8, 9, 10}));
+        registerItem(new RandomItem(new ItemStack(Material.COOKED_BEEF), 5000, new int[]{2, 3, 4, 5}));
+        registerItem(new RandomItem(new ItemStack(Material.EXP_BOTTLE), 1000, new int[]{5, 6, 7, 8, 9, 10, 11, 12}));
         final Dye dye = new Dye();
         dye.setColor(DyeColor.BLUE);
-        this.registerItem(new RandomItem(dye.toItemStack(), 1300, new int[]{3, 4, 5, 6, 7, 8}));
-        registerItem(new RandomItem(new ItemStack(Material.LOG), 2000, new int[]{2, 3, 4}));
+        this.registerItem(new RandomItem(dye.toItemStack(), 2000, new int[]{5, 6, 7, 8, 9, 10, 11, 12}));
+        registerItem(new RandomItem(new ItemStack(Material.STICK), 2000, new int[]{2, 3, 4, 5}));
+        registerItem(new RandomItem(new ItemStack(Material.WORKBENCH, 1), 1000));
         registerItem(new RandomItem(new ItemStack(Material.BOW), 1000));
-        registerItem(new RandomItem(new ItemStack(Material.FLINT), 1000, new int[]{2, 3}));
-        registerItem(new RandomItem(new ItemStack(Material.COBBLESTONE), 1500, new int[]{3, 4, 5, 6}));
 
         // POTIONS //
-        registerItem(new RandomItem(new Potion(PotionType.INSTANT_HEAL).splash().toItemStack(1), 300));
+        registerItem(new RandomItem(new Potion(PotionType.INSTANT_HEAL).splash().toItemStack(1), 800));
         registerItem(new RandomItem(new Potion(PotionType.REGEN).toItemStack(1), 100));
-        registerItem(new RandomItem(new Potion(PotionType.POISON).splash().toItemStack(1), 500));
+        registerItem(new RandomItem(MojangShitUtils.getPotion("poison", true, true), 500));
         registerItem(new RandomItem(new Potion(PotionType.INSTANT_DAMAGE).splash().toItemStack(1), 500));
         registerItem(new RandomItem(new Potion(PotionType.SPEED).toItemStack(1), 500));
 
@@ -97,27 +105,32 @@ public class ChestListener implements Listener {
         meta.addStoredEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, false);
         protection.setItemMeta(meta);
 
-        registerItem(new RandomItem(sharpness, 500));
-        registerItem(new RandomItem(protection, 500));
+        registerItem(new RandomItem(sharpness, 700));
+        registerItem(new RandomItem(protection, 700));
 
         ItemStack bow = new ItemStack(Material.BOW);
         bow.addEnchantment(Enchantment.ARROW_DAMAGE, 1);
         registerItem(new RandomItem(bow, 300));
         // MISC //
         registerItem(new RandomItem(new ItemStack(Material.ARROW), 3000, new int[]{3, 4, 5, 6, 7, 8, 9, 10}));
-        registerItem(new RandomItem(new ItemStack(Material.GOLDEN_APPLE), 100));
-        registerItem(new RandomItem(new ItemStack(Material.TNT), 500, new int[]{1, 2, 3}));
-        registerItem(new RandomItem(new ItemStack(Material.APPLE), 1000));
+        registerItem(new RandomItem(new ItemStack(Material.GOLDEN_APPLE), 500));
 
         ItemStack axe = new ItemStack(Material.IRON_AXE);
         ItemMeta imeta = axe.getItemMeta();
-        imeta.setDisplayName(ChatColor.GOLD+"Hache du Troll des Cavernes");
+        imeta.setDisplayName(ChatColor.GOLD+"Hache de papy Sama");
         axe.setItemMeta(imeta);
         axe.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 2);
         axe.addUnsafeEnchantment(Enchantment.FIRE_ASPECT, 1);
         axe.addUnsafeEnchantment(Enchantment.DURABILITY, 2);
         registerItem(new RandomItem(axe, 5));
         registerItem(new RandomItem(new ItemStack(Material.GOLDEN_APPLE, 1, (short)1), 2));
+
+        // NEW RANDOM ITEMS //
+        registerItem(new RandomItem(new ItemStack(Material.SHIELD, 1), 500));
+        registerItem(new RandomItem(new ItemStack(Material.ELYTRA, 1), 50));
+        registerItem(new RandomItem(new ItemStack(Material.WATER_BUCKET, 1), 200));
+        registerItem(new RandomItem(new ItemStack(Material.LAVA_BUCKET, 1), 100));
+        registerItem(new RandomItem(new ItemStack(Material.ENDER_PEARL), 200, new int[]{1, 2, 3}));
     }
 
     public static void launchfw(Location loc, final FireworkEffect effect)
