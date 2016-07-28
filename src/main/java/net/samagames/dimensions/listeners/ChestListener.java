@@ -67,22 +67,19 @@ public class ChestListener implements Listener {
 
         // OUTILS ET ARMES //
         registerItem(new RandomItem(new ItemStack(Material.STONE_PICKAXE, 1), 1000));
-        registerItem(new RandomItem(new ItemStack(Material.STONE_SWORD, 1), 2000));
-        registerItem(new RandomItem(new ItemStack(Material.STONE_AXE, 1), 2000));
+        registerItem(new RandomItem(new ItemStack(Material.STONE_SWORD, 1), 2500));
         registerItem(new RandomItem(new ItemStack(Material.IRON_SWORD, 1), 500));
         registerItem(new RandomItem(new ItemStack(Material.DIAMOND_SWORD, 1), 50));
-        registerItem(new RandomItem(new ItemStack(Material.WOOD_SWORD, 1), 500));
-        registerItem(new RandomItem(new ItemStack(Material.WOOD_AXE, 1), 500));
 
         // RESSOURCES //
-        registerItem(new RandomItem(new ItemStack(Material.IRON_INGOT), 3500, new int[]{4, 5, 6, 7, 8, 9, 10}));
+        registerItem(new RandomItem(new ItemStack(Material.IRON_INGOT), 4000, new int[]{2, 3, 4, 5, 6}));
         registerItem(new RandomItem(new ItemStack(Material.DIAMOND), 50, new int[]{1,2,3}));
         registerItem(new RandomItem(new ItemStack(Material.COOKED_CHICKEN), 2000, new int[]{4, 5, 6, 7, 8, 9, 10}));
         registerItem(new RandomItem(new ItemStack(Material.COOKED_BEEF), 5000, new int[]{2, 3, 4, 5}));
         registerItem(new RandomItem(new ItemStack(Material.EXP_BOTTLE), 1000, new int[]{5, 6, 7, 8, 9, 10, 11, 12}));
         final Dye dye = new Dye();
         dye.setColor(DyeColor.BLUE);
-        this.registerItem(new RandomItem(dye.toItemStack(), 2000, new int[]{5, 6, 7, 8, 9, 10, 11, 12}));
+        this.registerItem(new RandomItem(dye.toItemStack(), 3000, new int[]{4, 5, 6, 7, 8}));
         registerItem(new RandomItem(new ItemStack(Material.STICK), 2000, new int[]{2, 3, 4, 5}));
         registerItem(new RandomItem(new ItemStack(Material.WORKBENCH, 1), 1000));
         registerItem(new RandomItem(new ItemStack(Material.BOW), 1000));
@@ -126,11 +123,11 @@ public class ChestListener implements Listener {
         registerItem(new RandomItem(new ItemStack(Material.GOLDEN_APPLE, 1, (short)1), 2));
 
         // NEW RANDOM ITEMS //
-        registerItem(new RandomItem(new ItemStack(Material.SHIELD, 1), 500));
+        registerItem(new RandomItem(new ItemStack(Material.SHIELD, 1), 200));
         registerItem(new RandomItem(new ItemStack(Material.ELYTRA, 1), 50));
-        registerItem(new RandomItem(new ItemStack(Material.WATER_BUCKET, 1), 200));
-        registerItem(new RandomItem(new ItemStack(Material.LAVA_BUCKET, 1), 100));
-        registerItem(new RandomItem(new ItemStack(Material.ENDER_PEARL), 200, new int[]{1, 2, 3}));
+        registerItem(new RandomItem(new ItemStack(Material.WATER_BUCKET, 1), 100));
+        registerItem(new RandomItem(new ItemStack(Material.LAVA_BUCKET, 1), 50));
+        registerItem(new RandomItem(new ItemStack(Material.ENDER_PEARL), 100, new int[]{1, 2, 3}));
     }
 
     public static void launchfw(Location loc, final FireworkEffect effect)
