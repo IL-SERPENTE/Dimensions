@@ -26,15 +26,15 @@ import java.util.List;
 
 /**
  * Created by zyuiop on 13/09/14.
+ * Updated by Rigner on 07/08/16.
  */
-public class SpectatorListener implements Listener {
-
-    public ArrayList<Material> whitelist = new ArrayList<>();
-    protected Dimensions plugin;
+public class SpectatorListener implements Listener
+{
+    private List<Material> whitelist = new ArrayList<>();
     protected Arena arena;
 
-    public SpectatorListener(Dimensions plugin) {
-        this.plugin = plugin;
+    public SpectatorListener(Dimensions plugin)
+    {
         this.arena = plugin.getArena();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
@@ -46,49 +46,54 @@ public class SpectatorListener implements Listener {
 
     }
 
-    public boolean cancel(Player p) {
-        if (!arena.isInGame()) {
-            return true;
-        }
-        return !(arena.hasPlayer(p) && !arena.isSpectator(p));
+    private boolean cancel(Player p)
+    {
+        return !this.arena.isInGame() || !(this.arena.hasPlayer(p) && !this.arena.isSpectator(p));
     }
 
     @EventHandler
-    public void onMoveEvent(PlayerMoveEvent event) {
-        if (arena.getStatus().equals(Status.IN_GAME) && !arena.isInGame() && (arena.hasPlayer(event.getPlayer()) && !arena.isSpectator(event.getPlayer())))
-        {
+    public void onMoveEvent(PlayerMoveEvent event)
+    {
+        if (this.arena.getStatus().equals(Status.IN_GAME) && !this.arena.isInGame() && (this.arena.hasPlayer(event.getPlayer()) && !this.arena.isSpectator(event.getPlayer())))
             if (event.getTo().getBlockX() != event.getFrom().getBlockX() || event.getTo().getBlockZ() != event.getFrom().getBlockZ())
                 event.setTo(event.getFrom());
-        }
     }
 
     @EventHandler
-    public void onLoseFood(final FoodLevelChangeEvent event) {
+    public void onLoseFood(final FoodLevelChangeEvent event)
+    {
         event.setCancelled(this.cancel((Player)event.getEntity()));
     }
 
     @EventHandler
-    public void onBreak(BlockBreakEvent e) {
+    public void onBreak(BlockBreakEvent e)
+    {
         e.setCancelled(cancel(e.getPlayer()));
-        if (!e.isCancelled()) {
-            boolean canBreak = arena.canBreak(e.getBlock().getType());
-            if (!canBreak) e.setCancelled(true);
+        if (!e.isCancelled())
+        {
+            boolean canBreak = this.arena.canBreak(e.getBlock().getType());
+            if (!canBreak)
+                e.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void onRain(final WeatherChangeEvent event) {
-        if(event.toWeatherState())
+    public void onRain(final WeatherChangeEvent event)
+    {
+        if (event.toWeatherState())
             event.setCancelled(true);
     }
 
     @EventHandler
-    public void onPlace(BlockPlaceEvent e) {
+    public void onPlace(BlockPlaceEvent e)
+    {
         e.setCancelled(cancel(e.getPlayer()));
-        if (!e.isCancelled()) {
+        if (!e.isCancelled())
+        {
             if (e.getBlock().getType() != Material.TNT && e.getBlock().getType() != Material.WORKBENCH && e.getBlock().getType() != Material.FURNACE)
                 e.setCancelled(true);
-        }else
+        }
+        else
         {
             final int x = e.getBlock().getX();
             final int y = e.getBlock().getY();
@@ -100,7 +105,8 @@ public class SpectatorListener implements Listener {
                     || this.whitelist.contains(w.getBlockAt(x - 1, y, z).getType())
                     || this.whitelist.contains(w.getBlockAt(x, y, z + 1).getType())
                     || this.whitelist.contains(w.getBlockAt(x, y, z - 1).getType());
-            if (ref) {
+            if (ref)
+            {
                 e.setCancelled(true);
                 e.getPlayer().sendMessage(ChatColor.RED + "Vous ne pouvez pas placer de bloc ici.");
             }
@@ -108,53 +114,62 @@ public class SpectatorListener implements Listener {
     }
 
     @EventHandler (priority = EventPriority.LOWEST)
-    public void onInteract(PlayerInteractEvent e) {
+    public void onInteract(PlayerInteractEvent e)
+    {
         e.setCancelled(cancel(e.getPlayer()));
-        if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if (!(arena.isPlaying(e.getPlayer()))) {
-                if (e.getItem() != null && e.getItem().getType() == Material.COMPASS) {
-                    arena.tpMenu(e.getPlayer());
-                }
-            }else if(e.getItem() != null && e.getItem().getType() == Material.WRITTEN_BOOK)
+        if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)
+        {
+            if (!(this.arena.isPlaying(e.getPlayer())))
             {
-                e.setCancelled(false);
+                if (e.getItem() != null && e.getItem().getType() == Material.COMPASS)
+                    this.arena.tpMenu(e.getPlayer());
             }
+            else if(e.getItem() != null && e.getItem().getType() == Material.WRITTEN_BOOK)
+                e.setCancelled(false);
         }
     }
 
     @EventHandler (priority = EventPriority.LOWEST)
-    public void onDamage(EntityDamageEvent e) {
-        if (e.getEntity() instanceof Player) e.setCancelled(cancel((Player)e.getEntity()));
+    public void onDamage(EntityDamageEvent e)
+    {
+        if (e.getEntity() instanceof Player)
+            e.setCancelled(cancel((Player)e.getEntity()));
     }
 
 
     @EventHandler
-    public void pickup(PlayerPickupItemEvent e) {
+    public void pickup(PlayerPickupItemEvent e)
+    {
         e.setCancelled(cancel(e.getPlayer()));
     }
 
     @EventHandler
-    public void pickup(PlayerDropItemEvent e) {
+    public void pickup(PlayerDropItemEvent e)
+    {
         e.setCancelled(cancel(e.getPlayer()));
     }
 
     @EventHandler
-    public void onExplode(EntityExplodeEvent ev) {
+    public void onExplode(EntityExplodeEvent ev)
+    {
         ev.blockList().clear();
     }
 
     @EventHandler
-    public void onMove(PlayerMoveEvent e) {
-        if ((arena.hasPlayer(e.getPlayer()) && !arena.isSpectator(e.getPlayer())))
+    public void onMove(PlayerMoveEvent e)
+    {
+        if ((this.arena.hasPlayer(e.getPlayer()) && !this.arena.isSpectator(e.getPlayer())))
             return;
 
-        if (!arena.isInGame())
+        if (!this.arena.isInGame())
             return;
 
         List<Entity> entities = e.getPlayer().getNearbyEntities(1, 1, 1);
-        entities.stream().filter(ent -> ent instanceof Player).forEach(ent -> {
+        entities.stream().filter(ent -> ent instanceof Player).forEach(ent ->
+        {
             Player near = (Player) ent;
-            if ((arena.hasPlayer(near) && !arena.isSpectator(near))) {
+            if ((this.arena.hasPlayer(near) && !this.arena.isSpectator(near)))
+            {
                 e.getPlayer().sendMessage(ChatColor.RED + "Merci de ne pas tourner autour des joueurs !");
                 e.getPlayer().setVelocity(e.getPlayer().getLocation().getDirection().multiply(-1));
             }
@@ -162,22 +177,26 @@ public class SpectatorListener implements Listener {
     }
 
     @EventHandler
-    public void onInteract(PlayerInteractEntityEvent e) {
+    public void onInteract(PlayerInteractEntityEvent e)
+    {
         e.setCancelled(cancel(e.getPlayer()));
     }
 
     @EventHandler
-    public void onBukket(PlayerBucketFillEvent e) {
+    public void onBukket(PlayerBucketFillEvent e)
+    {
         e.setCancelled(cancel(e.getPlayer()));
     }
 
     @EventHandler
-    public void onBukket(PlayerBucketEmptyEvent e) {
+    public void onBukket(PlayerBucketEmptyEvent e)
+    {
         e.setCancelled(cancel(e.getPlayer()));
     }
 
     @EventHandler
-    public void onHanging(HangingBreakByEntityEvent e) {
+    public void onHanging(HangingBreakByEntityEvent e)
+    {
         if (e.getEntity() instanceof Player)
             e.setCancelled(cancel((Player) e.getEntity()));
     }

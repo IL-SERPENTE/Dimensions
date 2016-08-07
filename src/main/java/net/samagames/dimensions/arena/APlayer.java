@@ -3,7 +3,6 @@ package net.samagames.dimensions.arena;
 import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.GamePlayer;
 import net.samagames.api.shops.IPlayerShop;
-import net.samagames.api.shops.IShopsManager;
 import net.samagames.dimensions.Dimensions;
 import net.samagames.tools.scoreboards.ObjectiveSign;
 import org.bukkit.ChatColor;
@@ -16,7 +15,8 @@ import org.bukkit.entity.Player;
  * (C) Copyright Elydra Network 2014 & 2015
  * All rights reserved.
  */
-public class APlayer extends GamePlayer {
+public class APlayer extends GamePlayer
+{
 
     private int healAtKill = 0;
     private int strengthAtKill;
@@ -25,38 +25,36 @@ public class APlayer extends GamePlayer {
 
     private int kills = 0;
 
-    private Player player;
-
     private ObjectiveSign objectiveInfo;
 
-    public APlayer(Player player) {
+    public APlayer(Player player)
+    {
         super(player);
-        this.player = player;
 
-        objectiveInfo = new ObjectiveSign("infoSide", ChatColor.GREEN + "" + ChatColor.BOLD + "  Dimensions  ");
-        objectiveInfo.addReceiver(player);
+        this.objectiveInfo = new ObjectiveSign("infoSide", ChatColor.GREEN + "" + ChatColor.BOLD + "  Dimensions  ");
+        this.objectiveInfo.addReceiver(player);
 
         updateKills();
 
         loadShop();
     }
 
-    public void loadShop()
+    private void loadShop()
     {
         IPlayerShop shopsManager = SamaGamesAPI.get().getShopsManager().getPlayer(this.uuid);
 
-        strengthAtKill = getData(shopsManager, new int[]{ 134, 135, 136, 137, 138, 139 });
+        this.strengthAtKill = getData(shopsManager, new int[]{ 134, 135, 136, 137, 138, 139 });
 
-        healAtStrike = getData(shopsManager, new int[]{ 127, 128, 129, 130, 131, 132, 133 });
+        this.healAtStrike = getData(shopsManager, new int[]{ 127, 128, 129, 130, 131, 132, 133 });
 
-        healAtKill = getData(shopsManager, new int[]{ 122, 123, 124, 125, 126 });
+        this.healAtKill = getData(shopsManager, new int[]{ 122, 123, 124, 125, 126 });
 
-        tpTime = getData(shopsManager, new int[]{ 117, 118, 119, 120, 121 });
+        this.tpTime = getData(shopsManager, new int[]{ 117, 118, 119, 120, 121 });
 
-        tpTime = new float[]{14, 14, 12, 10, 8, 7}[(int)tpTime];
+        this.tpTime = new float[]{14, 14, 12, 10, 8, 7}[(int)this.tpTime];
     }
 
-    public int getData(IPlayerShop playerShop, int[] items)
+    private int getData(IPlayerShop playerShop, int[] items)
     {
         try
         {
@@ -72,62 +70,48 @@ public class APlayer extends GamePlayer {
         }
     }
 
-    public int getHealAtKill() {
-        return healAtKill;
+    public int getHealAtKill()
+    {
+        return this.healAtKill;
     }
 
-    public void setHealAtKill(int healAtKill) {
-        this.healAtKill = healAtKill;
+    public int getStrengthAtKill()
+    {
+        return this.strengthAtKill;
     }
 
-    public int getStrengthAtKill() {
-        return strengthAtKill;
+    public int getHealAtStrike()
+    {
+        return this.healAtStrike;
     }
 
-    public void setStrengthAtKill(int strenghtAtKill) {
-        this.strengthAtKill = strenghtAtKill;
-    }
-
-    public int getHealAtStrike() {
-        return healAtStrike;
-    }
-
-    public void setHealAtStrike(int healAtStrike) {
-        this.healAtStrike = healAtStrike;
-    }
-
-    protected void updateKills()
+    private void updateKills()
     {
         Dimensions.instance.getArena().getObjectiveTab().getScore(getPlayerIfOnline().getName()).setScore(kills);
         Dimensions.instance.getArena().getObjectiveTab().updateScore(true);
     }
 
-    public float getTpTime() {
-        return tpTime;
-    }
-
-    public void setTpTime(float tpTime) {
-        this.tpTime = tpTime;
+    float getTpTime()
+    {
+        return this.tpTime;
     }
 
     public void addKill()
     {
-        kills++;
+        this.kills++;
         updateKills();
 
-        objectiveInfo.setLine(5, ChatColor.GRAY + "Kills: " + ChatColor.WHITE + kills);
-        objectiveInfo.updateLines();
+        this.objectiveInfo.setLine(5, ChatColor.GRAY + "Kills: " + ChatColor.WHITE + kills);
+        this.objectiveInfo.updateLines();
     }
 
-    public int getKills() {
-        return kills;
+    int getKills()
+    {
+        return this.kills;
     }
 
-    public void setKills(int kills) {
-        this.kills = kills;
-    }
-
-    public ObjectiveSign getObjectiveInfo() {
-        return objectiveInfo;
+    public ObjectiveSign getObjectiveInfo()
+    {
+        return this.objectiveInfo;
     }
 }

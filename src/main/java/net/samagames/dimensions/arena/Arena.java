@@ -26,38 +26,35 @@ import org.bukkit.scoreboard.Scoreboard;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Arena extends Game<APlayer> {
+public class Arena extends Game<APlayer>
+{
 
-    /** Variables d'arène **/
-    protected int maxPlayers;
-    protected int minPlayers;
-    protected String mapName;
+    private Dimensions plugin;
 
-    protected Dimensions plugin;
+    private List<Location> spawns = new ArrayList<>();
+    private List<Location> deathmatchSpawns = new ArrayList<>();
 
-    protected ArrayList<Location> spawns = new ArrayList<>();
-    protected ArrayList<Location> deathmatchSpawns = new ArrayList<>();
+    private Location waitLocation;
 
-    protected Location waitLocation;
+    private DimensionsManager dimensionsManager;
+    boolean isDeathmatch = false;
+    private BukkitTask dmCount = null;
+    private BukkitTask pvpCount = null;
+    private List<Material> allowed = new ArrayList<>();
+    private BukkitTask randomEffects = null;
+    private boolean inGame = false;
+    private Map<UUID, UUID> targets = new HashMap<>(); // <Utilisateur : cible>
 
-    protected DimensionsManager dimensionsManager;
-    protected boolean isDeathmatch = false;
-    protected BukkitTask dmCount = null;
-    protected BukkitTask pvpCount = null;
-    protected ArrayList<Material> allowed = new ArrayList<>();
-    protected BukkitTask randomEffects = null;
-    protected boolean inGame = false;
-    protected HashMap<UUID, UUID> targets = new HashMap<>(); // <Utilisateur : cible>
-
-    protected BukkitTask gameTimer;
+    private BukkitTask gameTimer;
     private BukkitTask preparationTimer;
 
     //Scoreboards
-    protected boolean isPVPEnabled = false;
+    private boolean isPVPEnabled = false;
     private Scoreboard scoreboard;
     private VObjective objectiveTab;
 
-    public Arena(Dimensions plugin) {
+    public Arena(Dimensions plugin)
+    {
         super("dimensions", "Dimensions", "", APlayer.class);
         this.plugin = plugin;
 
@@ -69,52 +66,47 @@ public class Arena extends Game<APlayer> {
 
         loadConfig();
 
-        this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        this.scoreboard = this.plugin.getServer().getScoreboardManager().getNewScoreboard();
 
-        objectiveTab = new VObjective("TabKills", "kills");
-        objectiveTab.setLocation(VObjective.ObjectiveLocation.LIST);
+        this.objectiveTab = new VObjective("TabKills", "kills");
+        this.objectiveTab.setLocation(VObjective.ObjectiveLocation.LIST);
 
     }
 
-    public boolean canBreak(Material madeOf) {
-        return allowed.contains(madeOf);
+    public boolean canBreak(Material madeOf)
+    {
+        return this.allowed.contains(madeOf);
     }
 
-    public void loadConfig()
+    private void loadConfig()
     {
         IGameProperties properties = SamaGamesAPI.get().getGameManager().getGameProperties();
 
-        dimensionsManager = new DimensionsManager(this,
+        this.dimensionsManager = new DimensionsManager(this,
                 properties.getConfig("dimension-diff", new JsonPrimitive(1000)).getAsInt(),
                 properties.getConfig("overworld-name", new JsonPrimitive("Unknown")).getAsString(),
                 properties.getConfig("hard-name", new JsonPrimitive("Unknown")).getAsString());
-        waitLocation = Utils.srt2Loc(properties.getConfig("wait-spawn", new JsonPrimitive("0;0;0;0;0")).getAsString());
+        this.waitLocation = Utils.srt2Loc(properties.getConfig("wait-spawn", new JsonPrimitive("0;0;0;0;0")).getAsString());
 
-        this.mapName = properties.getMapName();
+        /* Variables d'arène */
+        int maxPlayers = properties.getMaxSlots();
 
-        this.minPlayers = properties.getMinSlots();
-        this.maxPlayers = properties.getMaxSlots();
+        for (JsonElement jsonElements : properties.getConfig("Blocks", new JsonArray()).getAsJsonArray())
+            this.allowed.add(Material.matchMaterial(jsonElements.getAsString()));
 
-        for (JsonElement jsonElements : properties.getConfig("Blocks", new JsonArray()).getAsJsonArray()) {
-            allowed.add(Material.matchMaterial(jsonElements.getAsString()));
-        }
+        for (JsonElement jsonElements : properties.getConfig("Spawns", new JsonArray()).getAsJsonArray())
+            this.spawns.add(Utils.srt2Loc(jsonElements.getAsString()));
 
-        for (JsonElement jsonElements : properties.getConfig("Spawns", new JsonArray()).getAsJsonArray()) {
-            spawns.add(Utils.srt2Loc(jsonElements.getAsString()));
-        }
+        for (JsonElement jsonElements : properties.getConfig("Deathmatchspawns", new JsonArray()).getAsJsonArray())
+            this.deathmatchSpawns.add(Utils.srt2Loc(jsonElements.getAsString()));
 
-        for (JsonElement jsonElements : properties.getConfig("Deathmatchspawns", new JsonArray()).getAsJsonArray()) {
-            deathmatchSpawns.add(Utils.srt2Loc(jsonElements.getAsString()));
-        }
-
-        if (spawns.size() < maxPlayers ) {
-            Bukkit.getLogger().severe("ATTENTION : pas assez de spawns, nombre de joueurs max réduit a " + maxPlayers);
-        }
-
+        if (this.spawns.size() < maxPlayers)
+            this.plugin.getLogger().severe("ATTENTION : pas assez de spawns, nombre de joueurs max réduit a " + maxPlayers);
     }
 
-    public DimensionsManager getDimensionsManager() {
-        return dimensionsManager;
+    public DimensionsManager getDimensionsManager()
+    {
+        return this.dimensionsManager;
     }
 
 
@@ -127,7 +119,7 @@ public class Arena extends Game<APlayer> {
     {
         super.handleLogin(player);
 
-        player.setScoreboard(scoreboard);
+        player.setScoreboard(this.scoreboard);
 
         player.setGameMode(GameMode.ADVENTURE);
         //To hide exp bar xD
@@ -139,11 +131,11 @@ public class Arena extends Game<APlayer> {
         bm.setTitle("Règles du jeu");
         ArrayList<String> pages = new ArrayList<>();
         // Typo?
-        pages.add(ChatColor.GOLD+"Bienvenue dans "+ChatColor.DARK_AQUA+"Dimensions"+ChatColor.DARK_GREEN+" ! \n\n > Sommaire : "+ChatColor.BLACK+"\n\n P.2: Principe du jeu \n P.3: Dimensions\n P.6: Fonctionnement\n\n\n"+ChatColor.BLACK+"Maps : Amalgar");
-        pages.add(ChatColor.DARK_GREEN+"Principe du jeu :"+ChatColor.BLACK+"\n\nLe but du jeu est de trouver un maximum de stuff dans les coffres puis de tuer les autres joueurs afin de rester le dernier en vie.");
-        pages.add(ChatColor.DARK_GREEN+"Dimensions :"+ChatColor.BLACK+"\n\nLe jeu s'organise autour de deux dimensions. Changez grâce a l'Ender Eye. \nDécouvrez dans les pages suivantes les secrets de chacune....");
+        pages.add(ChatColor.GOLD + "Bienvenue dans " + ChatColor.DARK_AQUA + "Dimensions"+ChatColor.DARK_GREEN + " ! \n\n > Sommaire : " + ChatColor.BLACK + "\n\n P.2: Principe du jeu \n P.3: Dimensions\n P.6: Fonctionnement\n\n\n" + ChatColor.BLACK+"Maps : Amalgar");
+        pages.add(ChatColor.DARK_GREEN + "Principe du jeu :" + ChatColor.BLACK + "\n\nLe but du jeu est de trouver un maximum de stuff dans les coffres puis de tuer les autres joueurs afin de rester le dernier en vie.");
+        pages.add(ChatColor.DARK_GREEN + "Dimensions :" + ChatColor.BLACK + "\n\nLe jeu s'organise autour de deux dimensions. Changez grâce a l'Ender Eye. \nDécouvrez dans les pages suivantes les secrets de chacune....");
         pages.add(ChatColor.DARK_RED + "Hard Dimension :" + ChatColor.BLACK + "\n\nCette dimension contient des coffres avec du meilleur stuff. Cependant, il n'y a pas de regen de vie et certains effets peuvent vous frapper aléatoirement...");
-        pages.add(ChatColor.DARK_GREEN+"Overworld :"+ChatColor.BLACK+"\n\nC'est la dimension par défaut. Ici, aucun effet. Cependant, vous y trouverez moins de coffres et moins de stuff...");
+        pages.add(ChatColor.DARK_GREEN + "Overworld :" + ChatColor.BLACK + "\n\nC'est la dimension par défaut. Ici, aucun effet. Cependant, vous y trouverez moins de coffres et moins de stuff...");
         pages.add(ChatColor.DARK_GREEN + "Fonctionnement :" + ChatColor.BLACK + "\n\n" + ChatColor.GOLD + "Le stuff : \n" + ChatColor.BLACK + "Pendant 3 minutes, le PVP est désactivé. Profitez en bien pour vous stuffer au maximum !\n" + ChatColor.GOLD + "Le PVP :" + ChatColor.BLACK + "\nLorque le PVP s'active, n'ayez aucune pitié pour rester le dernier en vie.");
         bm.setPages(pages);
         // Lets fix the typo
@@ -153,79 +145,89 @@ public class Arena extends Game<APlayer> {
     }
 
     @Override
-    public void startGame() {
-
+    public void startGame()
+    {
         super.startGame();
-        for(APlayer aPlayer : gamePlayers.values())
-        {
-            objectiveTab.addReceiver(aPlayer.getPlayerIfOnline());
-        }
+        for (APlayer aPlayer : this.gamePlayers.values())
+            this.objectiveTab.addReceiver(aPlayer.getPlayerIfOnline());
 
-        coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.GOLD + "Préparation du jeu !", true);
-        preparationTimer = Bukkit.getScheduler().runTaskTimerAsynchronously(Dimensions.instance, new PreparingCountdown(this), 0L, 20L);
+        this.coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.GOLD + "Préparation du jeu !", true);
+        this.preparationTimer = this.plugin.getServer().getScheduler().runTaskTimerAsynchronously(this.plugin, new PreparingCountdown(this), 0L, 20L);
 
-        scoreboard.registerNewObjective("vie", "health").setDisplaySlot(DisplaySlot.BELOW_NAME);
-        scoreboard.getObjective("vie").setDisplayName(ChatColor.RED + "♥");
+        this.scoreboard.registerNewObjective("vie", "health").setDisplaySlot(DisplaySlot.BELOW_NAME);
+        this.scoreboard.getObjective("vie").setDisplayName(ChatColor.RED + "♥");
 
-        ArrayList<APlayer> remove = new ArrayList<>();
-        Iterator<APlayer> iterator = gamePlayers.values().iterator();
+        List<APlayer> remove = new ArrayList<>();
+        Iterator<APlayer> iterator = this.gamePlayers.values().iterator();
         Collections.shuffle(this.spawns);
 
-        for (Location spawn : this.spawns) {
+        for (Location spawn : this.spawns)
+        {
             if (!iterator.hasNext())
-                break;
+                break ;
             APlayer gamePlayer = iterator.next();
             Player player = gamePlayer.getPlayerIfOnline();
             resetPlayer(player);
-            if (player == null) {
+            if (player == null)
                 remove.add(gamePlayer);
-            } else {
+            else
+            {
                 /*
-                        while (!spawn.getBlock().isEmpty() && spawn.getY() < 200.0) {
+                        while (!spawn.getBlock().isEmpty() && spawn.getY() < 200.0)
+                        {
                             spawn.setY(spawn.getY() + 1.0);
                         }
                  */
                 player.teleport(spawn);
                 player.setGameMode(GameMode.SURVIVAL);
-                scoreboard.getObjective("vie").getScore(player.getName()).setScore(20);
+                this.scoreboard.getObjective("vie").getScore(player.getName()).setScore(20);
             }
         }
 
-        while (iterator.hasNext()) {
-            try {
+        while (iterator.hasNext())
+        {
+            try
+            {
                 SamaGamesAPI.get().getGameManager().kickPlayer(iterator.next().getPlayerIfOnline(), null);
-            } catch (Exception ignored) {
             }
+            catch (Exception ignored) {}
         }
 
-        for (GamePlayer player : remove) {
-            try {
+        for (GamePlayer player : remove)
+        {
+            try
+            {
                 SamaGamesAPI.get().getGameManager().kickPlayer(player.getPlayerIfOnline(), null);
-            } catch (Exception ignored) {
-
             }
+            catch (Exception ignored) {}
         }
     }
 
-    public void start() {
-        try {
-            preparationTimer.cancel();
-            preparationTimer = null;
-            Bukkit.getLogger().info("Cancelled thread");
-        } catch (Exception e) {
+    public void start()
+    {
+        try
+        {
+            this.preparationTimer.cancel();
+            this.preparationTimer = null;
+            this.plugin.getLogger().info("Cancelled thread");
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
 
-        inGame = true;
+        this.inGame = true;
 
-        this.gameTimer = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, new Runnable() {
+        this.gameTimer = this.plugin.getServer().getScheduler().runTaskTimerAsynchronously(this.plugin, new Runnable()
+        {
             int time = 0;
 
             @Override
-            public void run() {
-                ++time;
+            public void run()
+            {
+                ++this.time;
 
-                for (APlayer aPlayer : gamePlayers.values())
+                for (APlayer aPlayer : Arena.this.gamePlayers.values())
                 {
                     aPlayer.getObjectiveInfo().setLine(0, ChatColor.AQUA + "");
                     aPlayer.getObjectiveInfo().setLine(2, ChatColor.YELLOW + "");
@@ -233,21 +235,24 @@ public class Arena extends Game<APlayer> {
                     aPlayer.getObjectiveInfo().setLine(4, ChatColor.GRAY + "");
                     aPlayer.getObjectiveInfo().setLine(5, ChatColor.GRAY + "Kills: " + ChatColor.WHITE + aPlayer.getKills());
                     aPlayer.getObjectiveInfo().setLine(6, ChatColor.BLACK + "");
-                    aPlayer.getObjectiveInfo().setLine(7, ChatColor.WHITE + Utils.secondsToString(time));
+                    aPlayer.getObjectiveInfo().setLine(7, ChatColor.WHITE + Utils.secondsToString(this.time));
                     aPlayer.getObjectiveInfo().updateLines();
                 }
             }
         }, 20L, 20L);
 
-        coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.GOLD + "La partie commence. Bonne chance !", true);
-        coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.GOLD + "Le PVP sera activé dans 3 minutes.", true);
+        this.coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.GOLD + "La partie commence. Bonne chance !", true);
+        this.coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.GOLD + "Le PVP sera activé dans 3 minutes.", true);
 
-        this.pvpCount = Bukkit.getScheduler().runTaskTimer(plugin, new PVPEnable(this), 0L, 20L);
+        this.pvpCount = this.plugin.getServer().getScheduler().runTaskTimer(plugin, new PVPEnable(this), 0L, 20L);
 
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            for (GamePlayer player : gamePlayers.values()) {
+        this.plugin.getServer().getScheduler().runTask(this.plugin, () ->
+        {
+            for (GamePlayer player : this.gamePlayers.values())
+            {
                 Player pl = player.getPlayerIfOnline();
-                if (pl != null) {
+                if (pl != null)
+                {
                     resetPlayer(pl);
                     pl.setGameMode(GameMode.SURVIVAL);
                     pl.getInventory().setItem(7, Dimensions.getCompass());
@@ -259,34 +264,39 @@ public class Arena extends Game<APlayer> {
         });
 
         RandomEffects eff = new RandomEffects(this);
-        this.randomEffects = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, eff, 0L, 20L);
+        this.randomEffects = this.plugin.getServer().getScheduler().runTaskTimerAsynchronously(this.plugin, eff, 0L, 20L);
     }
 
-    public void enablePVP() {
+    public void enablePVP()
+    {
         this.isPVPEnabled = true;
         if (this.pvpCount != null)
             this.pvpCount.cancel();
         this.pvpCount = null;
 
-        coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.GOLD + "Le PVP est activé ! C'est l'heure du d-d-d-duel !", true);
-        Bukkit.getScheduler().runTaskLaterAsynchronously(Dimensions.instance, () -> {
-            for (GamePlayer player : getInGamePlayers().values()) {
+        this.coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.GOLD + "Le PVP est activé ! C'est l'heure du d-d-d-duel !", true);
+        this.plugin.getServer().getScheduler().runTaskLaterAsynchronously(this.plugin, () ->
+        {
+            for (GamePlayer player : getInGamePlayers().values())
+            {
                 Player bPlayer = player.getPlayerIfOnline();
                 Player target = getNewTarget(player.getUUID());
-                if(target == null)
+                if (target == null)
                     continue;
                 Dimensions.interactListener.targetPlayer(bPlayer, target);
-                bPlayer.sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD + "Votre cible est " + target.getDisplayName() + ChatColor.GOLD + ". Tuez le pour gagner un bonus de coins !");
-                bPlayer.sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD + "Votre boussole pointe désormais vers ce joueur. Faites clic gauche avec votre boussole pour la pointer vers lui à nouveau !");
+                bPlayer.sendMessage(this.coherenceMachine.getGameTag() + ChatColor.GOLD + "Votre cible est " + target.getDisplayName() + ChatColor.GOLD + ". Tuez le pour gagner un bonus de coins !");
+                bPlayer.sendMessage(this.coherenceMachine.getGameTag() + ChatColor.GOLD + "Votre boussole pointe désormais vers ce joueur. Faites clic gauche avec votre boussole pour la pointer vers lui à nouveau !");
             }
-        }, 30*20L);
+        }, 600L);
     }
 
-    public boolean isDeathmatch() {
+    public boolean isDeathmatch()
+    {
         return this.isDeathmatch;
     }
 
-    public void startDeathMatch() {
+    public void startDeathMatch()
+    {
         this.dmCount.cancel();
         this.isDeathmatch = true;
 
@@ -295,172 +305,184 @@ public class Arena extends Game<APlayer> {
         if (!isPVPEnabled())
             enablePVP();
 
-        for (GamePlayer ap : getInGamePlayers().values()) {
+        for (GamePlayer ap : getInGamePlayers().values())
+        {
             Player player = ap.getPlayerIfOnline();
-            if (!spawns.hasNext()) {
-                Bukkit.broadcastMessage(ChatColor.RED+"Une erreur s'est produite, tous les joueurs ne peuvent pas être transférés en deathmatch.");
-                break;
-            } else if(player != null){
+            if (!spawns.hasNext())
+            {
+                this.plugin.getServer().broadcastMessage(ChatColor.RED + "Une erreur s'est produite, tous les joueurs ne peuvent pas être transférés en deathmatch.");
+                break ;
+            }
+            else if(player != null)
+            {
                 Location spawn = spawns.next();
                 player.teleport(spawn);
             }
         }
     }
 
-    public void broadcastSound(Sound sound) {
-        for (GamePlayer pl : this.gamePlayers.values()) {
+    public void broadcastSound(Sound sound)
+    {
+        for (GamePlayer pl : this.gamePlayers.values())
+        {
             Player p = pl.getPlayerIfOnline();
             if (p != null)
                 p.playSound(p.getLocation(), sound, 1, 1);
         }
     }
 
-    public void finish(FinishReason reason) {
+    private void finish()
+    {
         if (randomEffects != null)
             randomEffects.cancel();
 
-        if (this.gameTimer != null) {
+        if (this.gameTimer != null)
             this.gameTimer.cancel();
-        }
 
-        if (reason.equals(FinishReason.WIN)) {
-            if (getInGamePlayers().isEmpty()) {
-                this.handleGameEnd();
-                return;
-            }
-
-            if (this.dmCount != null)
-                this.dmCount.cancel();
-
-            if (getInGamePlayers().size() > 1)
-                return;
-
-            APlayer winner = getInGamePlayers().values().iterator().next();
-            final Player player = winner.getPlayerIfOnline();
-            if (player == null) {
-                this.handleGameEnd();
-                return;
-            }
-
-            Titles.sendTitle(player, 5, 80, 5, ChatColor.GOLD + "Victoire !", ChatColor.GREEN + "Vous gagnez la partie en " + ChatColor.AQUA + winner.getKills() + ChatColor.GREEN + " kills !");
-            for (final Player p : Bukkit.getOnlinePlayers()) {
-                if (p.getUniqueId().equals(player.getUniqueId())) {
-                    continue;
-                }
-                Titles.sendTitle(p, 5, 80, 5, ChatColor.GOLD + "Fin de partie !", ChatColor.GREEN + "Bravo à " + player.getDisplayName());
-            }
-
-            try {
-                SamaGamesAPI.get().getStatsManager().getPlayerStats(player.getUniqueId()).getDimensionStatistics().incrByKills(1);
-            } catch (Exception ignored){}
-
-            coherenceMachine.getTemplateManager().getPlayerWinTemplate().execute(player, winner.getKills());
-            //Bukkit.broadcastMessage(plugin.pluginTAG+ChatColor.GREEN+ChatColor.MAGIC+"aaa"+ChatColor.GOLD+" Victoire ! "+ChatColor.GREEN+ChatColor.MAGIC+"aaa"+ChatColor.GOLD+" Bravo a "+ChatColor.LIGHT_PURPLE+player.getName()+ChatColor.GOLD+" !");
-
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                addCoins(player, 60, "Victoire !");
-                addStars(player, 3, "Victoire !");
-            });
-
-            // Feux d'artifice swag
-            final int nb = 20;
-            Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
-                int compteur = 0;
-
-                @Override
-                public void run() {
-
-                    if (compteur >= nb) {
-                        return;
-                    }
-
-                    //Spawn the Firework, get the FireworkMeta.
-                    Firework fw = (Firework) player.getWorld().spawnEntity(player.getPlayer().getLocation(), EntityType.FIREWORK);
-                    FireworkMeta fwm = fw.getFireworkMeta();
-
-                    //Our random generator
-                    Random r = new Random();
-
-                    //Get the type
-                    int rt = r.nextInt(4) + 1;
-                    FireworkEffect.Type type = FireworkEffect.Type.BALL;
-                    if (rt == 1) type = FireworkEffect.Type.BALL;
-                    if (rt == 2) type = FireworkEffect.Type.BALL_LARGE;
-                    if (rt == 3) type = FireworkEffect.Type.BURST;
-                    if (rt == 4) type = FireworkEffect.Type.CREEPER;
-                    if (rt == 5) type = FireworkEffect.Type.STAR;
-
-                    //Get our random colours
-                    int r1i = r.nextInt(17) + 1;
-                    int r2i = r.nextInt(17) + 1;
-                    Color c1 = Colors.getColor(r1i);
-                    Color c2 = Colors.getColor(r2i);
-
-                    //Create our effect with this
-                    FireworkEffect effect = FireworkEffect.builder().flicker(r.nextBoolean()).withColor(c1).withFade(c2).with(type).trail(r.nextBoolean()).build();
-
-                    //Then apply the effect to the meta
-                    fwm.addEffect(effect);
-
-                    //Generate some random power and set it
-                    int rp = r.nextInt(2) + 1;
-                    fwm.setPower(rp);
-
-                    //Then apply this to our rocket
-                    fw.setFireworkMeta(fwm);
-
-                    compteur++;
-                }
-
-            }, 5L, 5L);
-
+        if (this.getInGamePlayers().isEmpty())
+        {
             this.handleGameEnd();
+            return ;
         }
+
+        if (this.dmCount != null)
+            this.dmCount.cancel();
+
+        if (this.getInGamePlayers().size() > 1)
+            return ;
+
+        APlayer winner = this.getInGamePlayers().values().iterator().next();
+        final Player player = winner.getPlayerIfOnline();
+        if (player == null)
+        {
+            this.handleGameEnd();
+            return ;
+        }
+
+        Titles.sendTitle(player, 5, 80, 5, ChatColor.GOLD + "Victoire !", ChatColor.GREEN + "Vous gagnez la partie en " + ChatColor.AQUA + winner.getKills() + ChatColor.GREEN + " kills !");
+        for (final Player p : this.plugin.getServer().getOnlinePlayers())
+        {
+            if (p.getUniqueId().equals(player.getUniqueId()))
+                continue ;
+            Titles.sendTitle(p, 5, 80, 5, ChatColor.GOLD + "Fin de partie !", ChatColor.GREEN + "Bravo à " + player.getDisplayName());
+        }
+
+        try
+        {
+            SamaGamesAPI.get().getStatsManager().getPlayerStats(player.getUniqueId()).getDimensionStatistics().incrByKills(1);
+        }
+        catch (Exception ignored){}
+
+        this.coherenceMachine.getTemplateManager().getPlayerWinTemplate().execute(player, winner.getKills());
+        //Bukkit.broadcastMessage(plugin.pluginTAG+ChatColor.GREEN+ChatColor.MAGIC+"aaa"+ChatColor.GOLD+" Victoire ! "+ChatColor.GREEN+ChatColor.MAGIC+"aaa"+ChatColor.GOLD+" Bravo a "+ChatColor.LIGHT_PURPLE+player.getName()+ChatColor.GOLD+" !");
+
+        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
+        {
+            addCoins(player, 60, "Victoire !");
+            addStars(player, 3, "Victoire !");
+        });
+
+        // Feux d'artifice swag
+        final int nb = 20;
+        this.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(this.plugin, new Runnable()
+        {
+            int compteur = 0;
+
+            @Override
+            public void run()
+            {
+                if (this.compteur >= nb)
+                    return ;
+
+                //Spawn the Firework, get the FireworkMeta.
+                Firework fw = (Firework) player.getWorld().spawnEntity(player.getPlayer().getLocation(), EntityType.FIREWORK);
+                FireworkMeta fwm = fw.getFireworkMeta();
+
+                //Our random generator
+                Random r = new Random();
+
+                //Get the type
+                int rt = r.nextInt(4) + 1;
+                FireworkEffect.Type type = FireworkEffect.Type.BALL;
+                if (rt == 1) type = FireworkEffect.Type.BALL;
+                if (rt == 2) type = FireworkEffect.Type.BALL_LARGE;
+                if (rt == 3) type = FireworkEffect.Type.BURST;
+                if (rt == 4) type = FireworkEffect.Type.CREEPER;
+                if (rt == 5) type = FireworkEffect.Type.STAR;
+
+                //Get our random colours
+                int r1i = r.nextInt(17) + 1;
+                int r2i = r.nextInt(17) + 1;
+                Color c1 = Colors.getColor(r1i);
+                Color c2 = Colors.getColor(r2i);
+
+                //Create our effect with this
+                FireworkEffect effect = FireworkEffect.builder().flicker(r.nextBoolean()).withColor(c1).withFade(c2).with(type).trail(r.nextBoolean()).build();
+
+                //Then apply the effect to the meta
+                fwm.addEffect(effect);
+
+                //Generate some random power and set it
+                int rp = r.nextInt(2) + 1;
+                fwm.setPower(rp);
+
+                //Then apply this to our rocket
+                fw.setFireworkMeta(fwm);
+
+                this.compteur++;
+            }
+        }, 5L, 5L);
+
+        this.handleGameEnd();
     }
 
-    public void joinSpectators(Player p) {
+    private void joinSpectators(Player p)
+    {
         GamePlayer player = this.getPlayer(p.getUniqueId());
         if (player != null)
             player.setSpectator();
     }
 
-    public void respawnSpec(Player p) {
+    public void respawnSpec(Player p)
+    {
         this.joinSpectators(p);
     }
 
-    public Location getWaitLocation() {
-        return waitLocation;
+    public Location getWaitLocation()
+    {
+        return this.waitLocation;
     }
 
-    public boolean isInGame() {
-        return inGame;
+    public boolean isInGame()
+    {
+        return this.inGame;
     }
 
     @Override
-    public void handleLogout(Player player) {
-        stumpPlayer(player, true);
+    public void handleLogout(Player player)
+    {
+        stumpPlayer(player);
         super.handleLogout(player);
-        gameManager.refreshArena();
+        this.gameManager.refreshArena();
     }
 
-    public void stumpPlayer(final Player player, boolean logout) {
+    public void stumpPlayer(final Player player)
+    {
         Dimensions.interactListener.unregisterTask(player);
 
-        if(getStatus() != Status.IN_GAME || (player != null && this.isSpectator(player)))
-        {
-            return;
-        }
+        if (this.getStatus() != Status.IN_GAME || (player != null && this.isSpectator(player)))
+            return ;
 
         int left = getInGamePlayers().size() - 1;
         boolean isWon = (left <= 1);
 
         //We check if player doesn't suicide
-        if(player != null && !(player.getKiller() != null && player.getKiller().getUniqueId().equals(player.getUniqueId())))
+        if (player != null && !(player.getKiller() != null && player.getKiller().getUniqueId().equals(player.getUniqueId())))
         {
-            if (left == 2) {
+            if (left == 2)
                 addCoins(player, 20, "Troisième !");
-            }
-            else if (left == 1) {
+            else if (left == 1)
+            {
                 addCoins(player, 40, "Second !");
                 addStars(player, 1, "Vous y êtes presque !");
             }
@@ -468,36 +490,43 @@ public class Arena extends Game<APlayer> {
             try
             {
                 SamaGamesAPI.get().getStatsManager().getPlayerStats(player.getUniqueId()).getDimensionStatistics().incrByKills(1);
-            } catch (Exception ignored) {}
+            }
+            catch (Exception ignored) {}
         }
 
-        if (player != null && player.isOnline()) {
-            coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.RED + player.getName() + " a été éliminé.", true);
+        if (player != null && player.isOnline())
+        {
+            this.coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.RED + player.getName() + " a été éliminé.", true);
             joinSpectators(player);
         }
 
-        if (!isWon) {
-            Bukkit.broadcastMessage(ChatColor.YELLOW+ "Il reste encore "+ChatColor.AQUA+left+ChatColor.YELLOW+" joueurs en vie.");
-            if (left <= this.deathmatchSpawns.size() && !this.isDeathmatch && this.dmCount == null) {
+        if (!isWon)
+        {
+            this.plugin.getServer().broadcastMessage(ChatColor.YELLOW + "Il reste encore " + ChatColor.AQUA + left + ChatColor.YELLOW + " joueurs en vie.");
+            if (left <= this.deathmatchSpawns.size() && !this.isDeathmatch && this.dmCount == null)
+            {
                 Deathmatch countdown = new Deathmatch(this);
-                dmCount = Bukkit.getScheduler().runTaskTimer(plugin, countdown, 0L, 20L);
+                this.dmCount = this.plugin.getServer().getScheduler().runTaskTimer(this.plugin, countdown, 0L, 20L);
             }
 
             if (player == null)
                 return ;
 
             final ArrayList<UUID> ids = new ArrayList<>();
-            for (UUID plid : getTargetedBy(player.getUniqueId())) {
+            for (UUID plid : getTargetedBy(player.getUniqueId()))
+            {
                 ids.add(plid);
-                targets.remove(plid);
+                this.targets.remove(plid);
             }
 
-            if(!isDeathmatch())
+            if (!isDeathmatch())
             {
-                Bukkit.getScheduler().runTaskLaterAsynchronously(Dimensions.instance, () -> {
-                    if (status != Status.IN_GAME)
+                this.plugin.getServer().getScheduler().runTaskLaterAsynchronously(this.plugin, () ->
+                {
+                    if (this.status != Status.IN_GAME)
                         return ;
-                    for (UUID plid : ids) {
+                    for (UUID plid : ids)
+                    {
                         GamePlayer pl = getPlayer(plid);
                         if (pl == null)
                             continue ;
@@ -507,30 +536,28 @@ public class Arena extends Game<APlayer> {
 
                         Player target = getNewTarget(pl.getUUID());
                         Dimensions.interactListener.targetPlayer(p, target);
-                        p.sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD+" Votre cible est "+target.getDisplayName()+ChatColor.GOLD+". Tuez le pour gagner un bonus de coins !");
-                        p.sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD+" Votre boussole pointe désormais vers ce joueur. Faites clic gauche avec votre boussole pour la pointer vers lui à nouveau !");
+                        p.sendMessage(this.coherenceMachine.getGameTag() + ChatColor.GOLD + " Votre cible est " + target.getDisplayName() + ChatColor.GOLD + ". Tuez le pour gagner un bonus de coins !");
+                        p.sendMessage(this.coherenceMachine.getGameTag() + ChatColor.GOLD + " Votre boussole pointe désormais vers ce joueur. Faites clic gauche avec votre boussole pour la pointer vers lui à nouveau !");
                     }
-                }, 10*20L);
+                }, 200L);
             }
-        } else {
-            finish(FinishReason.WIN);
         }
-    }
-
-    public String getMapName() {
-        return mapName;
+        else
+            finish();
     }
 
     public boolean isPlaying(Player p)
     {
-        return hasPlayer(p) && !isSpectator(p);
+        return this.hasPlayer(p) && !this.isSpectator(p);
     }
 
-    public boolean isPVPEnabled() {
-        return isPVPEnabled;
+    public boolean isPVPEnabled()
+    {
+        return this.isPVPEnabled;
     }
 
-    public void resetPlayer(Player p) {
+    private void resetPlayer(Player p)
+    {
         p.setHealth(20.0);
         p.setMaxHealth(20.0);
         p.setSaturation(20);
@@ -549,35 +576,38 @@ public class Arena extends Game<APlayer> {
         p.getInventory().setBoots(new ItemStack(Material.AIR));
     }
 
-    public void tpMenu(final Player player) {
+    public void tpMenu(final Player player)
+    {
         double nb = getConnectedPlayers();
         double nSlots = Math.ceil(nb / 9) * 9;
-        SamaGamesAPI.get().getGuiManager().openGui(player, new AbstractGui(){
-
+        SamaGamesAPI.get().getGuiManager().openGui(player, new AbstractGui()
+        {
             @Override
             public void display(Player player)
             {
-                this.inventory = Bukkit.createInventory(null, (int) nSlots, ChatColor.GOLD + "Téléportation !");
+                this.inventory = Arena.this.plugin.getServer().createInventory(null, (int) nSlots, ChatColor.GOLD + "Téléportation !");
 
                 int slot = 0;
-                for (GamePlayer p : getInGamePlayers().values()) {
-                    DimensionsManager.Dimension dimension = dimensionsManager.dimensions.get(p.getUUID());
-                    String dimName = ChatColor.DARK_GREEN + dimensionsManager.overworldName;
+                for (GamePlayer p : getInGamePlayers().values())
+                {
+                    DimensionsManager.Dimension dimension = Arena.this.dimensionsManager.dimensions.get(p.getUUID());
+                    String dimName = ChatColor.DARK_GREEN + Arena.this.dimensionsManager.overworldName;
                     if (dimension != null && dimension == DimensionsManager.Dimension.PARALLEL)
-                        dimName = ChatColor.DARK_RED + dimensionsManager.hardName;
+                        dimName = ChatColor.DARK_RED + Arena.this.dimensionsManager.hardName;
 
                     Player bPlayer = p.getPlayerIfOnline();
                     if (bPlayer == null)
-                        continue;
+                        continue ;
 
                     String name = bPlayer.getDisplayName();
                     this.setSlotData(name,
                             new ItemStack(Material.STONE_SWORD),
                             slot,
-                            new String[]{
-                                    ChatColor.AQUA + ""+ ((int) Math.ceil(bPlayer.getHealth())) + ChatColor.GOLD + " points de vie",
-                                    ChatColor.GOLD + "Dimension : " + dimName
-                            },
+                            new String[]
+                                    {
+                                        ChatColor.AQUA + "" + ((int) Math.ceil(bPlayer.getHealth())) + ChatColor.GOLD + " points de vie",
+                                        ChatColor.GOLD + "Dimension : " + dimName
+                                    },
                             bPlayer.getUniqueId().toString());
                     slot++;
                 }
@@ -588,15 +618,16 @@ public class Arena extends Game<APlayer> {
             @Override
             public void onClick(Player player, ItemStack stack, String action)
             {
-                if (!action.equals("close")) {
+                if (!action.equals("close"))
+                {
                     UUID user = UUID.fromString(action);
                     Player player1 = getPlayer(user).getPlayerIfOnline();
-                    if (player1 != null) {
+                    if (player1 != null)
+                    {
                         player.teleport(player1);
                         player.sendMessage(ChatColor.GREEN + "Téléportation !");
-                    } else {
+                    } else
                         player.sendMessage(ChatColor.RED + "Le joueur n'est plus connecté.");
-                    }
                 }
 
                 SamaGamesAPI.get().getGuiManager().closeGui(player);
@@ -604,44 +635,47 @@ public class Arena extends Game<APlayer> {
         });
     }
 
-    public VObjective getObjectiveTab()
+    VObjective getObjectiveTab()
     {
-        return objectiveTab;
+        return this.objectiveTab;
     }
 
-    public UUID getTarget(UUID player) {
-        return targets.get(player);
+    public UUID getTarget(UUID player)
+    {
+        return this.targets.get(player);
     }
 
-    public List<UUID> getTargetedBy(UUID target) {
-        return targets.keySet().stream().filter(key -> targets.get(key) != null && targets.get(key).equals(target)).collect(Collectors.toList());
+    public List<UUID> getTargetedBy(UUID target)
+    {
+        return this.targets.keySet().stream().filter(key -> this.targets.get(key) != null && this.targets.get(key).equals(target)).collect(Collectors.toList());
     }
 
-    public Player getNewTarget(UUID player) {
-        return getNewTarget(player, 0);
+    public Player getNewTarget(UUID player)
+    {
+        return this.getNewTarget(player, 0);
     }
 
-    public Player getNewTarget(UUID player, int redundency) {
+    private Player getNewTarget(UUID player, int redundency)
+    {
         Random rnd = new Random();
 
         List<GamePlayer> players = new ArrayList<>(getInGamePlayers().values());
         GamePlayer target = players.get(rnd.nextInt(players.size()));
 
-        if (target.getUUID().equals(player) || target.getPlayerIfOnline() == null) {
+        if (target.getUUID().equals(player) || target.getPlayerIfOnline() == null)
+        {
             if (redundency <= 15)
-                return getNewTarget(player, redundency+1);
+                return getNewTarget(player, redundency + 1);
             else
                 return null;
         }
 
-        targets.put(player, target.getUUID());
+        this.targets.put(player, target.getUUID());
         return target.getPlayerIfOnline();
     }
 
-    public enum FinishReason {
-        END_OF_TIME,
-        WIN,
-        NO_PLAYERS
+    public Dimensions getPlugin()
+    {
+        return this.plugin;
     }
-
 }

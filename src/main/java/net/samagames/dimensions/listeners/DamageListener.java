@@ -8,7 +8,6 @@ import net.samagames.dimensions.arena.APlayer;
 import net.samagames.dimensions.arena.Arena;
 import net.samagames.dimensions.arena.DimensionsManager;
 import net.samagames.dimensions.utils.Metadatas;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
@@ -30,83 +29,89 @@ import java.util.stream.Collectors;
 
 /**
  * Created by zyuiop on 26/09/14.
+ * Updated by Rigner on 07/08/16.
  */
-public class DamageListener implements Listener {
+public class DamageListener implements Listener
+{
+    private Dimensions plugin;
+    private ICoherenceMachine coherenceMachine;
 
-    protected Dimensions plugin;
-
-    protected ICoherenceMachine coherenceMachine;
-
-    public DamageListener(Dimensions plugin) {
+    public DamageListener(Dimensions plugin)
+    {
         this.plugin = plugin;
 
-        coherenceMachine = SamaGamesAPI.get().getGameManager().getCoherenceMachine();
+        this.coherenceMachine = plugin.getArena().getCoherenceMachine();
     }
 
     @EventHandler
-    public void onDeath(final PlayerDeathEvent event) {
-        final Arena arena = plugin.getArena();
+    public void onDeath(final PlayerDeathEvent event)
+    {
+        final Arena arena = this.plugin.getArena();
         Player p = event.getEntity();
         p.setHealth(p.getMaxHealth());
 
         final List<ItemStack> remove = event.getDrops().stream().filter(stack -> stack.getType() == Material.COMPASS || stack.getType() == Material.EYE_OF_ENDER).collect(Collectors.toList());
-        for (final ItemStack rem : remove) {
+        for (final ItemStack rem : remove)
             event.getDrops().remove(rem);
-        }
 
         event.getDrops().remove(Dimensions.getCompass());
         event.getDrops().remove(Dimensions.getSwap());
 
-        if (!arena.hasPlayer(p)) {
-            return;
-        }
+        if (!arena.hasPlayer(p))
+            return ;
 
         event.setDeathMessage("");
         this.playerDie(event.getEntity());
-        arena.stumpPlayer(event.getEntity(), false);
+        arena.stumpPlayer(event.getEntity());
     }
 
-    private void playerDie(final Player dead) {
+    private void playerDie(final Player dead)
+    {
         final Object OlastDamager = Metadatas.getMetadata(dead, "lastDamager");
-        if (OlastDamager == null) {
-            Bukkit.broadcastMessage(coherenceMachine.getGameTag() + ChatColor.RED + " " + dead.getDisplayName() + " " + ChatColor.RED + "a été éliminé sans aide extérieure.");
-        }
-        else {
+        if (OlastDamager == null)
+            this.plugin.getServer().broadcastMessage(this.coherenceMachine.getGameTag() + ChatColor.RED + " " + dead.getDisplayName() + " " + ChatColor.RED + "a été éliminé sans aide extérieure.");
+        else
+        {
             final APlayer pplayer = (APlayer)OlastDamager;
             final UUID lastDamager = pplayer.getUUID();
             final Player killer = pplayer.getPlayerIfOnline();
-            if (killer == null || !this.plugin.getArena().isPlaying(killer)) {
-                Bukkit.broadcastMessage(coherenceMachine.getGameTag() + ChatColor.RED + " " + dead.getDisplayName() + " " + ChatColor.RED + "a été éliminé.");
-            }
-            else {
-                Bukkit.broadcastMessage(coherenceMachine.getGameTag() + ChatColor.RED + " " + dead.getDisplayName() + " " + ChatColor.RED + "a été tué par " + killer.getDisplayName() + ".");
+            if (killer == null || !this.plugin.getArena().isPlaying(killer))
+                this.plugin.getServer().broadcastMessage(this.coherenceMachine.getGameTag() + ChatColor.RED + " " + dead.getDisplayName() + " " + ChatColor.RED + "a été éliminé.");
+            else
+            {
+                this.plugin.getServer().broadcastMessage(this.coherenceMachine.getGameTag() + ChatColor.RED + " " + dead.getDisplayName() + " " + ChatColor.RED + "a été tué par " + killer.getDisplayName() + ".");
                 pplayer.addKill();
                 if(pplayer.getUUID().equals(killer.getUniqueId())) //USELESS
                 {
-                    Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
-                        Arena arena = plugin.getArena();
+                    this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
+                    {
+                        Arena arena = this.plugin.getArena();
                         arena.addCoins(killer, 20, "Un joueur tué !");
+
                         try
                         {
                             SamaGamesAPI.get().getStatsManager().getPlayerStats(lastDamager).getDimensionStatistics().incrByKills(1);
-                        } catch (Exception ignored) {}
-                        if (DamageListener.this.plugin.getArena().getTargetedBy(dead.getUniqueId()).contains(lastDamager) && !DamageListener.this.plugin.getArena().isDeathmatch()) {
+                        }
+                        catch (Exception ignored) {}
+
+                        if (DamageListener.this.plugin.getArena().getTargetedBy(dead.getUniqueId()).contains(lastDamager) && !DamageListener.this.plugin.getArena().isDeathmatch())
+                        {
                             killer.sendMessage(coherenceMachine.getGameTag() + ChatColor.GOLD + " Vous avez tué votre cible \\o/");
                             arena.addCoins(killer, 40, "Objectif réussi !");
                         }
-                        if (killer.getHealth() >= 1.0 && DamageListener.this.plugin.getArena().isPlaying(killer)) {
-                            final Integer healAtKill = pplayer.getHealAtKill();
-                            if (healAtKill != null) {
+                        if (killer.getHealth() >= 1.0 && DamageListener.this.plugin.getArena().isPlaying(killer))
+                        {
+                            int healAtKill = pplayer.getHealAtKill();
+                            if (healAtKill != 0)
+                            {
                                 double health = killer.getHealth() + healAtKill;
-                                if (health > killer.getMaxHealth()) {
+                                if (health > killer.getMaxHealth())
                                     health = killer.getMaxHealth();
-                                }
                                 killer.setHealth(health);
                             }
-                            final Integer strenghtAtKill = pplayer.getStrengthAtKill();
-                            if (strenghtAtKill != null) {
-                                Bukkit.getScheduler().runTask(plugin, () -> killer.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * strenghtAtKill, 1)));
-                            }
+                            int strengthAtKill = pplayer.getStrengthAtKill();
+                            if (strengthAtKill != 0)
+                                this.plugin.getServer().getScheduler().runTask(plugin, () -> killer.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 20 * strengthAtKill, 1)));
                         }
                     });
                 }
@@ -115,41 +120,42 @@ public class DamageListener implements Listener {
     }
 
     @EventHandler
-    public void onDamage(EntityDamageEvent ev) {
+    public void onDamage(EntityDamageEvent ev)
+    {
         if (ev.getCause() == EntityDamageEvent.DamageCause.WITHER)
-        {
             ev.setCancelled(true);
-        }
 
-        if(ev.getCause() == EntityDamageEvent.DamageCause.MAGIC)
-        {
-            if(!this.plugin.getArena().isPVPEnabled())
-            {
+        if (ev.getCause() == EntityDamageEvent.DamageCause.MAGIC && !this.plugin.getArena().isPVPEnabled())
                 ev.setCancelled(true);
-            }
-        }
     }
 
     @EventHandler
-    public void onRespawn(PlayerRespawnEvent ev) {
-        ev.setRespawnLocation(plugin.getArena().getWaitLocation());
-        plugin.getArena().respawnSpec(ev.getPlayer());
+    public void onRespawn(PlayerRespawnEvent ev)
+    {
+        ev.setRespawnLocation(this.plugin.getArena().getWaitLocation());
+        this.plugin.getArena().respawnSpec(ev.getPlayer());
     }
 
     @EventHandler
-    public void onDamage(EntityDamageByEntityEvent event) {
-        if (this.plugin.getArena().getStatus() == Status.REBOOTING) {
-            return;
-        }
+    public void onDamage(EntityDamageByEntityEvent event)
+    {
+        if (this.plugin.getArena().getStatus() == Status.REBOOTING)
+            return ;
 
-        if (event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
-            if (event.getEntity() instanceof Player) {
-                if (event.getDamager() instanceof Projectile) {
-                    Arena arena = plugin.getArena();
-                    if (((Projectile) event.getDamager()).getShooter() instanceof Player) {
-                        if (! arena.isPlaying((Player) ((Projectile) event.getDamager()).getShooter()) || ! arena.isPlaying((Player) event.getEntity()) || ! arena.isPVPEnabled()) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE)
+        {
+            if (event.getEntity() instanceof Player)
+            {
+                if (event.getDamager() instanceof Projectile)
+                {
+                    Arena arena = this.plugin.getArena();
+                    if (((Projectile) event.getDamager()).getShooter() instanceof Player)
+                    {
+                        if (!arena.isPlaying((Player) ((Projectile) event.getDamager()).getShooter())
+                                || !arena.isPlaying((Player) event.getEntity()) || ! arena.isPVPEnabled())
+                        {
                             event.setCancelled(true);
-                            return;
+                            return ;
                         }
                     }
                     this.damageByPlayer((Player)event.getEntity(), (Player)((Projectile)event.getDamager()).getShooter());
@@ -157,33 +163,38 @@ public class DamageListener implements Listener {
             }
         }
 
-        if (event.getEntity() instanceof Player) {
-            if (event.getDamager() instanceof Player) {
-                Arena arena = plugin.getArena();
-                if (!arena.isPlaying((Player) event.getDamager()) || !arena.isPlaying((Player) event.getEntity()) || !arena.isPVPEnabled()) {
+        if (event.getEntity() instanceof Player)
+        {
+            if (event.getDamager() instanceof Player)
+            {
+                Arena arena = this.plugin.getArena();
+                if (!arena.isPlaying((Player) event.getDamager()) || !arena.isPlaying((Player) event.getEntity()) || !arena.isPVPEnabled())
+                {
                     event.setCancelled(true);
-                    return;
+                    return ;
                 }
                 this.damageByPlayer((Player)event.getEntity(), (Player)event.getDamager());
             }
         }
     }
 
-    private void damageByPlayer(final Player damaged, final Player damager) {
-        APlayer aPlayer = plugin.getArena().getPlayer(damager.getUniqueId());
+    private void damageByPlayer(final Player damaged, final Player damager)
+    {
+        APlayer aPlayer = this.plugin.getArena().getPlayer(damager.getUniqueId());
         Metadatas.setMetadata(damaged, "lastDamager", aPlayer);
-        final Integer healAtStrike = aPlayer.getHealAtStrike();
-        if (healAtStrike != null) {
-            Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
-                if (damager.getHealth() < 1.0 || !DamageListener.this.plugin.getArena().isPlaying(damager)) {
+        int healAtStrike = aPlayer.getHealAtStrike();
+        if (healAtStrike != 0)
+        {
+            this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () ->
+            {
+                if (damager.getHealth() < 1.0 || !DamageListener.this.plugin.getArena().isPlaying(damager))
                     return;
-                }
                 final Random random = new Random();
-                if (random.nextInt(100) <= healAtStrike) {
+                if (random.nextInt(100) <= healAtStrike)
+                {
                     double h = damager.getHealth() + 2.0;
-                    if (h > damager.getMaxHealth()) {
+                    if (h > damager.getMaxHealth())
                         h = damager.getMaxHealth();
-                    }
                     damager.setHealth(h);
                     damager.sendMessage(ChatColor.GOLD + "" + ChatColor.ITALIC + "Une fée vous a restauré un coeur !");
                 }
@@ -192,22 +203,13 @@ public class DamageListener implements Listener {
     }
 
     @EventHandler
-    public void onRegainHealth(EntityRegainHealthEvent event) {
-        if (event.getEntity() instanceof Player) {
-            Arena arena = plugin.getArena();
-            if (arena.isPlaying((Player) event.getEntity())) {
-                if (arena.getDimensionsManager().getDimension((Player) event.getEntity()).equals(DimensionsManager.Dimension.PARALLEL))
-                    event.setCancelled(event.getRegainReason().equals(EntityRegainHealthEvent.RegainReason.SATIATED));
-            }
-        }
-    }
-
-    @EventHandler
-    public void onProjectileHit(final EntityDamageByEntityEvent event) {
-        final Entity entityDamager = event.getDamager();
-        final Entity entityDamaged = event.getEntity();
-        if (!(entityDamager instanceof Arrow) || !(entityDamaged instanceof Player) || ((Arrow)entityDamager).getShooter() instanceof Player) {
-            // FIXME: WHAT IS THIS SHIT?!
+    public void onRegainHealth(EntityRegainHealthEvent event)
+    {
+        if (event.getEntity() instanceof Player)
+        {
+            Arena arena = this.plugin.getArena();
+            if (arena.isPlaying((Player) event.getEntity()) && arena.getDimensionsManager().getDimension((Player) event.getEntity()).equals(DimensionsManager.Dimension.PARALLEL))
+                event.setCancelled(event.getRegainReason().equals(EntityRegainHealthEvent.RegainReason.SATIATED));
         }
     }
 }

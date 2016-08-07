@@ -1,6 +1,5 @@
 package net.samagames.dimensions.tasks;
 
-import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.themachine.ICoherenceMachine;
 import net.samagames.dimensions.arena.APlayer;
 import net.samagames.dimensions.arena.Arena;
@@ -10,50 +9,47 @@ import org.bukkit.Sound;
 
 /**
  * Created by zyuiop on 26/09/14.
+ * Updated by Rigner on 07/08/16.
  */
-public class PVPEnable implements Runnable {
+public class PVPEnable implements Runnable
+{
+    private Arena parent;
+    private int time = 121; // 2 Minutes
 
-    protected Arena parent;
-    protected int time = 121; // 2 Minutes
+    private ICoherenceMachine coherenceMachine;
 
-    protected ICoherenceMachine coherenceMachine;
-
-    public PVPEnable(Arena parentArena) {
+    public PVPEnable(Arena parentArena)
+    {
         this.parent = parentArena;
 
-        coherenceMachine = SamaGamesAPI.get().getGameManager().getCoherenceMachine();
+        this.coherenceMachine = parentArena.getCoherenceMachine();
     }
 
     @Override
-    public void run() {
-        time--;
+    public void run()
+    {
+        this.time--;
         timeBroadcast();
     }
 
-    public void timeBroadcast() {
-
-        if (time <= 0) {
-
-            for(APlayer aPlayer : parent.getInGamePlayers().values())
-            {
+    private void timeBroadcast()
+    {
+        if (this.time <= 0)
+        {
+            for (APlayer aPlayer : this.parent.getInGamePlayers().values())
                 aPlayer.getObjectiveInfo().setLine(1, ChatColor.GREEN + "Let's fight!");
-            }
 
-            parent.enablePVP();
-            return;
-        }else{
-            for(APlayer aPlayer : parent.getInGamePlayers().values())
-            {
+            this.parent.enablePVP();
+            return ;
+        }
+        else
+            for (APlayer aPlayer : this.parent.getInGamePlayers().values())
                 aPlayer.getObjectiveInfo().setLine(1, ChatColor.YELLOW + "PVP" + ChatColor.GRAY + ": " + ChatColor.WHITE + Utils.secondsToString(time));
-            }
-        }
 
-        if (time <= 5 || time == 10 || time == 30 || time == 60 || time == 120) {
-            coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.GOLD + "Le PVP sera activé dans " + time + " secondes !", true);
-        }
+        if (this.time <= 5 || this.time == 10 || this.time == 30 || this.time == 60 || this.time == 120)
+            this.coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.GOLD + "Le PVP sera activé dans " + this.time + " secondes !", true);
 
-        if (time <= 5 || time == 10) {
+        if (this.time <= 5 || this.time == 10)
             parent.broadcastSound(Sound.BLOCK_NOTE_HARP);
-        }
     }
 }

@@ -1,6 +1,5 @@
 package net.samagames.dimensions.tasks;
 
-import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.themachine.ICoherenceMachine;
 import net.samagames.dimensions.arena.APlayer;
 import net.samagames.dimensions.arena.Arena;
@@ -9,46 +8,44 @@ import org.bukkit.ChatColor;
 
 /**
  * Created by zyuiop on 26/09/14.
+ * Updated by Rigner on 07/08/16.
  */
-public class Deathmatch implements Runnable {
+public class Deathmatch implements Runnable
+{
+    private Arena parent;
+    private int time = 61; // 1 minute
 
-    protected Arena parent;
-    protected int time = 61; // 1 minute
+    private ICoherenceMachine coherenceMachine;
 
-    protected ICoherenceMachine coherenceMachine;
-
-    public Deathmatch(Arena parentArena) {
+    public Deathmatch(Arena parentArena)
+    {
         this.parent = parentArena;
 
-        coherenceMachine = SamaGamesAPI.get().getGameManager().getCoherenceMachine();
+        this.coherenceMachine = parentArena.getCoherenceMachine();
     }
 
     @Override
-    public void run() {
-        time--;
+    public void run()
+    {
+        this.time--;
         timeBroadcast();
     }
 
-    public void timeBroadcast() {
-
-        if (time <= 0) {
-
-            for(APlayer aPlayer : parent.getInGamePlayers().values())
-            {
-                aPlayer.getObjectiveInfo().setLine(1, ChatColor.GREEN + "Fight final!");
-            }
-
-            parent.startDeathMatch();
-            return;
-        }
-
-        for(APlayer aPlayer : parent.getInGamePlayers().values())
+    private void timeBroadcast()
+    {
+        if (this.time <= 0)
         {
-            aPlayer.getObjectiveInfo().setLine(1, ChatColor.YELLOW + "D.Match" + ChatColor.GRAY + ": " + ChatColor.WHITE + Utils.secondsToString(time));
+            for (APlayer aPlayer : this.parent.getInGamePlayers().values())
+                aPlayer.getObjectiveInfo().setLine(1, ChatColor.GREEN + "Fight final!");
+
+            this.parent.startDeathMatch();
+            return ;
         }
 
-        if (time <= 5 || time == 10 || time == 30 || time == 60) {
-            coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.DARK_RED + "Deathmatch dans " + ChatColor.RED + time + " seconde" + ((time > 1) ? "s" : "") + " !", true);
-        }
+        for (APlayer aPlayer : this.parent.getInGamePlayers().values())
+            aPlayer.getObjectiveInfo().setLine(1, ChatColor.YELLOW + "D.Match" + ChatColor.GRAY + ": " + ChatColor.WHITE + Utils.secondsToString(this.time));
+
+        if (this.time <= 5 || this.time == 10 || this.time == 30 || this.time == 60)
+            this.coherenceMachine.getMessageManager().writeCustomMessage(ChatColor.DARK_RED + "Deathmatch dans " + ChatColor.RED + this.time + " seconde" + ((this.time > 1) ? "s" : "") + " !", true);
     }
 }

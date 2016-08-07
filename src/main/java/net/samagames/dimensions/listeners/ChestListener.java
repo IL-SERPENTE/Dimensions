@@ -26,17 +26,21 @@ import org.bukkit.potion.PotionType;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 /**
  * Created by zyuiop on 26/09/14.
+ * Updated by Rigner on 07/08/16.
  */
-public class ChestListener implements Listener {
+public class ChestListener implements Listener
+{
+    private List<RandomItem> items = new ArrayList<>();
+    private Dimensions plugin;
 
-    protected Dimensions plugin;
-    protected ArrayList<RandomItem> items = new ArrayList<>();
-
-    public ChestListener(Dimensions plugin) {
+    @SuppressWarnings("deprecation")
+    public ChestListener(Dimensions plugin)
+    {
         this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
@@ -48,43 +52,43 @@ public class ChestListener implements Listener {
         this.registerItem(new RandomItem(new ItemStack(Material.LEATHER_CHESTPLATE, 1), 1500));
         this.registerItem(new RandomItem(new ItemStack(Material.LEATHER_HELMET, 1), 1500));
 
-        registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_HELMET, 1), 1000));
-        registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_BOOTS, 1), 1300));
-        registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_CHESTPLATE, 1), 1000));
-        registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_LEGGINGS, 1), 1000));
+        this.registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_HELMET, 1), 1000));
+        this.registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_BOOTS, 1), 1300));
+        this.registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_CHESTPLATE, 1), 1000));
+        this.registerItem(new RandomItem(new ItemStack(Material.CHAINMAIL_LEGGINGS, 1), 1000));
 
-        registerItem(new RandomItem(new ItemStack(Material.IRON_LEGGINGS, 1), 500));
-        registerItem(new RandomItem(new ItemStack(Material.IRON_BOOTS, 1), 500));
-        registerItem(new RandomItem(new ItemStack(Material.IRON_CHESTPLATE, 1), 500));
-        registerItem(new RandomItem(new ItemStack(Material.IRON_HELMET, 1), 500));
+        this.registerItem(new RandomItem(new ItemStack(Material.IRON_LEGGINGS, 1), 500));
+        this.registerItem(new RandomItem(new ItemStack(Material.IRON_BOOTS, 1), 500));
+        this.registerItem(new RandomItem(new ItemStack(Material.IRON_CHESTPLATE, 1), 500));
+        this.registerItem(new RandomItem(new ItemStack(Material.IRON_HELMET, 1), 500));
 
         // OUTILS ET ARMES //
-        registerItem(new RandomItem(new ItemStack(Material.STONE_PICKAXE, 1), 2000));
-        registerItem(new RandomItem(new ItemStack(Material.STONE_SWORD, 1), 2000));
-        registerItem(new RandomItem(new ItemStack(Material.STONE_AXE, 1), 2000));
-        registerItem(new RandomItem(new ItemStack(Material.IRON_SWORD, 1), 500));
-        registerItem(new RandomItem(new ItemStack(Material.DIAMOND_SWORD, 1), 50));
+        this.registerItem(new RandomItem(new ItemStack(Material.STONE_PICKAXE, 1), 2000));
+        this.registerItem(new RandomItem(new ItemStack(Material.STONE_SWORD, 1), 2000));
+        this.registerItem(new RandomItem(new ItemStack(Material.STONE_AXE, 1), 2000));
+        this.registerItem(new RandomItem(new ItemStack(Material.IRON_SWORD, 1), 500));
+        this.registerItem(new RandomItem(new ItemStack(Material.DIAMOND_SWORD, 1), 50));
 
         // RESSOURCES //
-        registerItem(new RandomItem(new ItemStack(Material.IRON_INGOT), 1500, new int[]{1, 2, 3, 4, 5}));
-        registerItem(new RandomItem(new ItemStack(Material.DIAMOND), 50, new int[]{1,2,3}));
-        registerItem(new RandomItem(new ItemStack(Material.BAKED_POTATO), 3000, new int[]{4, 5, 6, 7, 8, 9, 10}));
-        registerItem(new RandomItem(new ItemStack(Material.COOKED_BEEF), 3000, new int[]{2, 3, 4, 5}));
-        registerItem(new RandomItem(new ItemStack(Material.EXP_BOTTLE), 1000, new int[]{4, 5, 6, 7}));
+        this.registerItem(new RandomItem(new ItemStack(Material.IRON_INGOT), 1500, new int[]{1, 2, 3, 4, 5}));
+        this.registerItem(new RandomItem(new ItemStack(Material.DIAMOND), 50, new int[]{1,2,3}));
+        this.registerItem(new RandomItem(new ItemStack(Material.BAKED_POTATO), 3000, new int[]{4, 5, 6, 7, 8, 9, 10}));
+        this.registerItem(new RandomItem(new ItemStack(Material.COOKED_BEEF), 3000, new int[]{2, 3, 4, 5}));
+        this.registerItem(new RandomItem(new ItemStack(Material.EXP_BOTTLE), 1000, new int[]{4, 5, 6, 7}));
         final Dye dye = new Dye();
         dye.setColor(DyeColor.BLUE);
         this.registerItem(new RandomItem(dye.toItemStack(), 1300, new int[]{3, 4, 5, 6, 7, 8}));
-        registerItem(new RandomItem(new ItemStack(Material.LOG), 2000, new int[]{2, 3, 4}));
-        registerItem(new RandomItem(new ItemStack(Material.BOW), 1000));
-        registerItem(new RandomItem(new ItemStack(Material.FLINT), 1000, new int[]{2, 3}));
-        registerItem(new RandomItem(new ItemStack(Material.COBBLESTONE), 1500, new int[]{3, 4, 5, 6}));
+        this.registerItem(new RandomItem(new ItemStack(Material.LOG), 2000, new int[]{2, 3, 4}));
+        this.registerItem(new RandomItem(new ItemStack(Material.BOW), 1000));
+        this.registerItem(new RandomItem(new ItemStack(Material.FLINT), 1000, new int[]{2, 3}));
+        this.registerItem(new RandomItem(new ItemStack(Material.COBBLESTONE), 1500, new int[]{3, 4, 5, 6}));
 
         // POTIONS //
-        registerItem(new RandomItem(new Potion(PotionType.INSTANT_HEAL).splash().toItemStack(1), 300));
-        registerItem(new RandomItem(new Potion(PotionType.REGEN).toItemStack(1), 100));
-        registerItem(new RandomItem(new Potion(PotionType.POISON).splash().toItemStack(1), 500));
-        registerItem(new RandomItem(new Potion(PotionType.INSTANT_DAMAGE).splash().toItemStack(1), 500));
-        registerItem(new RandomItem(new Potion(PotionType.SPEED).toItemStack(1), 500));
+        this.registerItem(new RandomItem(new Potion(PotionType.INSTANT_HEAL).splash().toItemStack(1), 300));
+        this.registerItem(new RandomItem(new Potion(PotionType.REGEN).toItemStack(1), 100));
+        this.registerItem(new RandomItem(new Potion(PotionType.POISON).splash().toItemStack(1), 500));
+        this.registerItem(new RandomItem(new Potion(PotionType.INSTANT_DAMAGE).splash().toItemStack(1), 500));
+        this.registerItem(new RandomItem(new Potion(PotionType.SPEED).toItemStack(1), 500));
 
         // Enchants
         ItemStack sharpness = new ItemStack(Material.ENCHANTED_BOOK);
@@ -97,30 +101,30 @@ public class ChestListener implements Listener {
         meta.addStoredEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, false);
         protection.setItemMeta(meta);
 
-        registerItem(new RandomItem(sharpness, 500));
-        registerItem(new RandomItem(protection, 500));
+        this.registerItem(new RandomItem(sharpness, 500));
+        this.registerItem(new RandomItem(protection, 500));
 
         ItemStack bow = new ItemStack(Material.BOW);
         bow.addEnchantment(Enchantment.ARROW_DAMAGE, 1);
-        registerItem(new RandomItem(bow, 300));
+        this.registerItem(new RandomItem(bow, 300));
         // MISC //
-        registerItem(new RandomItem(new ItemStack(Material.ARROW), 3000, new int[]{3, 4, 5, 6, 7, 8, 9, 10}));
-        registerItem(new RandomItem(new ItemStack(Material.GOLDEN_APPLE), 100));
-        registerItem(new RandomItem(new ItemStack(Material.TNT), 500, new int[]{1, 2, 3}));
-        registerItem(new RandomItem(new ItemStack(Material.APPLE), 1000));
+        this.registerItem(new RandomItem(new ItemStack(Material.ARROW), 3000, new int[]{3, 4, 5, 6, 7, 8, 9, 10}));
+        this.registerItem(new RandomItem(new ItemStack(Material.GOLDEN_APPLE), 100));
+        this.registerItem(new RandomItem(new ItemStack(Material.TNT), 500, new int[]{1, 2, 3}));
+        this.registerItem(new RandomItem(new ItemStack(Material.APPLE), 1000));
 
         ItemStack axe = new ItemStack(Material.IRON_AXE);
         ItemMeta imeta = axe.getItemMeta();
-        imeta.setDisplayName(ChatColor.GOLD+"Hache du Troll des Cavernes");
+        imeta.setDisplayName(ChatColor.GOLD + "Hache du Troll des Cavernes");
         axe.setItemMeta(imeta);
         axe.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 2);
         axe.addUnsafeEnchantment(Enchantment.FIRE_ASPECT, 1);
         axe.addUnsafeEnchantment(Enchantment.DURABILITY, 2);
-        registerItem(new RandomItem(axe, 5));
-        registerItem(new RandomItem(new ItemStack(Material.GOLDEN_APPLE, 1, (short)1), 2));
+        this.registerItem(new RandomItem(axe, 5));
+        this.registerItem(new RandomItem(new ItemStack(Material.GOLDEN_APPLE, 1, (short)1), 2));
     }
 
-    public static void launchfw(Location loc, final FireworkEffect effect)
+    private static void launchfw(Dimensions plugin, Location loc, final FireworkEffect effect)
     {
         loc = loc.add(0.5,0.5,0.5);
         final Firework fw = (Firework) loc.getWorld().spawnEntity(loc, EntityType.FIREWORK);
@@ -128,36 +132,42 @@ public class ChestListener implements Listener {
         fwm.addEffect(effect);
         fwm.setPower(0);
         fw.setFireworkMeta(fwm);
-        Bukkit.getScheduler().runTaskLater(Dimensions.instance, fw::detonate, 2);
+        plugin.getServer().getScheduler().runTaskLater(Dimensions.instance, fw::detonate, 2);
     }
 
-    public void registerItem(RandomItem item) {
+    private void registerItem(RandomItem item)
+    {
         this.items.add(item);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onChestOpen(PlayerInteractEvent event) {
-        if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK) && event.getClickedBlock().getType().equals(Material.CHEST)) {
+    public void onChestOpen(PlayerInteractEvent event)
+    {
+        if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK) && event.getClickedBlock().getType().equals(Material.CHEST))
+        {
             Chest chest = (Chest) event.getClickedBlock().getState();
 
             Boolean wasOpened = (Boolean) Metadatas.getMetadata(chest, "opened");
-            if (wasOpened == null || !wasOpened) {
+            if (wasOpened == null || !wasOpened)
+            {
                 Metadatas.setMetadata(chest, "opened", true);
 
                 // Ici, on set le contenu du coffre
                 Inventory inv = chest.getInventory();
                 inv.clear();
 
-                Collections.shuffle(items); // On shuffle a chaque fois. Si trop long faudra passer en async
+                Collections.shuffle(this.items); // On shuffle a chaque fois. Si trop long faudra passer en async
                 int addedItems = 0;
                 Random rnd = new Random();
                 int slot = 0;
-                for (RandomItem item : items) {
+                for (RandomItem item : this.items)
+                {
                     if (addedItems > 20)
-                        break;
+                        break ;
 
                     int freq = item.getFrequency();
-                    if (rnd.nextInt(10000) <= freq) {
+                    if (rnd.nextInt(10000) <= freq)
+                    {
                         ItemStack stack = item.getItem();
                         stack.setAmount(item.getQuantity());
                         while (inv.getItem(slot) != null)
@@ -170,17 +180,18 @@ public class ChestListener implements Listener {
                     if (slot > 26)
                         slot = 0;
                 }
-
             }
         }
     }
 
     @EventHandler
-    public void onInventoryClose(final InventoryCloseEvent event) {
+    public void onInventoryClose(final InventoryCloseEvent event)
+    {
         final InventoryHolder holder = event.getInventory().getHolder();
-        if (holder instanceof Chest) {
+        if (holder instanceof Chest)
+        {
             final Chest chest = (Chest)holder;
-            launchfw(chest.getLocation(), FireworkEffect.builder().withColor(new Color[] { Color.WHITE, Color.GRAY, Color.BLACK }).with(FireworkEffect.Type.STAR).build());
+            launchfw(this.plugin, chest.getLocation(), FireworkEffect.builder().withColor(new Color[] { Color.WHITE, Color.GRAY, Color.BLACK }).with(FireworkEffect.Type.STAR).build());
             chest.getBlock().setType(Material.AIR);
         }
     }
