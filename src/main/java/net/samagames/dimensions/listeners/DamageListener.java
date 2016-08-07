@@ -6,6 +6,7 @@ import net.samagames.api.games.themachine.ICoherenceMachine;
 import net.samagames.dimensions.Dimensions;
 import net.samagames.dimensions.arena.APlayer;
 import net.samagames.dimensions.arena.Arena;
+import net.samagames.dimensions.arena.ArenaStatisticsHelper;
 import net.samagames.dimensions.arena.DimensionsManager;
 import net.samagames.dimensions.utils.Metadatas;
 import org.bukkit.ChatColor;
@@ -90,7 +91,7 @@ public class DamageListener implements Listener
 
                         try
                         {
-                            SamaGamesAPI.get().getStatsManager().getPlayerStats(lastDamager).getDimensionStatistics().incrByKills(1);
+                            ((ArenaStatisticsHelper) SamaGamesAPI.get().getGameManager().getGameStatisticsHelper()).increaseKills(killer.getUniqueId());
                         }
                         catch (Exception ignored) {}
 

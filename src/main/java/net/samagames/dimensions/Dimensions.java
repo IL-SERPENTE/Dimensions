@@ -4,6 +4,7 @@ import net.samagames.api.SamaGamesAPI;
 import net.samagames.api.games.GamesNames;
 import net.samagames.api.games.Status;
 import net.samagames.dimensions.arena.Arena;
+import net.samagames.dimensions.arena.ArenaStatisticsHelper;
 import net.samagames.dimensions.listeners.ChestListener;
 import net.samagames.dimensions.listeners.DamageListener;
 import net.samagames.dimensions.listeners.InteractListener;
@@ -19,7 +20,6 @@ public class Dimensions extends JavaPlugin
     public static Dimensions instance;
     public static InteractListener interactListener;
     public Arena arena;
-    private boolean testMode = false;
 
     public static ItemStack getCompass()
     {
@@ -42,10 +42,12 @@ public class Dimensions extends JavaPlugin
     @Override
     public void onEnable()
     {
-        this.testMode = false;
-
         this.arena = new Arena(this);
 
+        SamaGamesAPI.get().getGameManager().registerGame(this.arena);
+        this.arena = new Arena(this);
+
+        SamaGamesAPI.get().getGameManager().setGameStatisticsHelper(new ArenaStatisticsHelper());
         SamaGamesAPI.get().getGameManager().registerGame(this.arena);
 
         // Initialisation des listeners
