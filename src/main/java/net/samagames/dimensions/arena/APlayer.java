@@ -47,11 +47,15 @@ public class APlayer extends GamePlayer
 
         this.healAtStrike = getData(shopsManager, new int[]{ 127, 128, 129, 130, 131, 132, 133 });
 
-        this.healAtKill = getData(shopsManager, new int[]{ 122, 123, 124, 125, 126 });
+        this.healAtKill = getData(shopsManager, new int[]{ 122, 123, 124, 125, 126 }) * 2;
 
         this.tpTime = getData(shopsManager, new int[]{ 117, 118, 119, 120, 121 });
 
-        this.tpTime = new float[]{14, 14, 12, 10, 8, 7}[(int)this.tpTime];
+        this.strengthAtKill = new int[]{ 3, 3, 5, 7, 9, 10, 11 }[this.strengthAtKill];
+
+        this.healAtStrike = new int[]{ 2, 2, 4, 6, 7, 8, 9, 10 }[this.healAtStrike];
+
+        this.tpTime = new float[]{ 14, 14, 12, 10, 8, 7 }[(int)this.tpTime];
     }
 
     private int getData(IPlayerShop playerShop, int[] items)
