@@ -45,10 +45,7 @@ public class Dimensions extends JavaPlugin
         this.arena = new Arena(this);
 
         SamaGamesAPI.get().getGameManager().registerGame(this.arena);
-        this.arena = new Arena(this);
-
         SamaGamesAPI.get().getGameManager().setGameStatisticsHelper(new ArenaStatisticsHelper());
-        SamaGamesAPI.get().getGameManager().registerGame(this.arena);
 
         // Initialisation des listeners
         Dimensions.interactListener = new InteractListener(this);
