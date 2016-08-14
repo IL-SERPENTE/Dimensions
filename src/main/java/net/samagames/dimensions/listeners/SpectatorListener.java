@@ -6,7 +6,6 @@ import net.samagames.dimensions.arena.Arena;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -153,27 +152,6 @@ public class SpectatorListener implements Listener
     public void onExplode(EntityExplodeEvent ev)
     {
         ev.blockList().clear();
-    }
-
-    @EventHandler
-    public void onMove(PlayerMoveEvent e)
-    {
-        if ((this.arena.hasPlayer(e.getPlayer()) && !this.arena.isSpectator(e.getPlayer())))
-            return;
-
-        if (!this.arena.isInGame())
-            return;
-
-        List<Entity> entities = e.getPlayer().getNearbyEntities(1, 1, 1);
-        entities.stream().filter(ent -> ent instanceof Player).forEach(ent ->
-        {
-            Player near = (Player) ent;
-            if ((this.arena.hasPlayer(near) && !this.arena.isSpectator(near)))
-            {
-                e.getPlayer().sendMessage(ChatColor.RED + "Merci de ne pas tourner autour des joueurs !");
-                e.getPlayer().setVelocity(e.getPlayer().getLocation().getDirection().multiply(-1));
-            }
-        });
     }
 
     @EventHandler
