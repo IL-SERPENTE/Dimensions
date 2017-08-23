@@ -3,12 +3,21 @@ package net.samagames.dimensions.utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
-/**
- * This file is a part of the SamaGames Project CodeBase
- * This code is absolutely confidential.
- * Created by Geekpower14 on 09/08/2015.
- * (C) Copyright Elydra Network 2014 & 2015
- * All rights reserved.
+/*
+ * This file is part of Dimensions.
+ *
+ * Dimensions is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Dimensions is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Dimensions.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class Utils
 {

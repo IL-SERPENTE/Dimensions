@@ -30,13 +30,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-/**
-<<<<<<< HEAD
- * Created by zyuiop on 26/09/14.
- * Updated by Rigner on 07/08/16.
-=======
- * Updated by Reelwens on 28/07/16.
->>>>>>> 03187a1806c2292b1fb62e6add6c46eadd2d69df
+/*
+ * This file is part of Dimensions.
+ *
+ * Dimensions is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Dimensions is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Dimensions.  If not, see <http://www.gnu.org/licenses/>.
  */
 public class ChestListener implements Listener
 {
